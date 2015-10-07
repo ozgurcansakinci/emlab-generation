@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,9 +42,9 @@ import emlab.gen.role.AbstractEnergyProducerRole;
 
 /**
  * {@link EnergyProducer} submits offers to the {@link ElectricitySpotMarket}. One {@link Bid} per {@link PowerPlant}.
- * 
+ *
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a> @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
- * 
+ *
  */
 @RoleComponent
 public class SubmitOffersToElectricitySpotMarketRole extends AbstractEnergyProducerRole<EnergyProducer> implements
@@ -92,6 +92,11 @@ Role<EnergyProducer> {
         // find all my operating power plants
         for (PowerPlant plant : powerPlants) {
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            logger.warn("1 Name:  " + plant.getName() + "   Technology:   " + plant.getTechnology() + " full capacity "
+                    + plant.getActualNominalCapacity());
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             if (producerIsNull) {
                 market = reps.marketRepository.findElectricitySpotMarketForZone(plant.getLocation().getZone());
                 producer = plant.getOwner();
@@ -119,6 +124,11 @@ Role<EnergyProducer> {
                 }
 
                 logger.info("I bid capacity: {} and price: {}", capacity, mc);
+
+                logger.warn("Capacity is:" + capacity);
+                logger.warn("Price is:" + mc);
+                // logger.warn("Full capacity is" +
+                // plant.getvailableCapacity(tick));
 
                 PowerPlantDispatchPlan plan = reps.powerPlantDispatchPlanRepository
                         .findOnePowerPlantDispatchPlanForPowerPlantForSegmentForTime(plant, segment, tick, forecast);

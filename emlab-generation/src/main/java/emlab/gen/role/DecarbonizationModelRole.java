@@ -40,6 +40,7 @@ import emlab.gen.role.co2policy.RenewableAdaptiveCO2CapRole;
 import emlab.gen.role.investment.DismantlePowerPlantPastTechnicalLifetimeRole;
 import emlab.gen.role.investment.GenericInvestmentRole;
 import emlab.gen.role.market.ClearCommodityMarketRole;
+import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
 import emlab.gen.role.market.CreatingFinancialReports;
 import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
@@ -115,6 +116,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private DetermineResidualLoadCurvesForTwoCountriesRole determineResidualLoadCurve;
     @Autowired
     private CreatingFinancialReports creatingFinancialReports;
+    @Autowired
+    private ClearHourlyElectricityMarketRole cem;
 
     @Autowired
     Reps reps;
@@ -194,10 +197,16 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.reset();
         timerMarket.start();
         logger.warn("  3. Submitting offers to market");
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             submitOffersToElectricitySpotMarketRole.act(producer);
             // producer.act(submitOffersToElectricitySpotMarketRole);
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
@@ -230,6 +239,14 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         timerMarket.reset();
         timerMarket.start();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        logger.warn("executing matrix code");
+        cem.act(model);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         logger.warn("  4. Clearing electricity spot and CO2 markets");
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole.act(model);
         // model.act(clearIterativeCO2AndElectricitySpotMarketTwoCountryRole);

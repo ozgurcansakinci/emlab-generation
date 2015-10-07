@@ -258,7 +258,9 @@ public abstract class AbstractClearElectricitySpotMarketRole<T extends Decarboni
     }
 
     /**
-     * Clears a the global market, under the assumption that no capacity constraints apply, and that demand is fixed in that segment. Has been taken out of the main function, to make it transactional.
+     * Clears the global market, under the assumption that no capacity
+     * constraints apply, and that demand is fixed in that segment. Has been
+     * taken out of the main function, to make it transactional.
      *
      * @param segment
      * @param markets
