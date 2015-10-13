@@ -145,7 +145,6 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                         double actualOM = (calculatedOM - (plant.getTechnology().getVariableOperatingCostinEURPerMWh() * 8760 * plant
                                 .getTechnology().getCapacity()))
                                 + (plant.getTechnology().getVariableOperatingCostinEURPerMWh() * energyGenerated);
-
                         cost = cost + plantMarginalCost + actualOM;
                         profit = (revenue - cost);
 
@@ -332,7 +331,9 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
                     totalProfit = (sumProfit - ((OM - (plant.getTechnology().getVariableOperatingCostinEURPerMWh() * 8760 * plant
                             .getTechnology().getCapacity())) + (plant.getTechnology()
-                            .getVariableOperatingCostinEURPerMWh() * energy)));
+                            .getVariableOperatingCostinEURPerMWh() * energy)))
+                            / (plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime()) * plant
+                                    .getActualNominalCapacity());
 
                     // logger.warn("2 Range " + (range1*mc));
 

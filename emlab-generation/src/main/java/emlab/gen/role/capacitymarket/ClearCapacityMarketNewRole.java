@@ -118,6 +118,7 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                                         .getPrice() * (upperMargin - lowerMargin)) / marketCap))));
                         if (tempAcceptedAmount >= 0) {
                             currentCDP.setStatus(Bid.PARTLY_ACCEPTED);
+                            logger.warn("Bid:" + currentCDP.getStatus());
                             currentCDP
                                     .setAcceptedAmount(currentCDP.getAmount()
                                             - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin) - ((currentCDP
@@ -125,6 +126,7 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                             clearingPrice = currentCDP.getPrice();
                             totalContractedCapacity = totalContractedCapacity + currentCDP.getAcceptedAmount();
                             isTheMarketCleared = true;
+                            currentCDP.persist();
                         }
                         if (tempAcceptedAmount < 0) {
                             clearingPrice = -(marketCap / (upperMargin - lowerMargin))

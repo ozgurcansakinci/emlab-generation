@@ -15,7 +15,6 @@
  ******************************************************************************/
 package emlab.gen.role.capacitymarket;
 
-import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +73,7 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                     mc = calculateMarginalCostExclCO2MarketCost(plant, getCurrentTick());
                 }
 
-                double fixedOnMCost = plant.getActualFixedOperatingCost() / plant.getTechnology().getCapacity();
+                double fixedOnMCost = plant.getActualFixedOperatingCost();
 
                 // logger.warn("Bid calculation for PowerPlant " +
                 // plant.getName());
@@ -83,36 +82,18 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                 // logger.warn("CapacityMarket is  " + market.getName());
 
                 for (SegmentLoad segmentLoad : eMarket.getLoadDurationCurve()) {
-                    SimpleRegression sr = new SimpleRegression();
                     double segmentClearingPoint = 0;
-                    long time = 0l;
-                    for (time = getCurrentTick() - 1; time > getCurrentTick()
-                            - plant.getOwner().getNumberOfYearsBacklookingForForecasting()
-                            && time > 0; time = time - 1) {
 
-                        double eprice = 0;
-
-                        eprice = reps.segmentClearingPointRepository.findSegmentClearingPointForMarketSegmentAndTime(
-                                time, segmentLoad.getSegment(), eMarket, false).getPrice();
-                        sr.addData(time, eprice);
-
-                    }
-                    if (getCurrentTick() > 2) {
-                        double tempSCP = (sr.predict(getCurrentTick()));
-                        if (tempSCP < 0) {
-                            segmentClearingPoint = 0;
-                        } else {
-                            segmentClearingPoint = (sr.predict(getCurrentTick()));
-                        }
-
+                    if (getCurrentTick() > 0) {
+                        segmentClearingPoint = reps.segmentClearingPointRepository
+                                .findSegmentClearingPointForMarketSegmentAndTime(getCurrentTick() - 1,
+                                        segmentLoad.getSegment(), eMarket, false).getPrice();
                     } else {
-                        if (getCurrentTick() <= 2) {
-                            segmentClearingPoint = reps.segmentClearingPointRepository
-                                    .findSegmentClearingPointForMarketSegmentAndTime(getCurrentTick() - 1,
-                                            segmentLoad.getSegment(), eMarket, false).getPrice();
+                        if (getCurrentTick() == 0) {
+                            segmentClearingPoint = 0;
                         }
-                    }
 
+                    }
                     double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability()) + (((plant
                             .getTechnology().getBaseSegmentDependentAvailability() - plant.getTechnology()
                             .getPeakSegmentDependentAvailability()) / ((double) (reps.segmentRepository
@@ -123,18 +104,25 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                         expectedElectricityRevenues = expectedElectricityRevenues
                                 + ((segmentClearingPoint - mc) * plant.getActualNominalCapacity() * plantLoadFactor * segmentLoad
                                         .getSegment().getLengthInHours());
-
                     }
 
                 }
 
-                netRevenues = (expectedElectricityRevenues / plant.getActualNominalCapacity()) - fixedOnMCost;
-
-                if (netRevenues >= 0) {
-                    bidPrice = 0d;
-                    // } else if (mcCapacity <= fixedOnMCost) {
+                netRevenues = (expectedElectricityRevenues) - fixedOnMCost;
+                if (getCurrentTick() > 0) {
+                    if (netRevenues >= 0) {
+                        bidPrice = 0d;
+                        // } else if (mcCapacity <= fixedOnMCost) {
+                    } else {
+                        bidPrice = netRevenues
+                                * (-1)
+                                / (plant.getActualNominalCapacity() * plant.getTechnology()
+                                        .getPeakSegmentDependentAvailability());
+                    }
                 } else {
-                    bidPrice = netRevenues * (-1);
+                    if (getCurrentTick() == 0) {
+                        bidPrice = 0;
+                    }
                 }
 
                 double capacity = plant.getActualNominalCapacity()

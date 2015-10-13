@@ -326,15 +326,8 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
                                     futureTimePoint);
 
                             TargetInvestor tInvestor = reps.targetInvestorRepository.findInvestorByMarket(market);
-                            for (PowerPlant resPlant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(
-                                    tInvestor, futureTimePoint)) {
-                                resPeakCapacity = resPeakCapacity
-                                        + (resPlant.getActualNominalCapacity() * resPlant.getTechnology()
-                                                .getPeakSegmentDependentAvailability());
-                            }
 
                             totalPeakCapacityAtFuturePoint = totalPeakCapacityAtFuturePoint
-                                    - resPeakCapacity
                                     + (plant.getActualNominalCapacity() * plant.getTechnology()
                                             .getPeakSegmentDependentAvailability());
 

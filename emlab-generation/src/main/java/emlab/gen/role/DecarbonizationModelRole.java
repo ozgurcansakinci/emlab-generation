@@ -202,7 +202,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
          * market) from previous tick
          */
 
-        if ((getCurrentTick() > 0) && (model.isSimpleCapacityMarketEnabled())) {
+        if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
             timerMarket.reset();
             timerMarket.start();
             logger.warn(" 2a. Run Simple Capacity Market");

@@ -42,7 +42,7 @@ public interface CapacityMarketRepository extends GraphRepository<CapacityMarket
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.capacity.CapacityDispatchPlan']].filter{it.time == tick}.sort{it.price}._()", type = QueryType.Gremlin)
     public Iterable<CapacityDispatchPlan> findAllSortedCapacityDispatchPlansByTime(@Param("tick") long time);
 
-    @Query(value = "g.v(market).in('BIDDINGMARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time).propertyFilter('status', FilterPipe.Filter.GREATER_THAN, 2)", type = QueryType.Gremlin)
+    @Query(value = "g.v(market).in('BIDDINGMARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time).propertyFilter('status', FilterPipe.Filter.GREATER_THAN, 1)", type = QueryType.Gremlin)
     public Iterable<CapacityDispatchPlan> findAllAcceptedCapacityDispatchPlansForTime(
             @Param("market") CapacityMarket capacityMarket, @Param("time") long time);
 
