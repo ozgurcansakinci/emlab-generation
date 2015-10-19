@@ -114,8 +114,7 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                         bidPrice = 0d;
                         // } else if (mcCapacity <= fixedOnMCost) {
                     } else {
-                        bidPrice = netRevenues
-                                * (-1)
+                        bidPrice = (netRevenues * (-1))
                                 / (plant.getActualNominalCapacity() * plant.getTechnology()
                                         .getPeakSegmentDependentAvailability());
                     }

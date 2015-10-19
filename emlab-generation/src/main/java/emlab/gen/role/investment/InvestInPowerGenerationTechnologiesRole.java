@@ -299,14 +299,17 @@ public class InvestInPowerGenerationTechnologiesRole<T extends EnergyProducer> e
                             double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
                             double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
                             double marketCap = regulator.getCapacityMarketPriceCap();
+                            double demandTarget = regulator.getDemandTarget() / reserveMargin;
 
                             capacityRevenue = (-(marketCap / (upperMargin - lowerMargin)) * ((totalPeakCapacityAtFuturePoint / totalPeakDemandAtFuturePoint) - upperMargin))
                                     * plant.getTechnology().getCapacity()
                                     * plant.getTechnology().getPeakSegmentDependentAvailability();
+
                         }
                         if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
                                 .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
                             capacityRevenue = 0;
+
                         }
                     } else {
                         capacityRevenue = 0;
