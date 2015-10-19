@@ -28,8 +28,10 @@ import agentspring.role.AbstractRole;
 import agentspring.role.RoleComponent;
 import emlab.gen.domain.agent.CommoditySupplier;
 import emlab.gen.domain.agent.Government;
+import emlab.gen.domain.agent.Regulator;
 import emlab.gen.domain.contract.CashFlow;
 import emlab.gen.domain.contract.Loan;
+import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.ClearingPoint;
 import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
@@ -347,13 +349,49 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     // &&
                     // yIterator > 0; yIterator++) {
                     // counter += 1;
+
+                    double totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
+                            .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market, getCurrentTick());
+                    double totalPeakDemandAtFuturePoint = reps.segmentLoadRepository.peakLoadbyMarketandTime(market,
+                            getCurrentTick());
+
+                    Zone zoneTemp = market.getZone();
+                    Regulator regulator = reps.regulatorRepository.findRegulatorForZone(zoneTemp);
+
+                    if (totalPeakCapacityAtFuturePoint < totalPeakDemandAtFuturePoint
+                            * (1 + (regulator.getReserveMargin() - regulator.getReserveDemandLowerMargin()))) {
+                        cmRevenue = plant.getTechnology().getCapacity()
+                                * plant.getTechnology().getPeakSegmentDependentAvailability()
+                                * regulator.getCapacityMarketPriceCap();
+                    }
+
+                    if ((totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
+                            .getReserveMargin() - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
+                            .getReserveMargin() + regulator.getReserveDemandUpperMargin()))))) {
+
+                        double reserveMargin = 1 + regulator.getReserveMargin();
+                        double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
+                        double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
+                        double marketCap = regulator.getCapacityMarketPriceCap();
+
+                        cmRevenue = (-(marketCap / (upperMargin - lowerMargin)) * ((totalPeakCapacityAtFuturePoint / totalPeakDemandAtFuturePoint) - upperMargin))
+                                * plant.getTechnology().getCapacity()
+                                * plant.getTechnology().getPeakSegmentDependentAvailability();
+                    }
+
+                    if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
+                            .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
+                        cmRevenue = 0;
+                    }
+
                     for (CashFlow cf : reps.cashFlowRepository.findAllCashFlowsForPowerPlantForTime(plant,
                             (getCurrentTick() - yIterator))) {
-                        if (cf.getType() == CashFlow.STRRESPAYMENT || cf.getType() == CashFlow.SIMPLE_CAPACITY_MARKET) {
+                        if (cf.getType() == CashFlow.STRRESPAYMENT) {
 
                             cmRevenue = cmRevenue + cf.getMoney();
                         }
                     }
+                    logger.warn("REV " + cmRevenue);
                     // }
                     totalProfit = ((sumProfit + (cmRevenue) - OM) / (plant.getTechnology().getInvestmentCost(
                             plant.getConstructionStartTime()) * plant.getActualNominalCapacity()));
