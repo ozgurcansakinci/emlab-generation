@@ -357,33 +357,35 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
                     Zone zoneTemp = market.getZone();
                     Regulator regulator = reps.regulatorRepository.findRegulatorForZone(zoneTemp);
+                    if ((plant.getOwner().isSimpleCapacityMarketEnabled() && regulator != null)) {
+                        if (totalPeakCapacityAtFuturePoint < totalPeakDemandAtFuturePoint
+                                * (1 + (regulator.getReserveMargin() - regulator.getReserveDemandLowerMargin()))) {
+                            cmRevenue = plant.getTechnology().getCapacity()
+                                    * plant.getTechnology().getPeakSegmentDependentAvailability()
+                                    * regulator.getCapacityMarketPriceCap();
+                        }
 
-                    if (totalPeakCapacityAtFuturePoint < totalPeakDemandAtFuturePoint
-                            * (1 + (regulator.getReserveMargin() - regulator.getReserveDemandLowerMargin()))) {
-                        cmRevenue = plant.getTechnology().getCapacity()
-                                * plant.getTechnology().getPeakSegmentDependentAvailability()
-                                * regulator.getCapacityMarketPriceCap();
-                    }
+                        if ((totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
+                                .getReserveMargin() - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
+                                .getReserveMargin() + regulator.getReserveDemandUpperMargin()))))) {
 
-                    if ((totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                            .getReserveMargin() - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
-                            .getReserveMargin() + regulator.getReserveDemandUpperMargin()))))) {
+                            double reserveMargin = 1 + regulator.getReserveMargin();
+                            double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
+                            double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
+                            double marketCap = regulator.getCapacityMarketPriceCap();
 
-                        double reserveMargin = 1 + regulator.getReserveMargin();
-                        double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
-                        double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
-                        double marketCap = regulator.getCapacityMarketPriceCap();
+                            cmRevenue = (-(marketCap / (upperMargin - lowerMargin)) * ((totalPeakCapacityAtFuturePoint / totalPeakDemandAtFuturePoint) - upperMargin))
+                                    * plant.getTechnology().getCapacity()
+                                    * plant.getTechnology().getPeakSegmentDependentAvailability();
+                        }
 
-                        cmRevenue = (-(marketCap / (upperMargin - lowerMargin)) * ((totalPeakCapacityAtFuturePoint / totalPeakDemandAtFuturePoint) - upperMargin))
-                                * plant.getTechnology().getCapacity()
-                                * plant.getTechnology().getPeakSegmentDependentAvailability();
-                    }
-
-                    if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                            .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
+                        if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
+                                .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
+                            cmRevenue = 0;
+                        }
+                    } else {
                         cmRevenue = 0;
                     }
-
                     for (CashFlow cf : reps.cashFlowRepository.findAllCashFlowsForPowerPlantForTime(plant,
                             (getCurrentTick() - yIterator))) {
                         if (cf.getType() == CashFlow.STRRESPAYMENT) {
@@ -391,7 +393,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                             cmRevenue = cmRevenue + cf.getMoney();
                         }
                     }
-                    logger.warn("REV " + cmRevenue);
+
                     // }
                     totalProfit = ((sumProfit + (cmRevenue) - OM) / (plant.getTechnology().getInvestmentCost(
                             plant.getConstructionStartTime()) * plant.getActualNominalCapacity()));
