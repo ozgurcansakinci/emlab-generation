@@ -291,13 +291,16 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                 * reps.segmentLoadRepository.returnSegmentBaseLoadBySegmentAndMarket(currentSegment,
                                         market);
 
-                        for (PowerPlant pplants : reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(
-                                market, getCurrentTick())) {
-                            segmentCapacity = segmentCapacity
-                                    + pplants.getAvailableCapacity((getCurrentTick() + iterator), currentSegment,
-                                            reps.segmentRepository.count());
-                        }
-
+                        // for (PowerPlant pplants :
+                        // reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(
+                        // market, getCurrentTick())) {
+                        // segmentCapacity = segmentCapacity
+                        // + pplants.getAvailableCapacity((getCurrentTick() +
+                        // iterator), currentSegment,
+                        // reps.segmentRepository.count());
+                        // }
+                        segmentCapacity = reps.powerPlantRepository
+                                .calculateBaseCapacityOfOperationalPowerPlantsInMarket(market, getCurrentTick());
                         if (segmentLoad > (segmentCapacity)) {
                             double price = 0;
                             double profit1 = 0;
