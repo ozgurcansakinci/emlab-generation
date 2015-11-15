@@ -44,6 +44,7 @@ import emlab.gen.domain.technology.SubstanceShareInFuelMix;
 import emlab.gen.repository.Reps;
 import emlab.gen.repository.StrategicReserveOperatorRepository;
 import emlab.gen.util.MapValueComparator;
+import emlab.gen.util.MapValueReverseComparator;
 
 /**
  * @author pradyumnabhagwat
@@ -305,7 +306,6 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                             double price = 0;
                             double profit1 = 0;
                             price = market.getValueOfLostLoad();
-
                             profit1 = currentSegment.getLengthInHours()
                                     * plant.getAvailableCapacity((getCurrentTick() + iterator), currentSegment,
                                             reps.segmentRepository.count()) * (price - mc);
@@ -349,7 +349,6 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                 profit1 = currentSegment.getLengthInHours()
                                         * plant.getAvailableCapacity((getCurrentTick() + iterator), currentSegment,
                                                 reps.segmentRepository.count()) * (price - mc);
-
                                 energy += currentSegment.getLengthInHours()
                                         * plant.getAvailableCapacity((getCurrentTick() + iterator), currentSegment,
                                                 reps.segmentRepository.count());
@@ -403,12 +402,42 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     } else {
                         cmRevenue = 0;
                     }
-                    for (CashFlow cf : reps.cashFlowRepository.findAllCashFlowsForPowerPlantForTime(plant,
-                            (getCurrentTick() - yIterator))) {
-                        if (cf.getType() == CashFlow.STRRESPAYMENT && cf.getTo().equals(plant.getOwner())) {
-                            cmRevenue = cmRevenue + cf.getMoney();
+                    if (reserveVolume > 0.01) {
+                        double counterReserve = 0;
+                        Map<PowerPlant, Double> reverseMarginalCostMap = new HashMap<PowerPlant, Double>();
+                        Map<PowerPlant, Double> reverseMeritOrder;
+                        for (PowerPlant plant1 : reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(
+                                market, getCurrentTick())) {
+                            reverseMarginalCostMap.put(plant1,
+                                    calculateMarginalCostExclCO2MarketCost(plant1, (getCurrentTick())));
+
                         }
+
+                        MapValueReverseComparator comp1 = new MapValueReverseComparator(reverseMarginalCostMap);
+                        reverseMeritOrder = new TreeMap<PowerPlant, Double>(comp1);
+                        reverseMeritOrder.putAll(reverseMarginalCostMap);
+                        for (Entry<PowerPlant, Double> plantVol : reverseMeritOrder.entrySet()) {
+                            if (plantVol.getKey().equals(plant)) {
+                            }
+                            if (counterReserve < reserveVolume) {
+                                counterReserve = counterReserve + plantVol.getKey().getActualNominalCapacity();
+                                if (plantVol.getKey().equals(plant)) {
+                                    cmRevenue = cmRevenue + plant.getActualFixedOperatingCost();
+                                }
+
+                            }
+                        }
+
                     }
+
+                    // for (CashFlow cf :
+                    // reps.cashFlowRepository.findAllCashFlowsForPowerPlantForTime(plant,
+                    // (getCurrentTick() - 1))) {
+                    // if (cf.getType() == CashFlow.STRRESPAYMENT &&
+                    // cf.getTo().equals(plant.getOwner())) {
+                    // cmRevenue = cmRevenue + cf.getMoney();
+                    // }
+                    // }
 
                     // }
                     totalProfit = ((sumProfit + (cmRevenue) - OM));

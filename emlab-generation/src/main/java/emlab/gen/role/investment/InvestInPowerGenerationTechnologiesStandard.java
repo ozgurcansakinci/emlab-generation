@@ -61,6 +61,7 @@ import emlab.gen.repository.Reps;
 import emlab.gen.repository.StrategicReserveOperatorRepository;
 import emlab.gen.util.GeometricTrendRegression;
 import emlab.gen.util.MapValueComparator;
+import emlab.gen.util.MapValueReverseComparator;
 
 /**
  * {@link EnergyProducer}s decide to invest in new {@link PowerPlant}
@@ -360,7 +361,48 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
                             capacityRevenue = 0;
                         }
 
-                        operatingProfit = operatingProfit + capacityRevenue;
+                        double reservePrice1 = 0;
+                        double reserveVolume1 = 0;
+                        for (StrategicReserveOperator operator1 : strategicReserveOperatorRepository.findAll()) {
+                            ElectricitySpotMarket market1 = reps.marketRepository
+                                    .findElectricitySpotMarketForZone(operator1.getZone());
+                            if (market.getNodeId().intValue() == market1.getNodeId().intValue()) {
+                                reservePrice1 = operator1.getReservePriceSR();
+                                reserveVolume1 = operator1.getReserveVolume();
+                            }
+                        }
+                        double srRevenue = 0;
+                        if (reserveVolume1 > 0.01) {
+
+                            double counterReserve = 0;
+
+                            Map<PowerPlant, Double> reverseMarginalCostMap = new HashMap<PowerPlant, Double>();
+                            Map<PowerPlant, Double> reverseMeritOrder;
+                            for (PowerPlant plant1 : reps.powerPlantRepository
+                                    .findExpectedOperationalPowerPlantsInMarket(market, futureTimePoint)) {
+                                reverseMarginalCostMap.put(plant1,
+                                        calculateMarginalCostExclCO2MarketCost(plant1, futureTimePoint));
+
+                            }
+
+                            MapValueReverseComparator comp1 = new MapValueReverseComparator(reverseMarginalCostMap);
+                            reverseMeritOrder = new TreeMap<PowerPlant, Double>(comp1);
+                            reverseMeritOrder.putAll(reverseMarginalCostMap);
+                            for (Entry<PowerPlant, Double> plantVol : reverseMeritOrder.entrySet()) {
+                                if (plantVol.getKey().equals(plant)) {
+                                }
+                                if (counterReserve < reserveVolume1) {
+                                    counterReserve = counterReserve + plantVol.getKey().getActualNominalCapacity();
+                                    if (plantVol.getKey().equals(plant)) {
+                                        srRevenue = plant.getActualFixedOperatingCost();
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                        operatingProfit = operatingProfit + capacityRevenue + srRevenue;
 
                         // TODO Alter discount rate on the basis of the amount
                         // in long-term contracts?
