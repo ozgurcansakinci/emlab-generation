@@ -52,10 +52,20 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         CapacityMarket market = new CapacityMarket();
         market = reps.capacityMarketRepository.findCapacityMarketForZone(regulator.getZone());
 
+        double phaseInPeriod = 0;
+
+        if (getCurrentTick() <= (long) regulator.getImplementationPhaseLength()
+                && regulator.getImplementationPhaseLength() > 0) {
+            phaseInPeriod = regulator.getReserveMargin()
+                    - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin()) / regulator
+                            .getImplementationPhaseLength()) * getCurrentTick()) + regulator.getInitialSupplyMargin());
+            logger.warn("1 SET phase In " + phaseInPeriod);
+        }
+        logger.warn("2 TEst phase In " + phaseInPeriod);
         boolean isTheMarketCleared = false;
 
         double marketCap = regulator.getCapacityMarketPriceCap();
-        double reserveMargin = 1 + regulator.getReserveMargin();
+        double reserveMargin = 1 + regulator.getReserveMargin() - phaseInPeriod;
         double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
         double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
         double demandTarget = regulator.getDemandTarget() / reserveMargin;

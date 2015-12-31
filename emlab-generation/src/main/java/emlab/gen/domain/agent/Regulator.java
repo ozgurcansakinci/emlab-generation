@@ -48,10 +48,32 @@ public class Regulator extends DecarbonizationAgent implements Agent {
     private int targetPeriod; // number of years in the future that the capacity
     // is being planned for - set to zero
 
+    @SimulationParameter(label = " Implementation Phase Length ", from = 0, to = 10)
+    private double implementationPhaseLength;
+
+    @SimulationParameter(label = " Initial Supply Margin ", from = 0, to = 1)
+    private double initialSupplyMargin;
+
     private int numberOfYearsLookingBackToForecastDemand;
 
     @RelatedTo(type = "OF_ZONE", elementClass = Zone.class, direction = Direction.OUTGOING)
     private Zone zone;
+
+    public double getInitialSupplyMargin() {
+        return initialSupplyMargin;
+    }
+
+    public void setInitialSupplyMargin(double initialSupplyMargin) {
+        this.initialSupplyMargin = initialSupplyMargin;
+    }
+
+    public double getImplementationPhaseLength() {
+        return implementationPhaseLength;
+    }
+
+    public void setImplementationPhaseLength(double implementationPhaseLength) {
+        this.implementationPhaseLength = implementationPhaseLength;
+    }
 
     public double getDemandTarget() {
         return demandTarget;

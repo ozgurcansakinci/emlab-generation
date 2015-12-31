@@ -42,6 +42,14 @@ public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<
     public void act(Regulator regulator) {
         long capabilityYear = 0;
         capabilityYear = getCurrentTick() + regulator.getTargetPeriod();
+        double phaseInPeriod = 0;
+
+        if (getCurrentTick() <= (long) regulator.getImplementationPhaseLength()
+                && regulator.getImplementationPhaseLength() > 0) {
+            phaseInPeriod = regulator.getReserveMargin()
+                    - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin()) / regulator
+                            .getImplementationPhaseLength()) * getCurrentTick()) + regulator.getInitialSupplyMargin());
+        }
 
         Zone zone = regulator.getZone();
         ElectricitySpotMarket market = reps.marketRepository.findElectricitySpotMarketForZone(zone);
@@ -86,7 +94,7 @@ public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<
         double peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
 
         // Compute demand target by multiplying reserve margin double double
-        double demandTarget = peakExpectedDemand * (1 + regulator.getReserveMargin());
+        double demandTarget = peakExpectedDemand * (1 + regulator.getReserveMargin() - phaseInPeriod);
 
         regulator.setDemandTarget(demandTarget);
 

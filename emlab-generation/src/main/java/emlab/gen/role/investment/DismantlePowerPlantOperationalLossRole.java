@@ -179,7 +179,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
             for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
                     getCurrentTick())) {
 
-                if (plant.getOwner().equals(reps.targetInvestorRepository.findInvestorByMarket(market))) {
+                if (plant.getOwner().equals(reps.targetInvestorRepository.findTargetInvestorByMarket(market))) {
 
                     double prolongYearsOfDismantlng = plant.getTechnology().getMaximumLifeExtension()
                             + plant.getTechnology().getExpectedLifetime();
@@ -374,18 +374,29 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     Zone zoneTemp = market.getZone();
                     Regulator regulator = reps.regulatorRepository.findRegulatorForZone(zoneTemp);
                     if ((plant.getOwner().isSimpleCapacityMarketEnabled() && regulator != null)) {
+                        double phaseInPeriod = 0;
+
+                        if (getCurrentTick() <= (long) regulator.getImplementationPhaseLength()
+                                && regulator.getImplementationPhaseLength() > 0) {
+                            phaseInPeriod = regulator.getReserveMargin()
+                                    - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin()) / regulator
+                                            .getImplementationPhaseLength()) * getCurrentTick()) + regulator
+                                            .getInitialSupplyMargin());
+                        }
+
                         if (totalPeakCapacityAtFuturePoint < totalPeakDemandAtFuturePoint
-                                * (1 + (regulator.getReserveMargin() - regulator.getReserveDemandLowerMargin()))) {
+                                * (1 + (regulator.getReserveMargin() - phaseInPeriod - regulator
+                                        .getReserveDemandLowerMargin()))) {
                             cmRevenue = plant.getTechnology().getCapacity()
                                     * plant.getTechnology().getPeakSegmentDependentAvailability()
                                     * regulator.getCapacityMarketPriceCap();
                         }
 
                         if ((totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                .getReserveMargin() - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                .getReserveMargin() + regulator.getReserveDemandUpperMargin()))))) {
+                                .getReserveMargin() - phaseInPeriod - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
+                                .getReserveMargin() - phaseInPeriod + regulator.getReserveDemandUpperMargin()))))) {
 
-                            double reserveMargin = 1 + regulator.getReserveMargin();
+                            double reserveMargin = 1 + regulator.getReserveMargin() - phaseInPeriod;
                             double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
                             double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
                             double marketCap = regulator.getCapacityMarketPriceCap();
@@ -396,7 +407,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                         }
 
                         if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
+                                .getReserveMargin() - phaseInPeriod + regulator.getReserveDemandUpperMargin())))) {
                             cmRevenue = 0;
                         }
                     } else {
@@ -492,7 +503,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                         downpayment);
                             }
                         }
-                        // logger.warn("dismantled " + plant.getName());
+                        // logger.warn("dismantled " + plant.getName() + " Age "
+                        // + plant.getActualLifetime());
                         plant.dismantlePowerPlant(getCurrentTick());
 
                     }

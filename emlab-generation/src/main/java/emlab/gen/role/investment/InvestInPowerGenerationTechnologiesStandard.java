@@ -320,20 +320,37 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
 
                         if ((agent.isSimpleCapacityMarketEnabled()) && (regulator != null)) {
 
+                            double phaseInPeriod = 0;
+
+                            if (futureTimePoint <= (long) regulator.getImplementationPhaseLength()
+                                    && regulator.getImplementationPhaseLength() > 0) {
+                                phaseInPeriod = regulator.getReserveMargin()
+                                        - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin()) / regulator
+                                                .getImplementationPhaseLength()) * futureTimePoint) + regulator
+                                                .getInitialSupplyMargin());
+                            }
+
                             totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
                                     .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market, futureTimePoint);
-                            expectedDemand.get(market).doubleValue();
+                            // expectedDemand.get(market).doubleValue();
                             totalPeakDemandAtFuturePoint = reps.segmentLoadRepository.peakLoadbyMarketandTime(market,
                                     futureTimePoint);
 
-                            TargetInvestor tInvestor = reps.targetInvestorRepository.findInvestorByMarket(market);
+                            // logger.warn("Difference " +
+                            // (totalPeakCapacityAtFuturePoint -
+                            // totalPeakDemandAtFuturePoint)
+                            // + " Supply ratio "
+                            // + (totalPeakCapacityAtFuturePoint /
+                            // totalPeakDemandAtFuturePoint));
+
+                            TargetInvestor tInvestor = reps.targetInvestorRepository.findTargetInvestorByMarket(market);
 
                             totalPeakCapacityAtFuturePoint = totalPeakCapacityAtFuturePoint
                                     + (plant.getActualNominalCapacity() * plant.getTechnology()
                                             .getPeakSegmentDependentAvailability());
 
                             if (totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                    .getReserveMargin() - regulator.getReserveDemandLowerMargin())))) {
+                                    .getReserveMargin() - phaseInPeriod - regulator.getReserveDemandLowerMargin())))) {
 
                                 capacityRevenue = plant.getTechnology().getCapacity()
                                         * plant.getTechnology().getPeakSegmentDependentAvailability()
@@ -341,10 +358,10 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
                             }
 
                             if ((totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                    .getReserveMargin() - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                    .getReserveMargin() + regulator.getReserveDemandUpperMargin()))))) {
+                                    .getReserveMargin() - phaseInPeriod - regulator.getReserveDemandLowerMargin()))) && totalPeakCapacityAtFuturePoint <= (totalPeakDemandAtFuturePoint * (1 + (regulator
+                                    .getReserveMargin() - phaseInPeriod + regulator.getReserveDemandUpperMargin()))))) {
 
-                                double reserveMargin = 1 + regulator.getReserveMargin();
+                                double reserveMargin = 1 + regulator.getReserveMargin() - phaseInPeriod;
                                 double lowerMargin = reserveMargin - regulator.getReserveDemandLowerMargin();
                                 double upperMargin = reserveMargin + regulator.getReserveDemandUpperMargin();
                                 double marketCap = regulator.getCapacityMarketPriceCap();
@@ -354,7 +371,7 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
                                         * plant.getTechnology().getPeakSegmentDependentAvailability();
                             }
                             if (totalPeakCapacityAtFuturePoint > (totalPeakDemandAtFuturePoint * (1 + (regulator
-                                    .getReserveMargin() + regulator.getReserveDemandUpperMargin())))) {
+                                    .getReserveMargin() - phaseInPeriod + regulator.getReserveDemandUpperMargin())))) {
                                 capacityRevenue = 0;
                             }
                         } else {
