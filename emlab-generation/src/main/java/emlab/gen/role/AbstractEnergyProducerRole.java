@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -113,7 +113,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
     /**
      * Finds the last known price on a specific market. We try to get it for this tick, previous tick, or from a possible supplier directly. If multiple prices are found, the average is returned. This
      * is the case for electricity spot markets, as they may have segments.
-     * 
+     *
      * @param substance
      *            the price we want for
      * @return the (average) price found
@@ -155,7 +155,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
     /**
      * Finds the last known price for a substance. We try to find the market for it and get it get the price on that market for this tick, previous tick, or from a possible supplier directly. If
      * multiple prices are found, the average is returned. This is the case for electricity spot markets, as they may have segments.
-     * 
+     *
      * @param substance
      *            the price we want for
      * @return the (average) price found
@@ -173,7 +173,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
 
     /**
      * Calculates the volume-weighted average price on a market based on a set of clearingPoints.
-     * 
+     *
      * @param clearingPoints
      *            the clearingPoints with the volumes and prices
      * @return the weighted average
@@ -218,7 +218,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
 
     /**
      * Calculates the payment effective part of the national CO2 price. In this case you only pay the excess over the EU carbon market price to your own government.
-     * 
+     *
      * @param powerPlant
      * @return
      */
@@ -300,7 +300,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
 
     /**
      * The fuel mix is calculated with a linear optimization model of the possible fuels and the requirements.
-     * 
+     *
      * @param substancePriceMap
      *            contains the possible fuels and their market prices
      * @param minimumFuelMixQuality
@@ -439,16 +439,16 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
 
     /**
      * Calculates the actual investment cost of a power plant per year, by using the exogenous modifier.
-     * 
+     *
      * @param powerPlant
      * @return the actual efficiency
      */
     /*
      * public double determineAnnuitizedInvestmentCost(PowerPlant powerPlant, long time) {
-     * 
+     *
      * double invNorm = powerPlant.getTechnology().getAnnuitizedInvestmentCost(); double modifierExo = calculateExogenousModifier(powerPlant.getTechnology(). getInvestmentCostModifierExogenous(),
      * time);
-     * 
+     *
      * double annuitizedInvestmentCost = invNorm * modifierExo; logger.info("Investment cost of plant{} is {}", powerPlant, annuitizedInvestmentCost); return annuitizedInvestmentCost; }
      */
 
@@ -475,7 +475,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
     /**
      * Calculates expected CO2 price based on a geometric trend estimation, of the past years. The adjustmentForDetermineFuelMix needs to be set to 1, if this is used in the determine
      * fuel mix role.
-     * 
+     *
      * @param futureTimePoint Year the prediction is made for
      * @param yearsLookingBackForRegression How many years are used as input for the regression, incl. the current tick.
      * @return
@@ -530,7 +530,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
      * Predicts fuel prices for {@link futureTimePoint} using a geometric trend
      * regression forecast. Only predicts fuels that are traded on a commodity
      * market.
-     * 
+     *
      * @param agent
      * @param futureTimePoint
      * @return Map<Substance, Double> of predicted prices.
@@ -561,7 +561,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
                         substance,
                         reps.clearingPointRepositoryOld.findClearingPointForMarketAndTime(
                                 reps.marketRepository.findFirstMarketBySubstance(substance), getCurrentTick(), false)
-                                .getPrice());
+                        .getPrice());
             } else {
                 expectedFuelPrices.put(substance, forecast);
             }

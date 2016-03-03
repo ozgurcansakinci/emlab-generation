@@ -198,14 +198,14 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.start();
         logger.warn("  3. Submitting offers to market");
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             submitOffersToElectricitySpotMarketRole.act(producer);
             // producer.act(submitOffersToElectricitySpotMarketRole);
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());

@@ -92,10 +92,6 @@ Role<EnergyProducer> {
         // find all my operating power plants
         for (PowerPlant plant : powerPlants) {
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            logger.warn("1 Name:  " + plant.getName() + "   Technology:   " + plant.getTechnology() + " full capacity "
-                    + plant.getActualNominalCapacity());
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (producerIsNull) {
                 market = reps.marketRepository.findElectricitySpotMarketForZone(plant.getLocation().getZone());
@@ -112,6 +108,12 @@ Role<EnergyProducer> {
                 price = mc * producer.getPriceMarkUp();
             }
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            System.out.println(plant.getName() + " |Tech: " + plant.getTechnology() + " |Cap: "
+                    + plant.getActualNominalCapacity() + " |MC: " + mc + " |Zone: " + plant.getLocation().getZone());
+            // + " / " + price);
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             logger.info("Submitting offers for {} with technology {}", plant.getName(), plant.getTechnology().getName());
 
             for (SegmentLoad segmentload : market.getLoadDurationCurve()) {
@@ -125,8 +127,8 @@ Role<EnergyProducer> {
 
                 logger.info("I bid capacity: {} and price: {}", capacity, mc);
 
-                logger.warn("Capacity is:" + capacity);
-                logger.warn("Price is:" + mc);
+                // logger.warn("Capacity is:" + capacity);
+                // logger.warn("Price is:" + mc);
                 // logger.warn("Full capacity is" +
                 // plant.getvailableCapacity(tick));
 

@@ -83,24 +83,6 @@
 	</dependency>
 
 	<dependency>
-		<groupId>jom</groupId>
-		<artifactId>jom</artifactId>
-		<version>0.1.15</version>
-	</dependency>
-
-	<dependency>
-		<groupId>jna</groupId>
-		<artifactId>jna</artifactId>
-		<version>4.0.0</version>
-	</dependency>
-
-	<dependency>
-		<groupId>parallelcolt</groupId>
-		<artifactId>parallelcolt</artifactId>
-		<version>0.9.4</version>
-	</dependency>
-
-	<dependency>
 		<groupId>cplex</groupId>
 		<artifactId>cplex</artifactId>
 		<version>12.6.2</version>
