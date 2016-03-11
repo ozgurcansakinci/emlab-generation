@@ -15,6 +15,8 @@
  ******************************************************************************/
 package emlab.gen.role;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +46,7 @@ import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
 import emlab.gen.role.market.CreatingFinancialReports;
 import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
+import emlab.gen.role.market.Plant;
 import emlab.gen.role.market.ProcessAcceptedBidsRole;
 import emlab.gen.role.market.ProcessAcceptedPowerPlantDispatchRole;
 import emlab.gen.role.market.ReassignPowerPlantsToLongTermElectricityContractsRole;
@@ -117,7 +120,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     private CreatingFinancialReports creatingFinancialReports;
     @Autowired
-    private ClearHourlyElectricityMarketRole cem;
+    private ClearHourlyElectricityMarketRole clearHourlyElectricityMarketRole;
 
     @Autowired
     Reps reps;
@@ -125,6 +128,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     Neo4jTemplate template;
 
+    public ArrayList<Plant> pl = new ArrayList<Plant>();
     /**
      * Main model script. Executes other roles in the right sequence.
      */
@@ -202,6 +206,11 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             submitOffersToElectricitySpotMarketRole.act(producer);
+
+            /////////////////////////////////////////////////////////////////////////////////
+            pl.addAll(submitOffersToElectricitySpotMarketRole.getplants());
+            /////////////////////////////////////////////////////////////////////////////////
+
             // producer.act(submitOffersToElectricitySpotMarketRole);
         }
 
@@ -243,7 +252,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         logger.warn("executing matrix code");
-        cem.act(model);
+        clearHourlyElectricityMarketRole.populate_plantValues(pl);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

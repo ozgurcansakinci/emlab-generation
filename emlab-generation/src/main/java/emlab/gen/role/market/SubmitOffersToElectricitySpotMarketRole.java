@@ -52,11 +52,16 @@ Role<EnergyProducer> {
 
     @Autowired
     Reps reps;
+    ArrayList<Plant> pp = new ArrayList<Plant>();
 
     @Override
     public void act(EnergyProducer producer) {
 
         createOffersForElectricitySpotMarket(producer, getCurrentTick(), false, null);
+    }
+
+    public ArrayList<Plant> getplants() {
+        return pp;
     }
 
     @Transactional
@@ -90,7 +95,15 @@ Role<EnergyProducer> {
 
         boolean producerIsNull = (producer == null) ? true : false;
         // find all my operating power plants
+
+        // System.out.println(" Number of Power plants--orig: " +
+        // powerPlant.p.size());
+        System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+        int count = 0;
         for (PowerPlant plant : powerPlants) {
+
+            System.out.println("Count :" + count);
+            count++;
 
 
             if (producerIsNull) {
@@ -109,9 +122,28 @@ Role<EnergyProducer> {
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            System.out.println(plant.getName() + " |Tech: " + plant.getTechnology() + " |Cap: "
-                    + plant.getActualNominalCapacity() + " |MC: " + mc + " |Zone: " + plant.getLocation().getZone());
+
+            //
+            // System.out.println(plant.getName() + " |Technology: " +
+            // plant.getTechnology() + " |Cap: "
+            // + plant.getActualNominalCapacity() + " |MC: " + mc + " |Zone: " +
+            // plant.getLocation().getZone()
+            // + " |Ems: " + plant.calculateEmissionIntensity());
+
             // + " / " + price);
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            Plant p = new Plant();
+            p.setName(plant.getName());
+            p.setOwner(plant.getOwner().toString());
+            p.setTechnology(plant.getTechnology().toString());
+            p.setActualNominalCapacity(plant.getActualNominalCapacity());
+            p.setMc(mc);
+            p.setZone(plant.getLocation().getZone().toString());
+            p.setTick(tick);
+            p.setEmissionsIntensity(plant.calculateEmissionIntensity());
+            pp.add(p);
+
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             logger.info("Submitting offers for {} with technology {}", plant.getName(), plant.getTechnology().getName());
@@ -169,6 +201,8 @@ Role<EnergyProducer> {
             }
 
         }
+
+        System.out.println(" Number of Power plants--orig: " + pp.size());
 
         return ppdpList;
     }
