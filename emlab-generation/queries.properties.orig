@@ -1,0 +1,729 @@
+"TABLE_BasecostFip", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.policy.renewablesupport.BaseCostFip']].propertyFilter('startTime', FilterPipe.Filter.EQUAL, tick)
+finalResult = []
+headers=['tick','technology','node','cost']
+int vTick=0;
+int vCost=0;
+String vTechnology='none';
+String vNode='none';
+finalResult.add(headers)
+for(v in points){
+  if(v.startTime == null){ vTick = 0} else {vTick = v.startTime};
+  if(v.out("BASECOST_FOR_TECHNOLOGY").name == null){ vTechnology = 'none'} else {vTechnology = v.startTime};
+  if(v.out("BASECOST_FOR_LOCATION").collect{it.name} == null){ vNode = 'none'} else {vNode = v.startTime};
+  if(v.costPerMWh == null) {vCost = 0} else {vCost = v.costPerMWh};
+finalResult.add([vTick, v.out("BASECOST_FOR_TECHNOLOGY").name, v.out("BASECOST_FOR_LOCATION").collect{it.name}, vCost])
+}
+return finalResult;
+",
+
+"TABLE_FinancialReports", "DecarbonizationModel", "financialReports=g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.FinancialPowerPlantReport']].filter{it.time==tick};
+finalResult = [];
+columnNames=['tick', 'spotMarketRevenue', 'capacityMarketRevenue', 'strategicReserveRevenue', 'co2HedgingRevenue','fipRevenue', 'tenderRevenue','overallRevenue','commodityCosts','co2Costs','variableCosts','fixedCosts','fullLoadHours','production','powerPlantName','technology','location','powerPlantOwner','operationalStatus','firstYearOfPowerPlantOperation','nominalCapacity','investedCapital'];
+finalResult.add(columnNames);
+for(v in financialReports){
+firstYearOfOperation=v.out('FINANCIALREPORT_POWERPLANT').constructionStartTime.next()+v.out('FINANCIALREPORT_POWERPLANT').actualPermittime.next()+v.out('FINANCIALREPORT_POWERPLANT').actualLeadtime.next()
+powerPlantSize=v.out('FINANCIALREPORT_POWERPLANT').actualNominalCapacity.next()
+actualInvestedCapital=v.out('FINANCIALREPORT_POWERPLANT').actualInvestedCapital.next()
+finalResult.add([v.time, v.spotMarketRevenue, v.capacityMarketRevenue, v.strategicReserveRevenue, v.co2HedgingRevenue, v.feedInPremiumRevenue, v.tenderRevenue, v.overallRevenue, v.commodityCosts, v.co2Costs, v.variableCosts, v.fixedCosts, v.fullLoadHours, v.production, v.out('FINANCIALREPORT_POWERPLANT').name.next(),v.out('FINANCIALREPORT_POWERPLANT').out('TECHNOLOGY').name.next(),v.out('FINANCIALREPORT_POWERPLANT').out('LOCATION').name.next(),v.out('FINANCIALREPORT_POWERPLANT').out('POWERPLANT_OWNER').name.next(),v.powerPlantStatus,firstYearOfOperation,powerPlantSize,actualInvestedCapital]);
+};
+return finalResult;",
+
+"TABLE_TenderClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.policy.renewablesupport.TenderClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick)
+finalResult = []
+headers=['tick','volume','price','zone']
+finalResult.add(headers)
+for(v in points){
+finalResult.add([v.time, v.volume, v.price, v.out('RENEWABLE_SUPPORT_SCHEME_TENDER').out('WITH_REGULATOR').out('OF_ZONE').collect{it.name}[0]])
+}
+return finalResult;
+",
+
+"CapacityinMW", "PowerGeneratingTechnology", "capacity= v.in().filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}.sum{it.actualNominalCapacity}
+if(capacity == null) capacity = 0
+[v.name, capacity]",
+
+"CapacityinMW", "PowerGeneratingTechnology", "capacity= v.in().filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}.sum{it.actualNominalCapacity}
+if(capacity == null) capacity = 0
+[v.name, capacity]",
+
+"CapacityinMWinA", "PowerGeneratingTechnology", "capacity = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country A'}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}.sum{it.actualNominalCapacity}
+if(capacity == null) capacity = 0
+[v.name, capacity]",
+
+"CapacityinMWinB", "PowerGeneratingTechnology", "capacity = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country B'}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}.sum{it.actualNominalCapacity}
+if(capacity == null) capacity = 0
+[v.name, capacity]",
+
+"PeakDemandPerZoneInMW", "ElectricitySpotMarket", "topsegments = v.out('SEGMENT_LOAD').max{it.baseLoad}.baseLoad;
+try{growthfactors = v.out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+growthfactors=v.out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]}
+adjustedTopSegments = topsegments*growthfactors;
+return [v.outE('ZONE').inV.collect{it.name}[0], adjustedTopSegments]",
+
+"TotalOperationalCapacityPerZoneInMW", "Zone", "t = new Table();
+pp = v.in('REGION').in('LOCATION')
+pp.filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}.as('powerPlantCapacity').out('TECHNOLOGY').as('peakSegmentDependentAvailability').table(t){it.actualNominalCapacity}{it.peakSegmentDependentAvailability}.cap().next();
+capacitySum = 0; for (row in t){capacitySum += row.getColumn('powerPlantCapacity') * row.getColumn('peakSegmentDependentAvailability')}
+return [v.name, capacitySum]",
+
+"TotalConsumptioninMWh", "DecarbonizationModel", "segmentloads = g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.SegmentLoad']];
+productionsum  = 0;
+for(segmentload in segmentloads){
+    //productionsum += segmentload.baseLoad;
+    try{growthfactor = segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+    growthfactor=segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]}
+    productionsum += segmentload.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentload.baseLoad * growthfactor;
+}
+<<<<<<< HEAD
+return productionsum;",
+=======
+return ['Total consumption in MWh', productionsum];
+",
+
+"ExpectedRenewableGeneration","RenewableSupportSchemeTender", 
+"return[v.scheme , v.expectedRenewableGeneration];
+",
+
+"ExpectedConsumption","RenewableSupportSchemeTender", 
+"return[v.scheme , v.annualExpectedConsumption];
+",
+
+
+
+"TABLE_AcceptedTenderBids", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.policy.renewablesupport.TenderBid']].filter{it.time == tick}.filter{it.status > 1}
+finalResult = []
+headers=['tick','volume','price','subsidy','technology','node','agent','zone','capacity']
+finalResult.add(headers)
+for(v in points){
+finalResult.add([v.time, v.amount, v.price, (v.amount*v.price), 
+v.out('FOR_TECHNOLOGY').collect{it.name}[0], v.out('FOR_NODE').collect{it.name}[0],
+v.out('POWERPLANT_DISPATCHPLAN').out('POWERPLANT_OWNER').collect{it.name}[0], 
+v.in('ZONE').collect{it.name}[0], v.out('POWERPLANT_DISPATCHPLAN').collect{it.actualNominalCapacity}[0]])
+};
+return finalResult;
+",
+>>>>>>> Rob/feature/TenderTechnologySpecificity
+
+"SpotMarketCash", "ElectricitySpotMarket","return [v.name, v.cash];",
+
+"GenerationinMWhCountryA", "PowerGeneratingTechnology", "sum = 0;
+ppdps = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country A'}.back('x').in('POWERPLANT_DISPATCHPLAN').filter{it.time==tick && it.status>=2 && it.forecast==false};
+for(ppdp in ppdps){
+    totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract');
+    hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours');
+    production = totalAmount * hoursInSegment;
+    sum = sum + production;
+}
+return [v.name, sum];
+",
+
+"GenerationinMWhCountryB", "PowerGeneratingTechnology", "sum = 0;
+ppdps = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country B'}.back('x').in('POWERPLANT_DISPATCHPLAN').filter{it.time==tick && it.status>=2 && it.forecast==false};
+for(ppdp in ppdps){
+    totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract');
+    hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours');
+    production = totalAmount * hoursInSegment;
+    sum = sum + production;
+}
+return [v.name, sum];
+",
+
+"GenerationinMWhPerProducer","EnergyProducer", "sum = 0;
+ppdps = v.out('BIDDER').filter{it.__type__.contains('PowerPlantDispatchPlan')}.filter{it.time==tick && it.status>=2 && it.forecast==false};
+for(ppdp in ppdps){
+    totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract');
+    hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours');
+    production = totalAmount * hoursInSegment;
+    sum = sum + production;
+}
+return [v.name, sum];",
+
+"Avg_El_PricesinEURpMWh", "Zone", "cp = v.in('ZONE').in('MARKET_POINT').filter{it.time==tick  && it.forecast==false}.toList();
+[v.name, cp.sum{it.price * it.volume} / cp.sum{it.volume}];
+",
+
+"Total_EnergyServedinMWh", "Zone", "cp = v.in('ZONE').in('MARKET_POINT').filter{it.time==tick && it.forecast==false};
+return [v.name, cp.sum{it.volume}];
+",
+
+"Total_DemandinMWh", "Zone", "segmentloads = v.in('ZONE').out('SEGMENT_LOAD')
+demandsum  = 0;
+for(segmentload in segmentloads){
+    try{growthfactor = segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+    growthfactor=segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]}
+    demandsum += segmentload.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentload.baseLoad * growthfactor;
+};
+return [v.name, demandsum];
+",
+
+
+
+"WelfareLossThroughENS", "Zone", "cp = v.in('ZONE').in('MARKET_POINT').filter{it.time==tick && it.forecast==false}.toList();
+energyServed = cp.sum{it.volume};
+segmentloads = v.in('ZONE').out('SEGMENT_LOAD')
+demandSum  = 0;
+for(segmentload in segmentloads){
+    try{growthfactor = segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+    growthfactor=segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]}
+    demandSum += segmentload.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentload.baseLoad * growthfactor;
+};
+energyNotServed = demandSum - energyServed;
+voll = v.in('ZONE').next().valueOfLostLoad
+return [v.name, energyNotServed*voll];
+",
+
+"EnergyNotServedinMWh", "Zone", "cp = v.in('ZONE').in('MARKET_POINT').filter{it.time==tick && it.forecast==false}.toList();
+energyServed = cp.sum{it.volume};
+segmentloads = v.in('ZONE').out('SEGMENT_LOAD')
+demandSum  = 0;
+for(segmentload in segmentloads){
+    try{growthfactor = segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+    growthfactor=segmentload.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]}
+    demandSum += segmentload.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentload.baseLoad * growthfactor;
+};
+energyNotServed = demandSum - energyServed;
+return [v.name, energyNotServed];
+",
+
+"FuelPricesPerGJ", "DecarbonizationModel", "fuels = g.idx('__types__')[[className:'emlab.gen.domain.technology.Substance']].filter{it.name != 'Electricity' && it.name != 'CO2'}
+result = []
+for(v in fuels){
+      price = v.in('SUBSTANCE_MARKET').in('MARKET_POINT').filter{it.time == tick}.collect{it.price};
+      density = v.energyDensity;
+      inGJ = price[0] / density;
+      result.add([v.name,inGJ]);}
+      return result",
+
+"ProducerCash", "EnergyProducer", "[v.name, v.cash]",
+
+"HistoricalCVar", "PowerGeneratingTechnology", "fr = v.in('TECHNOLOGY').in('FINANCIALREPORT_POWERPLANT').propertyFilter('time', FilterPipe.Filter.GREATER_THAN_EQUAL, tick-2).propertyFilter('time', FilterPipe.Filter.LESS_THAN_EQUAL, tick).propertyFilter('powerPlantStatus', FilterPipe.Filter.EQUAL, 1);
+cvar=0;
+if(fr.hasNext()){fr=fr.sort{it.overallRevenue-it.variableCosts}._().toList();
+length=fr.size(); fiveQuantile=(int)length*0.05;cvar=(long) 0;
+for(int i=0; i<=fiveQuantile; i++){cvar=cvar+(fr[i].overallRevenue-fr[i].variableCosts)/fr[i].out('FINANCIALREPORT_POWERPLANT').actualNominalCapacity.next()};
+cvar=cvar/((double)(fiveQuantile+1));}
+return [v.name,cvar];",
+
+
+"TABLE_SegmentClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.SegmentClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick).propertyFilter('forecast', FilterPipe.Filter.EQUAL, false)
+finalResult = []
+headers=['tick','volume','price','market','segmentID','segmentLength','interconectorFlow','demand','energynotserved']
+finalResult.add(headers)
+for(v in points){
+market=v.out('MARKET_POINT')
+segment=v.out('SEGMENT_POINT').next()
+segmentId=segment.segmentID
+segmentLoad=market.out('SEGMENT_LOAD').as('x').out('SEGMENTLOAD_SEGMENT').filter{it.segmentID==segmentId}.back('x').next();
+//return segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]
+//return segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').next().timeSeries[tick.toInteger()]
+growthfactor=1
+try{growthfactor = segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){
+  growthfactor=segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').next().timeSeries[tick.toInteger()]}
+//}
+//return segmentLoad
+demandLevel=segmentLoad.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentLoad.baseLoad * growthfactor;
+    finalResult.add([v.time, v.volume, v.price, v.out('MARKET_POINT').collect{it.name}[0], v.out('SEGMENT_POINT').collect{it.segmentID}[0], v.out('SEGMENT_POINT').collect{it.lengthInHours}[0],v.interconnectorFlow,demandLevel,demandLevel-v.volume])
+}
+return finalResult;
+",
+
+"TABLE_ClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.market.ClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick).propertyFilter('forecast', FilterPipe.Filter.EQUAL, false)
+finalResult = []
+headers=['tick','volume','price',',market']
+finalResult.add(headers)
+for(v in points){
+finalResult.add([v.time, v.volume, v.price, v.out('MARKET_POINT').collect{it.name}[0]])
+}
+return finalResult",
+
+
+
+"CountryAProdFinances", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+totalCosts = 0;
+totalRevenue = 0;
+totalSpotRevenue = 0;
+totalFipSubsidy=0;
+for (key in groups.keySet()) {
+
+     if (key==1) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]) {
+                totalSpotRevenue += flow.money;
+		totalRevenue += flow.money;
+            }
+        }
+
+    }
+
+     if (key==3 || key==4 || key==7 || key==8) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('FROM_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('FROM_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]) {
+                totalCosts += flow.money;
+            }
+        }
+
+    }
+
+
+
+if (key==13) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]) {
+                totalFipSubsidy += flow.money;
+		totalRevenue += flow.money;
+        }
+        }
+
+}
+
+
+if (key==14) {
+for (flow in groups[key]) {
+if (flow.time != tick) continue;
+ if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]) {
+        totalTenderSubsidy += flow.money;
+if (totalTenderSubsidy == null) totalTenderSubsidy = 0;
+}
+}
+
+}
+}
+result.add(['Total Revenue', totalRevenue]);
+result.add(['Total Costs', totalCosts]);
+result.add(['Revenue Spot', totalSpotRevenue]);
+result.add(['FIP Revenue', totalFipSubsidy]);
+result.add(['Profit', totalRevenue - totalCosts]);
+return result;
+",
+
+"CountryBProdFinances", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+totalCosts = 0;
+totalRevenue = 0;
+totalSpotRevenue = 0;
+totalFipSubsidy=0;
+for (key in groups.keySet()) {
+
+     if (key==1) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]) {
+                totalSpotRevenue += flow.money;
+		totalRevenue += flow.money;
+            }
+        }
+
+    }
+
+     if (key==3 || key==4 || key==7 || key==8) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('FROM_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('FROM_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]) {
+                totalCosts += flow.money;
+            }
+        }
+
+    }
+
+
+
+if (key==13) {
+        for (flow in groups[key]) {
+            if (flow.time != tick) continue;
+            if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]) {
+                totalFipSubsidy += flow.money;
+		totalRevenue += flow.money;
+        }
+        }
+
+}
+
+if (key==14) {
+        for (flow in groups[key]) {
+	 if (flow.time != tick) continue;
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]) {
+                totalTenderSubsidy += flow.money;
+		if (totalTenderSubsidy == null) totalTenderSubsidy = 0;
+        }
+        }
+
+ }
+
+}
+result.add(['Total Revenue', totalRevenue]);
+result.add(['Total Costs', totalCosts]);
+result.add(['Revenue Spot', totalSpotRevenue]);
+result.add(['FIP Revenue', totalFipSubsidy]);
+result.add(['Profit', totalRevenue - totalCosts]);
+return result;
+",
+<<<<<<< HEAD
+=======
+
+"CountryAProdCosts", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+allKeys = []
+for(i in 0..12)
+    allKeys.add(i)
+usedKeys=[]
+for (key in allKeys) {
+    usedKeys.add(key)
+    sum = 0;
+    if(key in groups.keySet()){
+         for (flow in groups[key]) {
+        if (flow.time != tick) continue;
+        if (flow.out('FROM_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('FROM_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]) {
+            sum += flow.money;
+            }
+        }
+    } 
+    name='Unspecified';
+    if(key==0){name='Unclassified';}
+    if(key==1){name='Electricity spot';}
+    if(key==2){name='Electricity ltc';}
+    if(key==3){name='Fixed O&M';}
+    if(key==4){name='Commodity';}
+    if(key==5){name='CO2 tax';}
+    if(key==6){name='CO2 auction';}
+    if(key==7){name='Loan';}
+    if(key==8){name='Downpayment';}
+    if(key==9){name='National CO2 MinPrice';}
+    if(key==10){name='Strategic Reserve';}
+    if(key==11){name='Capacity Market';}
+    if(key==12){name='CO2 Hedging';}
+    result.add([name, sum]);
+} 
+return result;
+",
+
+"CountryBProdCosts", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+allKeys = []
+for(i in 0..12)
+    allKeys.add(i)
+usedKeys=[]
+for (key in allKeys) {
+    usedKeys.add(key)
+    sum = 0;
+    if(key in groups.keySet()){
+         for (flow in groups[key]) {
+        if (flow.time != tick) continue;
+        if (flow.out('FROM_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] && flow.out('FROM_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]) {
+            sum += flow.money;
+            }
+        }
+    } 
+    name='Unspecified';
+    if(key==0){name='Unclassified';}
+    if(key==1){name='Electricity spot';}
+    if(key==2){name='Electricity ltc';}
+    if(key==3){name='Fixed O&M';}
+    if(key==4){name='Commodity';}
+    if(key==5){name='CO2 tax';}
+    if(key==6){name='CO2 auction';}
+    if(key==7){name='Loan';}
+    if(key==8){name='Downpayment';}
+    if(key==9){name='National CO2 MinPrice';}
+    if(key==10){name='Strategic Reserve';}
+    if(key==11){name='Capacity Market';}
+    if(key==12){name='CO2 Hedging';}
+    result.add([name, sum]);
+} 
+return result;
+",
+
+
+"TABLE_ClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.market.ClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick).propertyFilter('forecast', FilterPipe.Filter.EQUAL, false)
+finalResult = []
+headers=['tick','volume','price','market']
+finalResult.add(headers)
+for(v in points){
+finalResult.add([v.time, v.volume, v.price, v.out('MARKET_POINT').collect{it.name}[0]])
+}
+return finalResult;
+",
+
+
+"TABLE_TenderClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.policy.renewablesupport.TenderClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick)
+finalResult = []
+headers=['tick','volume','price','scheme']
+finalResult.add(headers)
+for(v in points){
+finalResult.add([v.time, v.volume, v.price, v.out('RENEWABLE_SUPPORT_SCHEME_TENDER').collect{it.scheme}[0]])
+}
+return finalResult;
+
+",
+
+"TABLE_SegmentClearingPoints", "DecarbonizationModel", "points = g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.SegmentClearingPoint']].propertyFilter('time', FilterPipe.Filter.EQUAL, tick).propertyFilter('forecast', FilterPipe.Filter.EQUAL, false)
+finalResult = []
+headers=['tick','volume','price','market','segmentID','segmentLength','interconectorFlow','demand','energynotserved']
+finalResult.add(headers)
+for(v in points){
+market=v.out('MARKET_POINT')
+segment=v.out('SEGMENT_POINT').next()
+segmentId=segment.segmentID
+segmentLoad=market.out('SEGMENT_LOAD').as('x').out('SEGMENTLOAD_SEGMENT').filter{it.segmentID==segmentId}.back('x').next();
+//return segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').timeSeries.next()[tick.toInteger()]
+//return segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').next().timeSeries[tick.toInteger()]
+growthfactor=1
+try{growthfactor = segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').collect{f.getTrendValue(it, tick)}[0];} catch(Exception e){  
+  growthfactor=segmentLoad.in('SEGMENT_LOAD').out('DEMANDGROWTH_TREND').next().timeSeries[tick.toInteger()]}
+//}
+//return segmentLoad
+demandLevel=segmentLoad.out('SEGMENTLOAD_SEGMENT').lengthInHours.next() * segmentLoad.baseLoad * growthfactor;
+    finalResult.add([v.time, v.volume, v.price, v.out('MARKET_POINT').collect{it.name}[0], v.out('SEGMENT_POINT').collect{it.segmentID}[0], v.out('SEGMENT_POINT').collect{it.lengthInHours}[0],v.interconnectorFlow,demandLevel,demandLevel-v.volume])
+}
+return finalResult;
+",
+
+"tenderClearingPrice", "Zone", "tenderClearingPrice = 0;
+try {tenderClearingPrice = v.in('OF_ZONE').in('WITH_REGULATOR').in('RENEWABLE_SUPPORT_SCHEME_TENDER').filter{it.time == tick}.price.next()
+if (tenderClearingPrice == null) tenderClearingPrice = 0} catch(Exception e) {tenderClearingPrice = 0}
+return[v.name, tenderClearingPrice];
+",
+
+"tenderClearingVolume", "Zone", "tenderClearingVolume = 0;
+try {tenderClearingVolume = v.in('OF_ZONE').in('WITH_REGULATOR').in('RENEWABLE_SUPPORT_SCHEME_TENDER').filter{it.time == tick}.volume.next()
+if (tenderClearingVolume == null) tenderClearingVolume = 0} catch(Exception e){tenderClearingVolume = 0}
+return[v.name, tenderClearingVolume];
+",
+
+"GenerationinMWhCountryA", "PowerGeneratingTechnology", "sum = 0; 
+ppdps = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country A'}.back('x').in('POWERPLANT_DISPATCHPLAN').filter{it.time==tick && it.status>=2 && it.forecast==false}; 
+for(ppdp in ppdps){ totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract'); 
+hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours'); 
+production = totalAmount * hoursInSegment; 
+sum = sum + production; } 
+return[v.name, sum]; 
+", 
+
+"GenerationinMWhCountryB", "PowerGeneratingTechnology", "sum = 0; 
+ppdps = v.in('TECHNOLOGY').as('x').out('LOCATION').out('REGION').filter{it.name=='Country B'}.back('x').in('POWERPLANT_DISPATCHPLAN').filter{it.time==tick && it.status>=2 && it.forecast==false}; 
+for(ppdp in ppdps){ totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract'); 
+hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours'); 
+production = totalAmount * hoursInSegment; 
+sum = sum + production; } 
+return[v.name, sum]; 
+",
+
+"yearlyTotalTenderSubsidyCountryA", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+yearlyTenderSubsidyCountryA=0;
+for (key in groups.keySet()) {
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country A')}[0]
+         && flow.filter{it.time == tick}) {
+               
+         yearlyTenderSubsidyCountryA += flow.money;
+	if (yearlyTenderSubsidyCountryA == null) yearlyTenderSubsidyCountryA = 0;
+         }
+      }
+
+   }
+}
+result.add(['Tender Subsidy Yearly Country A', yearlyTenderSubsidyCountryA]);
+return result;
+",
+
+"yearlyTotalTenderSubsidyCountryB", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+yearlyTenderSubsidyCountryB=0;
+for (key in groups.keySet()) {
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.out('TO_AGENT').out('INVESTOR_MARKET').out('ZONE').collect{it.name.equals('Country B')}[0]
+         && flow.filter{it.time == tick}) {
+               
+         yearlyTenderSubsidyCountryB += flow.money;
+	if (yearlyTenderSubsidyCountryB == null) yearlyTenderSubsidyCountryB = 0;
+         }
+      }
+
+   }
+}
+result.add(['Tender Subsidy Yearly Country B', yearlyTenderSubsidyCountryB]);
+return result;
+",
+
+"TenderYearlySubsidyProducer", "DecarbonizationModel", "flows = n.getNodes('CashFlow');
+groups = flows.groupBy{it.type}
+result = [];
+yearlyTenderSubsidyProdA=0;
+yearlyTenderSubsidyProdB=0;
+yearlyTenderSubsidyProdC=0;
+yearlyTenderSubsidyProdD=0;
+yearlyTenderSubsidyProdE=0;
+yearlyTenderSubsidyProdF=0;
+yearlyTenderSubsidyProdG=0;
+yearlyTenderSubsidyProdH=0;
+yearlyTenderSubsidyProdI=0;
+
+for (key in groups.keySet()) {
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer A'}) {
+               
+             yearlyTenderSubsidyProdA += flow.money;
+	 if (yearlyTenderSubsidyProdA == null) yearlyTenderSubsidyProdA = 0;
+         }
+    }
+
+  }
+
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer B'}) {
+               
+             yearlyTenderSubsidyProdB += flow.money;
+	 if (yearlyTenderSubsidyProdB == null) yearlyTenderSubsidyProdB = 0;
+         }
+    }
+
+  }
+  
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer C'}) {
+               
+             yearlyTenderSubsidyProdC += flow.money;
+	if (yearlyTenderSubsidyProdC == null) yearlyTenderSubsidyProdC = 0;
+         }
+    }
+
+  }
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer D'}) {
+               
+             yearlyTenderSubsidyProdD += flow.money;
+	if (yearlyTenderSubsidyProdD == null) yearlyTenderSubsidyProdD = 0;
+         }
+    }
+
+  }
+ 
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer E'}) {
+               
+             yearlyTenderSubsidyProdE += flow.money;
+	if (yearlyTenderSubsidyProdE == null) yearlyTenderSubsidyProdE = 0;
+         }
+    }
+
+  }
+  
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer F'}) {
+               
+             yearlyTenderSubsidyProdF += flow.money;
+	if (yearlyTenderSubsidyProdF == null) yearlyTenderSubsidyProdF = 0;
+         }
+    }
+
+  }
+  
+ if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer G'}) {
+               
+             yearlyTenderSubsidyProdG += flow.money;
+	if (yearlyTenderSubsidyProdG == null) yearlyTenderSubsidyProdG = 0;
+         }
+    }
+
+  }
+  
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer H'}) {
+               
+             yearlyTenderSubsidyProdH += flow.money;
+	if (yearlyTenderSubsidyProdH == null) yearlyTenderSubsidyProdH = 0;
+         }
+    }
+
+  } 
+
+if (key==14) {
+        for (flow in groups[key]) {
+         if (flow.out('TO_AGENT').collect{it.__type__.contains('EnergyProducer')}[0] 
+         && flow.filter{it.time == tick}
+         && flow.out('TO_AGENT').filter{it.name == 'Energy Producer I'}) {
+               
+             yearlyTenderSubsidyProdI += flow.money;
+	if (yearlyTenderSubsidyProdI == null) yearlyTenderSubsidyProdI = 0;
+         }
+    }
+
+  } 
+
+
+}
+
+result.add(['Tender Subsidy Yearly Producer A', yearlyTenderSubsidyProdA]);
+result.add(['Tender Subsidy Yearly Producer B', yearlyTenderSubsidyProdB]);
+result.add(['Tender Subsidy Yearly Producer C', yearlyTenderSubsidyProdC]);
+result.add(['Tender Subsidy Yearly Producer D', yearlyTenderSubsidyProdD]);
+result.add(['Tender Subsidy Yearly Producer E', yearlyTenderSubsidyProdE]);
+result.add(['Tender Subsidy Yearly Producer F', yearlyTenderSubsidyProdF]);
+result.add(['Tender Subsidy Yearly Producer G', yearlyTenderSubsidyProdG]);
+result.add(['Tender Subsidy Yearly Producer H', yearlyTenderSubsidyProdH]);
+result.add(['Tender Subsidy Yearly Producer I', yearlyTenderSubsidyProdI]);
+return result;
+",
+
+
+
+"GenerationTypesPerTechnology", "PowerGeneratingTechnology", "sum = 0;
+ppdps = v.in('TECHNOLOGY').in('POWERPLANT_DISPATCHPLAN').filter{it.time==tick && it.status>=2 && it.forecast==false};
+for(ppdp in ppdps){
+    totalAmount = ppdp.getProperty('acceptedAmount') + ppdp.getProperty('capacityLongTermContract');
+    hoursInSegment = ppdp.out('SEGMENT_DISPATCHPLAN').next().getProperty('lengthInHours');
+    production = totalAmount * hoursInSegment;
+    sum = sum + production;
+
+}
+return [v.name, sum];
+",
+
+
+"ConsumerExpenditure", "ElectricitySpotMarket", "[v.name, -v.cash];
+",
+>>>>>>> Rob/feature/TenderTechnologySpecificity
