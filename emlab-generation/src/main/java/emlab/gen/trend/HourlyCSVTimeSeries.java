@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author J.C. Richstein
- * 
+ *
  */
 @NodeEntity
 public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
-	Logger logger = LoggerFactory.getLogger(HourlyCSVTimeSeries.class);
+    Logger logger = LoggerFactory.getLogger(HourlyCSVTimeSeries.class);
 
     private String filename;
 
@@ -70,10 +70,11 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
     /**
      * Parameter time specifies year of the hourly array. Currently not
      * implemented to make a difference.
-     * 
+     *
      * @param time
      * @return
      */
+    @Override
     public double[] getHourlyArray(long time) {
         if (hourlyArray != null)
             try {
@@ -90,6 +91,7 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     }
 
+    @Override
     public void setHourlyArray(double[] hourlyArray, long time) {
         this.hourlyArray = hourlyArray;
     }
@@ -113,6 +115,15 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public void scalarMultiply(double scalar) {
+        int i = 0;
+        for (double element : this.hourlyArray) {
+            this.hourlyArray[i] = element * scalar;
+            i++;
+        }
+
     }
 
 }
