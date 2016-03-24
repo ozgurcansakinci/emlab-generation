@@ -425,6 +425,16 @@ implements Role<DecarbonizationModel> {
                 exprStorageContentB[i].addTerm(-nInvB, storageDischargingB[i]);
             }
 
+            ////////// Carbon Emissions
+
+            IloLinearNumExpr[] CarbonCreditsExpr = new IloLinearNumExpr[timeSteps];
+            for (int i = 0; i < timeSteps; i++) {
+                CarbonCreditsExpr[i] = cplex.linearNumExpr();
+                for (Plant p : pp) {
+                    CarbonCreditsExpr[i].addTerm(p.getEmissionsIntensity(), p.getGenerationCapacityOfPlant().get(i));
+                }
+            }
+
             // OBJECTIVE FUNCTION EXPRESSION
 
             IloLinearNumExpr objective = cplex.linearNumExpr();
@@ -474,6 +484,10 @@ implements Role<DecarbonizationModel> {
                 cplex.addEq(exprStorageContentB[i], stateOfChargeInStorageB[i]);
             }
 
+            // clearing carbon market
+
+            cplex.addLe(cplex.sum(CarbonCreditsExpr), 45000);
+
             // solve
 
             if (cplex.solve()) {
@@ -496,6 +510,7 @@ implements Role<DecarbonizationModel> {
                             "Cross Border Generation from B to A  = " + cplex.getValue(crossBorderGenerationBtoA[i]));
                     System.out.println(
                             "Cross Border Generation from A to B  = " + cplex.getValue(crossBorderGenerationAtoB[i]));
+                    System.out.println("Carbon emissions  = " + cplex.getValue(CarbonCreditsExpr[i]));
                 }
 
 
