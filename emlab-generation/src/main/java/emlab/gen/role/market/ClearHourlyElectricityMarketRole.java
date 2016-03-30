@@ -196,7 +196,7 @@ implements Role<DecarbonizationModel> {
         int timeSteps = totalDemand.length;
 
         for (Plant p : pp) {
-
+            p.availableRESCapacityArray = new double[8760];
             if (p.getZone().equals("Zone Country A") && p.getTechnology().equals("Wind")) {
 
                 ArrayList<Double> availableWindPlantCapacity = new ArrayList<Double>(timeSteps);
@@ -204,7 +204,9 @@ implements Role<DecarbonizationModel> {
                 for (int i = 0; i < timeSteps; i++)
 
                 {
-                    availableWindPlantCapacity.add(i, p.getActualNominalCapacity() * WindSpeed[i]);
+                    p.availableRESCapacityArray[i] = p.getActualNominalCapacity() * WindSpeed[i];// changes
+                                                                                                 // by
+                                                                                                 // emile
                 }
                 p.setAvailableRESCapacity(availableWindPlantCapacity);
             }

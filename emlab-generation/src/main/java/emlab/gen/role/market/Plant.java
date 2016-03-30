@@ -34,7 +34,7 @@ public class Plant {
     public String zone;
     public long tick;
     public double emissionsIntensity;
-    // public double[] availableRESCapacity;
+    public double[] availableRESCapacityArray;// changes by emile
     public ArrayList<Double> availableRESCapacity = new ArrayList<Double>(1);
     public ArrayList<IloNumVar> generationCapacityOfPlant = new ArrayList<IloNumVar>(1);
     // IloNumVar[] generationCapacityOfPlant;
