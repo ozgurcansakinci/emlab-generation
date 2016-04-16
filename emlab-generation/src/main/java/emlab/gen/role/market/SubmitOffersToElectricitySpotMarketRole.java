@@ -265,4 +265,12 @@ Role<EnergyProducer> {
 
     }
 
+    /**
+     * @return
+     */
+    public ArrayList<Plant> getplants1() {
+        // TODO Auto-generated method stub
+        return pp;
+    }
+
 }
