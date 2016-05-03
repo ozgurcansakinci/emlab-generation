@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,8 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.transaction.annotation.Transactional;
 
+import emlab.gen.trend.HourlyCSVTimeSeries;
+//import emlab.gen.trend.HourlyVariableTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
 
 @NodeEntity
@@ -33,6 +35,54 @@ public class Interconnector {
 
     @RelatedTo(type = "INTERCONNECTOR_CAPACITY_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl interconnectorCapacityTrend;
+
+    //////////////////////////////////////////////
+
+    private double maxInterconnectorCapacity;
+
+    private double minInterconnectorCapacity;
+
+    public double getMinInterconnectorCapacity() {
+        return minInterconnectorCapacity;
+    }
+
+    public void setMinInterconnectorCapacity(double minInterconnectorCapacity) {
+        this.minInterconnectorCapacity = minInterconnectorCapacity;
+    }
+
+    public double getMaxInterconnectorCapacity() {
+        return maxInterconnectorCapacity;
+    }
+
+    public void setMaxInterconnectorCapacity(double maxInterconnectorCapacity) {
+        this.maxInterconnectorCapacity = maxInterconnectorCapacity;
+    }
+
+    /////////////////////////////////////////////////////////
+
+    private HourlyCSVTimeSeries interconnectorFlowFromAtoB;
+
+    private HourlyCSVTimeSeries interconnectorFlowFromBtoA;
+
+    /////////////////////////////////////////////////////////
+
+    public HourlyCSVTimeSeries getInterconnectorFlowFromAtoB() {
+        return interconnectorFlowFromAtoB;
+    }
+
+    public void setInterconnectorFlowFromAtoB(HourlyCSVTimeSeries interconnectorFlowFromAtoB) {
+        this.interconnectorFlowFromAtoB = interconnectorFlowFromAtoB;
+    }
+
+    public HourlyCSVTimeSeries getInterconnectorFlowFromBtoA() {
+        return interconnectorFlowFromBtoA;
+    }
+
+    public void setInterconnectorFlowFromBtoA(HourlyCSVTimeSeries interconnectorFlowFromBtoA) {
+        this.interconnectorFlowFromBtoA = interconnectorFlowFromBtoA;
+    }
+
+    /////////////////////////////////////////////////////////
 
     public Set<PowerGridNode> getConnections() {
         return connections;

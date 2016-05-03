@@ -41,9 +41,12 @@ import emlab.gen.repository.Reps;
 import emlab.gen.role.AbstractEnergyProducerRole;
 
 /**
- * {@link EnergyProducer} submits offers to the {@link ElectricitySpotMarket}. One {@link Bid} per {@link PowerPlant}.
+ * {@link EnergyProducer} submits offers to the {@link ElectricitySpotMarket}.
+ * One {@link Bid} per {@link PowerPlant}.
  *
- * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a> @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  *
  */
 @RoleComponent
@@ -52,7 +55,7 @@ Role<EnergyProducer> {
 
     @Autowired
     Reps reps;
-    ArrayList<Plant> pp = new ArrayList<Plant>();
+    // ArrayList<Plant> pp = new ArrayList<Plant>();
 
     @Override
     public void act(EnergyProducer producer) {
@@ -60,9 +63,9 @@ Role<EnergyProducer> {
         createOffersForElectricitySpotMarket(producer, getCurrentTick(), false, null);
     }
 
-    public ArrayList<Plant> getplants() {
-        return pp;
-    }
+    // public ArrayList<Plant> getplants() {
+    // return pp;
+    // }
 
     @Transactional
     public List<PowerPlantDispatchPlan> createOffersForElectricitySpotMarket(EnergyProducer producer, long tick,
@@ -98,13 +101,12 @@ Role<EnergyProducer> {
 
         // System.out.println(" Number of Power plants--orig: " +
         // powerPlant.p.size());
-        System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-        int count = 0;
+        // System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+        // int count = 0;
         for (PowerPlant plant : powerPlants) {
 
-            System.out.println("Count :" + count);
-            count++;
-
+            // System.out.println("Count :" + count);
+            // count++;
 
             if (producerIsNull) {
                 market = reps.marketRepository.findElectricitySpotMarketForZone(plant.getLocation().getZone());
@@ -123,6 +125,12 @@ Role<EnergyProducer> {
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+            // if (plant.getLocation().getZone().getName().equals("Country A")
+            // && plant.getTechnology().getName().contains("Wind")) {
+            //
+            // System.out.println(plant.getName());
+            //
+            // }
             //
             // System.out.println(plant.getName() + " |Technology: " +
             // plant.getTechnology() + " |Cap: "
@@ -133,16 +141,16 @@ Role<EnergyProducer> {
             // + " / " + price);
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            Plant p = new Plant();
-            p.setName(plant.getName());
-            p.setOwner(plant.getOwner().toString());
-            p.setTechnology(plant.getTechnology().toString());
-            p.setActualNominalCapacity(plant.getActualNominalCapacity());
-            p.setMc(mc);
-            p.setZone(plant.getLocation().getZone().toString());
-            p.setTick(tick);
-            p.setEmissionsIntensity(plant.calculateEmissionIntensity());
-            pp.add(p);
+            // Plant p = new Plant();
+            // p.setName(plant.getName());
+            // p.setOwner(plant.getOwner().toString());
+            // p.setTechnology(plant.getTechnology().toString());
+            // p.setActualNominalCapacity(plant.getActualNominalCapacity());
+            // p.setMc(mc);
+            // p.setZone(plant.getLocation().getZone().toString());
+            // p.setTick(tick);
+            // p.setEmissionsIntensity(plant.calculateEmissionIntensity());
+            // pp.add(p);
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -202,7 +210,7 @@ Role<EnergyProducer> {
 
         }
 
-        System.out.println(" Number of Power plants--orig: " + pp.size());
+        // System.out.println(" Number of Power plants--orig: " + pp.size());
 
         return ppdpList;
     }
@@ -263,14 +271,6 @@ Role<EnergyProducer> {
 
         //logger.warn("Marginal cost of {} of {} plans changed", i, j);
 
-    }
-
-    /**
-     * @return
-     */
-    public ArrayList<Plant> getplants1() {
-        // TODO Auto-generated method stub
-        return pp;
     }
 
 }

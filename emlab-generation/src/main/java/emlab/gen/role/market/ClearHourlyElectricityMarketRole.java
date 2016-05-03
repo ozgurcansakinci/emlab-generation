@@ -22,11 +22,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 
 import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import cern.colt.Timer;
 import emlab.gen.domain.agent.DecarbonizationModel;
+import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
+import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.repository.Reps;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -43,6 +46,9 @@ implements Role<DecarbonizationModel> {
 
     @Autowired
     private Reps reps;
+
+    @Autowired
+    Neo4jTemplate template;
 
     String inputFileDemandInZoneA = "/home/sk/Test CSVs/15 Time Steps/Time_Series_Demand_A.csv";
     String inputFileSolarIrradianceInZoneA = "/home/sk/Test CSVs/15 Time Steps/Solar_Irradiance_A.csv";
@@ -186,6 +192,58 @@ implements Role<DecarbonizationModel> {
 
     @Override
     public void act(DecarbonizationModel model) {
+
+        try {
+            IloCplex cplex1 = new IloCplex();
+
+            Iterable<ElectricitySpotMarket> marketList = new ArrayList<ElectricitySpotMarket>();
+            marketList = reps.marketRepository.findAllElectricitySpotMarkets();
+            Iterable<PowerPlant> powerPlantList = null;
+
+            for (ElectricitySpotMarket market : marketList) {
+                powerPlantList = reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market, getCurrentTick());
+
+                for (PowerPlant plant : powerPlantList) {
+                    System.out.println(plant.toString());
+                }
+            }
+
+            /*
+             * Iterable<PowerPlantDispatchPlan> sortedListofPPDP =
+             * plantDispatchPlanRepository
+             * .findDescendingSortedPowerPlantDispatchPlansForSegmentForTime(
+             * currentSegment, getCurrentTick(), false);
+             *
+             * for (PowerPlantDispatchPlan currentPPDP: sortedListofPPDP){
+             */
+
+            // for (PowerPlant p : powerPlantList) {
+
+            // ArrayList<IloNumVar> generationCapacityOfPlant = new
+            // ArrayList<IloNumVar>(timeSteps);
+
+            // for (int i = 0; i < timeSteps; i++) {
+            //
+            // // if (p.getZone().equals("Zone Country A") &&
+            // // p.getTechnology().equals("Wind")) {
+            // IloNumVar[] generationCapacityofPlant = new IloNumVar[timeSteps];
+            // generationCapacityofPlant[i] = cplex.numVar(0,
+            // p.getActualHourlyNominalCapacity().getHourlyArray(0)[i]);
+            //
+            // System.out.println(generationCapacityofPlant[i]);
+            //
+            // }
+            // }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Starting optimization model");
+        System.out.println("Starting optimization model");
+        System.out.println("Starting optimization model");
+        System.out.println("Starting optimization model");
+        System.out.println("Starting optimization model");
 
     }
 
@@ -528,7 +586,7 @@ implements Role<DecarbonizationModel> {
 
             hourlyTimerMarket.stop();
             System.out.println("Optimization took: " + hourlyTimerMarket.seconds() + " seconds");
-            System.exit(0);
+            // System.exit(0);
         } catch (IloException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
