@@ -20,6 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
@@ -28,9 +32,15 @@ import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import cern.colt.Timer;
 import emlab.gen.domain.agent.DecarbonizationModel;
+import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
+import emlab.gen.domain.technology.IntermittentResourceProfile;
+import emlab.gen.domain.technology.PowerGeneratingTechnology;
+import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.repository.Reps;
+import emlab.gen.trend.HourlyCSVTimeSeries;
+import emlab.gen.util.Utils;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -203,8 +213,47 @@ implements Role<DecarbonizationModel> {
             for (ElectricitySpotMarket market : marketList) {
                 powerPlantList = reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market, getCurrentTick());
 
-                for (PowerPlant plant : powerPlantList) {
-                    System.out.println(plant.toString());
+                // for (PowerPlant plant : powerPlantList) {
+                // System.out.println(plant.toString());
+                // }
+            }
+
+            List<Zone> zoneList = Utils.asList(reps.template.findAll(Zone.class));
+            List<PowerGeneratingTechnology> technologyList = Utils
+                    .asList(reps.powerGeneratingTechnologyRepository.findAllIntermittentPowerGeneratingTechnologies());
+            Map<Zone, List<PowerGridNode>> zoneToNodeList = new HashMap<Zone, List<PowerGridNode>>();
+            for (Zone zone : zoneList) {
+                List<PowerGridNode> nodeList = Utils
+                        .asList(reps.powerGridNodeRepository.findAllPowerGridNodesByZone(zone));
+                zoneToNodeList.put(zone, nodeList);
+            }
+
+            for (Zone zone : zoneList) {
+
+                for (PowerGridNode node : zoneToNodeList.get(zone)) {
+                    powerPlantList = reps.powerPlantRepository.findOperationalPowerPlantsByPowerGridNode(node,
+                            getCurrentTick());
+                    for (PowerPlant plant : powerPlantList) {
+
+                        if (plant.getTechnology().isIntermittent()) {
+                            IntermittentResourceProfile intermittentResourceProfile = reps.intermittentResourceProfileRepository
+                                    .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(), node);
+                            HourlyCSVTimeSeries hourlyAvailabilityPerNode = new HourlyCSVTimeSeries();
+                            hourlyAvailabilityPerNode
+                            .setHourlyArray(intermittentResourceProfile.getHourlyArray(getCurrentTick()), 0);
+                            hourlyAvailabilityPerNode.scalarMultiply(plant.getActualNominalCapacity());
+                            plant.setActualHourlyNominalCapacity(hourlyAvailabilityPerNode);
+                            System.out.println("I " + plant.getActualNominalCapacity() + " "
+                                    + plant.getActualHourlyNominalCapacity().getHourlyArray(0)[0]);
+                        } else {
+                            HourlyCSVTimeSeries hourlyCapacity = new HourlyCSVTimeSeries();
+                            Arrays.fill(hourlyCapacity.getHourlyArray(0), plant.getActualNominalCapacity());
+                            plant.setActualHourlyNominalCapacity(hourlyCapacity);
+                            System.out.println("NI " + plant.getActualNominalCapacity() + " "
+                                    + plant.getActualHourlyNominalCapacity().getHourlyArray(0)[0]);
+                        }
+
+                    }
                 }
             }
 

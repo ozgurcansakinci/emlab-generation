@@ -32,6 +32,7 @@ import emlab.gen.domain.market.electricity.PowerPlantDispatchPlan;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.repository.IntermittentTechnologyNodeLoadFactorRepository;
 import emlab.gen.repository.PowerPlantDispatchPlanRepository;
+import emlab.gen.trend.HourlyCSVTimeSeries;
 
 /**
  * Representation of a power plant
@@ -88,17 +89,17 @@ public class PowerPlant {
     private double expectedEndOfLife;
     private double actualNominalCapacity;
     private boolean historicalCvarDummyPlant;
-    // private HourlyCSVTimeSeries actualHourlyNominalCapacity;
-    //
-    // public HourlyCSVTimeSeries getActualHourlyNominalCapacity() {
-    // return actualHourlyNominalCapacity;
-    // }
-    //
-    // public void setActualHourlyNominalCapacity(HourlyCSVTimeSeries
-    // actualHourlyNominalCapacity) {
-    // this.actualHourlyNominalCapacity = actualHourlyNominalCapacity;
-    // }
-    //
+
+    private HourlyCSVTimeSeries actualHourlyNominalCapacity;
+
+    public HourlyCSVTimeSeries getActualHourlyNominalCapacity() {
+        return actualHourlyNominalCapacity;
+    }
+
+    public void setActualHourlyNominalCapacity(HourlyCSVTimeSeries actualHourlyNominalCapacity) {
+        this.actualHourlyNominalCapacity = actualHourlyNominalCapacity;
+    }
+
     // public HourlyCSVTimeSeries getHourlyAvailableCapacity() {
     // if (this.technology.getName().equals("Wind") ||
     // this.technology.getName().equals("WindOffshore")) {
@@ -538,7 +539,7 @@ public class PowerPlant {
         this.calculateAndSetActualInvestedCapital(time);
         this.calculateAndSetActualFixedOperatingCosts(time);
         this.setExpectedEndOfLife(time + getActualPermittime()
-                + getActualLeadtime() + getTechnology().getExpectedLifetime());
+        + getActualLeadtime() + getTechnology().getExpectedLifetime());
     }
 
     @Transactional

@@ -40,15 +40,16 @@ public class Interconnector {
 
     private double maxInterconnectorCapacity;
 
-    private double minInterconnectorCapacity;
-
-    public double getMinInterconnectorCapacity() {
-        return minInterconnectorCapacity;
-    }
-
-    public void setMinInterconnectorCapacity(double minInterconnectorCapacity) {
-        this.minInterconnectorCapacity = minInterconnectorCapacity;
-    }
+    // private double minInterconnectorCapacity;
+    //
+    // public double getMinInterconnectorCapacity() {
+    // return minInterconnectorCapacity;
+    // }
+    //
+    // public void setMinInterconnectorCapacity(double
+    // minInterconnectorCapacity) {
+    // this.minInterconnectorCapacity = minInterconnectorCapacity;
+    // }
 
     public double getMaxInterconnectorCapacity() {
         return maxInterconnectorCapacity;
