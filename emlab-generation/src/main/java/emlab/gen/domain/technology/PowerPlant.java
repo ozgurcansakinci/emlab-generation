@@ -90,6 +90,7 @@ public class PowerPlant {
     private double actualNominalCapacity;
     private boolean historicalCvarDummyPlant;
 
+
     private HourlyCSVTimeSeries actualHourlyNominalCapacity;
 
     public HourlyCSVTimeSeries getActualHourlyNominalCapacity() {
@@ -98,6 +99,7 @@ public class PowerPlant {
 
     public void setActualHourlyNominalCapacity(HourlyCSVTimeSeries actualHourlyNominalCapacity) {
         this.actualHourlyNominalCapacity = actualHourlyNominalCapacity;
+        // this.persist();// TODO: ask about this update of the database
     }
 
     // public HourlyCSVTimeSeries getHourlyAvailableCapacity() {
@@ -540,6 +542,8 @@ public class PowerPlant {
         this.calculateAndSetActualFixedOperatingCosts(time);
         this.setExpectedEndOfLife(time + getActualPermittime()
         + getActualLeadtime() + getTechnology().getExpectedLifetime());
+        // this.setActualHourlyNominalCapacity(actualHourlyNominalCapacity);
+        // this.setCPLEXGenerationVariableforPowerPlant(CPLEXGenerationVariableforPowerPlant);
     }
 
     @Transactional
@@ -609,6 +613,11 @@ public class PowerPlant {
 
     public void setHistoricalCvarDummyPlant(boolean historicalCvarDummyPlant) {
         this.historicalCvarDummyPlant = historicalCvarDummyPlant;
+    }
+
+    @Transactional
+    public void persistPlant() {
+        this.persist();
     }
 
 }

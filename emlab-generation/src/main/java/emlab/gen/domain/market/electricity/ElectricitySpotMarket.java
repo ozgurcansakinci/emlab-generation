@@ -22,8 +22,10 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import emlab.gen.domain.market.DecarbonizationMarket;
+import emlab.gen.trend.DailyCSVTimeSeries;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
+import ilog.concert.IloLinearNumExpr;
 
 @NodeEntity
 public class ElectricitySpotMarket extends DecarbonizationMarket {
@@ -35,7 +37,38 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     private TimeSeriesImpl demandGrowthTrend;
 
     @RelatedTo(type = "HOURLYDEMAND", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private HourlyCSVTimeSeries hourlyDemandForESMarket;
+    private HourlyCSVTimeSeries hourlyInElasticDemandForESMarket;
+
+    @RelatedTo(type = "DAILYDEMAND", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private DailyCSVTimeSeries dailyElasticDemandForESMarket;
+
+    private IloLinearNumExpr[] generationEquationForElectrictySpotMarket;
+
+    public IloLinearNumExpr[] getGenerationEquationForElectrictySpotMarket() {
+        return generationEquationForElectrictySpotMarket;
+    }
+
+    public void setGenerationEquationForElectrictySpotMarket(
+            IloLinearNumExpr[] generationEquationForElectrictySpotMarket) {
+        this.generationEquationForElectrictySpotMarket = generationEquationForElectrictySpotMarket;
+        this.persist();
+    }
+
+    public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
+        return hourlyInElasticDemandForESMarket;
+    }
+
+    public void setHourlyInElasticDemandForESMarket(HourlyCSVTimeSeries hourlyInElasticDemandForESMarket) {
+        this.hourlyInElasticDemandForESMarket = hourlyInElasticDemandForESMarket;
+    }
+
+    public DailyCSVTimeSeries getDailyElasticDemandForESMarket() {
+        return dailyElasticDemandForESMarket;
+    }
+
+    public void setDailyElasticDemandForESMarket(DailyCSVTimeSeries dailyElasticDemandForESMarket) {
+        this.dailyElasticDemandForESMarket = dailyElasticDemandForESMarket;
+    }
 
     private double valueOfLostLoad;
 
@@ -49,14 +82,6 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     public double getValueOfLostLoad() {
         return valueOfLostLoad;
-    }
-
-    public HourlyCSVTimeSeries getHourlyDemandForESMarket() {
-        return hourlyDemandForESMarket;
-    }
-
-    public void setHourlyDemandForESMarket(HourlyCSVTimeSeries hourlyDemandForESMarket) {
-        this.hourlyDemandForESMarket = hourlyDemandForESMarket;
     }
 
     public void setValueOfLostLoad(double valueOfLostLoad) {

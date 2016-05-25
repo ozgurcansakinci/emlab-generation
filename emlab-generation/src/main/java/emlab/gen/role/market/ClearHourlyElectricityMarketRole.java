@@ -15,33 +15,31 @@
  ******************************************************************************/
 package emlab.gen.role.market;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import agentspring.role.Role;
 import agentspring.role.RoleComponent;
-import cern.colt.Timer;
 import emlab.gen.domain.agent.DecarbonizationModel;
+import emlab.gen.domain.agent.Government;
 import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
-import emlab.gen.domain.technology.IntermittentResourceProfile;
+import emlab.gen.domain.market.electricity.PpdpAnnual;
+import emlab.gen.domain.technology.Interconnector;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.repository.Reps;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.util.Utils;
-import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
@@ -59,29 +57,6 @@ implements Role<DecarbonizationModel> {
 
     @Autowired
     Neo4jTemplate template;
-
-    String inputFileDemandInZoneA = "/home/sk/Test CSVs/15 Time Steps/Time_Series_Demand_A.csv";
-    String inputFileSolarIrradianceInZoneA = "/home/sk/Test CSVs/15 Time Steps/Solar_Irradiance_A.csv";
-    String inputFileWindSpeedInZoneA = "/home/sk/Test CSVs/15 Time Steps/Wind_Speed_A.csv";
-
-    String inputFileElasticDemandInZoneA = "/home/sk/Test CSVs/8760 Time Steps/Elastic_Time_Series_Demand_AA.csv";
-
-    BufferedReader brDemandInZoneA = null;
-    BufferedReader brSolarIrradianceInZoneA = null;
-    BufferedReader brWindSpeedInZoneA = null;
-    BufferedReader brElasticDemandInZoneA = null;
-
-    String line = "";
-
-    ArrayList<String> DemandInZoneA = new ArrayList<String>();
-    ArrayList<String> SolarIrradianceInZoneA = new ArrayList<String>();
-    ArrayList<String> WindSpeedInZoneA = new ArrayList<String>();
-    ArrayList<String> ElasticDemandInZoneA = new ArrayList<String>();
-
-    double[] totalDemand;
-    double[] SolarIrradiance;
-    double[] WindSpeed;
-    double[] ElasticDemandPerDay;
 
     ///////////////////////////////////////// parameters for country A
 
@@ -126,163 +101,280 @@ implements Role<DecarbonizationModel> {
 
     //////////////////////////////////////////////////////////////////
 
-    public void readInput() {
-        try {
-            brDemandInZoneA = new BufferedReader(new FileReader(inputFileDemandInZoneA));
-            while ((line = brDemandInZoneA.readLine()) != null) {
-                DemandInZoneA.add(line);
-            }
 
-            brSolarIrradianceInZoneA = new BufferedReader(new FileReader(inputFileSolarIrradianceInZoneA));
-            while ((line = brSolarIrradianceInZoneA.readLine()) != null) {
-                SolarIrradianceInZoneA.add(line);
-            }
 
-            brWindSpeedInZoneA = new BufferedReader(new FileReader(inputFileWindSpeedInZoneA));
-            while ((line = brWindSpeedInZoneA.readLine()) != null) {
-                WindSpeedInZoneA.add(line);
-            }
+    ///////////////////////////////////////////////////////////////////
 
-            brElasticDemandInZoneA = new BufferedReader(new FileReader(inputFileElasticDemandInZoneA));
-            while ((line = brElasticDemandInZoneA.readLine()) != null) {
-                ElasticDemandInZoneA.add(line);
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (brDemandInZoneA != null) {
-                try {
-                    brDemandInZoneA.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (brSolarIrradianceInZoneA != null) {
-                try {
-                    brSolarIrradianceInZoneA.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (brWindSpeedInZoneA != null) {
-                try {
-                    brWindSpeedInZoneA.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (brElasticDemandInZoneA != null) {
-                try {
-                    brElasticDemandInZoneA.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        totalDemand = new double[DemandInZoneA.size()];
-        for (int i = 0; i < totalDemand.length; i++) {
-            totalDemand[i] = Double.parseDouble(DemandInZoneA.get(i));
-        }
-        SolarIrradiance = new double[SolarIrradianceInZoneA.size()];
-        for (int i = 0; i < SolarIrradiance.length; i++) {
-            SolarIrradiance[i] = Double.parseDouble(SolarIrradianceInZoneA.get(i));
-        }
-        WindSpeed = new double[WindSpeedInZoneA.size()];
-        for (int i = 0; i < WindSpeed.length; i++) {
-            WindSpeed[i] = Double.parseDouble(WindSpeedInZoneA.get(i));
-        }
-        ElasticDemandPerDay = new double[ElasticDemandInZoneA.size()];
-        for (int i = 0; i < ElasticDemandPerDay.length; i++) {
-            ElasticDemandPerDay[i] = Double.parseDouble(ElasticDemandInZoneA.get(i));
-        }
-    }
-
+    @Transactional
     @Override
     public void act(DecarbonizationModel model) {
 
         try {
-            IloCplex cplex1 = new IloCplex();
+            Government gov = template.findAll(Government.class).iterator().next();
+            IloCplex cplex = new IloCplex();
+            double co2Cap = gov.getCo2Cap(getCurrentTick());
 
             Iterable<ElectricitySpotMarket> marketList = new ArrayList<ElectricitySpotMarket>();
             marketList = reps.marketRepository.findAllElectricitySpotMarkets();
-            Iterable<PowerPlant> powerPlantList = null;
 
-            for (ElectricitySpotMarket market : marketList) {
-                powerPlantList = reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market, getCurrentTick());
-
-                // for (PowerPlant plant : powerPlantList) {
-                // System.out.println(plant.toString());
-                // }
-            }
+            Iterable<PowerPlant> powerPlantList = new ArrayList<PowerPlant>();
 
             List<Zone> zoneList = Utils.asList(reps.template.findAll(Zone.class));
+
             List<PowerGeneratingTechnology> technologyList = Utils
                     .asList(reps.powerGeneratingTechnologyRepository.findAllIntermittentPowerGeneratingTechnologies());
+
             Map<Zone, List<PowerGridNode>> zoneToNodeList = new HashMap<Zone, List<PowerGridNode>>();
+
+            // int numberOfPowerPlants = 0;
             for (Zone zone : zoneList) {
                 List<PowerGridNode> nodeList = Utils
                         .asList(reps.powerGridNodeRepository.findAllPowerGridNodesByZone(zone));
                 zoneToNodeList.put(zone, nodeList);
             }
 
-            for (Zone zone : zoneList) {
+            // for (Zone zone : zoneList) {
+            //
+            // for (PowerGridNode node : zoneToNodeList.get(zone)) {
+            //
+            // Iterable<PowerPlant> powerPlantListPerNode = null;
+            //
+            // powerPlantListPerNode =
+            // reps.powerPlantRepository.findOperationalPowerPlantsByPowerGridNode(node,
+            // getCurrentTick());
+            //
+            // for (PowerPlant plant : powerPlantListPerNode) {
+            // numberOfPowerPlants++;
+            // if (plant.getTechnology().isIntermittent()) {
+            //
+            // IntermittentResourceProfile intermittentResourceProfile =
+            // reps.intermittentResourceProfileRepository
+            // .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(),
+            // node);
+            //
+            // HourlyCSVTimeSeries hourlyAvailabilityPerNode = new
+            // HourlyCSVTimeSeries();
+            //
+            // hourlyAvailabilityPerNode.setHourlyArray(
+            // intermittentResourceProfile.getHourlyArray(getCurrentTick()).clone(),
+            // 0);
+            //
+            // hourlyAvailabilityPerNode.scalarMultiply(plant.getActualNominalCapacity());
+            //
+            // chageactualhourlynomcap(plant, hourlyAvailabilityPerNode);
+            //
+            // } else {
+            //
+            // HourlyCSVTimeSeries hourlyCapacity = new HourlyCSVTimeSeries();
+            //
+            // double[] temp = new double[8760];
+            //
+            // Arrays.fill(temp, plant.getActualNominalCapacity());
+            //
+            // hourlyCapacity.setHourlyArray(temp, 0);
+            //
+            // chageactualhourlynomcap(plant, hourlyCapacity);
+            // }
+            //
+            // }
+            // }
+            // }
 
-                for (PowerGridNode node : zoneToNodeList.get(zone)) {
-                    powerPlantList = reps.powerPlantRepository.findOperationalPowerPlantsByPowerGridNode(node,
-                            getCurrentTick());
-                    for (PowerPlant plant : powerPlantList) {
 
-                        if (plant.getTechnology().isIntermittent()) {
-                            IntermittentResourceProfile intermittentResourceProfile = reps.intermittentResourceProfileRepository
-                                    .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(), node);
-                            HourlyCSVTimeSeries hourlyAvailabilityPerNode = new HourlyCSVTimeSeries();
-                            hourlyAvailabilityPerNode
-                            .setHourlyArray(intermittentResourceProfile.getHourlyArray(getCurrentTick()), 0);
-                            hourlyAvailabilityPerNode.scalarMultiply(plant.getActualNominalCapacity());
-                            plant.setActualHourlyNominalCapacity(hourlyAvailabilityPerNode);
-                            System.out.println("I " + plant.getActualNominalCapacity() + " "
-                                    + plant.getActualHourlyNominalCapacity().getHourlyArray(0)[0]);
-                        } else {
-                            HourlyCSVTimeSeries hourlyCapacity = new HourlyCSVTimeSeries();
-                            Arrays.fill(hourlyCapacity.getHourlyArray(0), plant.getActualNominalCapacity());
-                            plant.setActualHourlyNominalCapacity(hourlyCapacity);
-                            System.out.println("NI " + plant.getActualNominalCapacity() + " "
-                                    + plant.getActualHourlyNominalCapacity().getHourlyArray(0)[0]);
-                        }
+            powerPlantList = reps.powerPlantRepository.findOperationalPowerPlants(getCurrentTick());
 
-                    }
-                }
+            double numberofMarkets =reps.marketRepository.countAllElectricitySpotMarkets();
+
+            int numberOfElectricitySpotMarkets = (int) numberofMarkets;
+            int numberOfPowerPlants = reps.powerPlantRepository.findNumberOfOperationalPowerPlants(getCurrentTick());
+
+            int timeSteps = 8760;
+
+            // The i th row contains the array of variable generation capacity
+            // of plant i
+            IloNumVar[][] generationCapacityofPlantsMatrix = new
+                    IloNumVar[numberOfPowerPlants][timeSteps];
+
+            // Only works when there is one interconnector
+            // TODO:think about the multi node implementation
+            double minMarketCrossBorderFlowAandB = 0;
+            double maxMarketCrossBorderFlowAandB = reps.template.findAll(Interconnector.class).iterator().next()
+                    .getCapacity(getCurrentTick());
+            ;
+
+            IloNumVar[] crossBorderGenerationAtoB = new IloNumVar[timeSteps];
+            // Power flow from zone A to B
+            for (int i = 0; i < timeSteps; i++) {
+                crossBorderGenerationAtoB[i] = cplex.numVar(minMarketCrossBorderFlowAandB,
+                        maxMarketCrossBorderFlowAandB);
             }
 
-            /*
-             * Iterable<PowerPlantDispatchPlan> sortedListofPPDP =
-             * plantDispatchPlanRepository
-             * .findDescendingSortedPowerPlantDispatchPlansForSegmentForTime(
-             * currentSegment, getCurrentTick(), false);
-             *
-             * for (PowerPlantDispatchPlan currentPPDP: sortedListofPPDP){
-             */
+            IloNumVar[] crossBorderGenerationBtoA = new IloNumVar[timeSteps];
+            // Power flow from zone A to B
+            for (int i = 0; i < timeSteps; i++) {
+                crossBorderGenerationBtoA[i] = cplex.numVar(minMarketCrossBorderFlowAandB,
+                        maxMarketCrossBorderFlowAandB);
+            }
 
-            // for (PowerPlant p : powerPlantList) {
+            int marketIndex = 0;
+            int plantIndex = 0;
+            int Index = 0;
+            //TODO: Right now, it is assumed that there are only two markets.
 
-            // ArrayList<IloNumVar> generationCapacityOfPlant = new
-            // ArrayList<IloNumVar>(timeSteps);
+            Map<ElectricitySpotMarket, List<PowerPlant>> ESMtoPPList = new HashMap<ElectricitySpotMarket, List<PowerPlant>>();
+            Map<ElectricitySpotMarket, List<PpdpAnnual>> ESMtoPPDPList = new HashMap<ElectricitySpotMarket, List<PpdpAnnual>>();
 
-            // for (int i = 0; i < timeSteps; i++) {
-            //
-            // // if (p.getZone().equals("Zone Country A") &&
-            // // p.getTechnology().equals("Wind")) {
-            // IloNumVar[] generationCapacityofPlant = new IloNumVar[timeSteps];
-            // generationCapacityofPlant[i] = cplex.numVar(0,
-            // p.getActualHourlyNominalCapacity().getHourlyArray(0)[i]);
-            //
-            // System.out.println(generationCapacityofPlant[i]);
-            //
+            // for (ElectricitySpotMarket market :
+            // reps.marketRepository.findAllElectricitySpotMarkets()) {
+            // List<PowerPlant> powerPlantListPerESMarket = Utils
+            // .asList(reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
+            // getCurrentTick()));
+            // ESMtoPPList.put(market, powerPlantListPerESMarket);
             // }
-            // }
+            for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                List<PpdpAnnual> ppdpAnnualListPerESMarket = Utils.asList(reps.ppdpAnnualRepository
+                        .findAllSubmittedPpdpAnnualForGivenMarketAndTime(market, getCurrentTick()));
+                ESMtoPPDPList.put(market, ppdpAnnualListPerESMarket);
+            }
+
+            IloLinearNumExpr[][] generationEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
+            IloLinearNumExpr[][] demandEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
+            IloLinearNumExpr[] carbonEmissionsEquationsForAllMarkets = new IloLinearNumExpr[timeSteps];
+            IloNumVar[][] inelasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+            IloLinearNumExpr objective = cplex.linearNumExpr();
+            double[] marginalCostOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
+            double[] emissionsIntensityOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
+            for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                // ESMtoPPList.get(market)
+                for (int i = 0; i < timeSteps; i++) {
+                    generationEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
+                    inelasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(
+                            market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i],
+                            market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i]);
+                    demandEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
+                    demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                            inelasticDemandForAllMarkets[marketIndex][i]);
+                    if (marketIndex == 0)
+                        carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();
+                }
+                for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
+                    marginalCostOfPowerPlantsForCurrentTick[plantIndex] = ppdp.getPrice();
+                    emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex] = ppdp.getPowerPlant()
+                            .calculateEmissionIntensity();
+                    for (int i = 0; i < timeSteps; i++) {
+                        generationCapacityofPlantsMatrix[plantIndex][i] = cplex.numVar(0,
+                                ppdp.getAvailableHourlyAmount().getHourlyArray(0)[i]);
+                        generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                                generationCapacityofPlantsMatrix[plantIndex][i]);
+                        objective.addTerm(marginalCostOfPowerPlantsForCurrentTick[plantIndex],
+                                generationCapacityofPlantsMatrix[plantIndex][i]);
+                        carbonEmissionsEquationsForAllMarkets[i].addTerm(
+                                emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex],
+                                generationCapacityofPlantsMatrix[plantIndex][i]);
+                    }
+                    plantIndex++;
+                }
+                // for (PowerPlant plant : ESMtoPPList.get(market)) {
+                // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
+                // reps.powerPlantRepository
+                // .findMarginalCostOfOperationalPlant(plant, (int)
+                // getCurrentTick());
+                //
+                // for (int i = 0; i < timeSteps; i++) {
+                // generationCapacityofPlantsMatrix[plantIndex][i] =
+                // cplex.numVar(0,
+                // plant.getActualHourlyNominalCapacity().getHourlyArray(0)[i]);
+                //
+                // generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                // generationCapacityofPlantsMatrix[plantIndex][i]);
+                //
+                // objective.addTerm(marginalCostOfPowerPlantsForCurrentTick[plantIndex],
+                // generationCapacityofPlantsMatrix[plantIndex][i]);
+                // }
+                // plantIndex++;
+                // }
+                marketIndex++;
+            }
+
+            for (int i = 0; i < timeSteps; i++) {
+
+                generationEquationsForAllMarkets[0][i].addTerm(1, crossBorderGenerationBtoA[i]);
+                demandEquationsForAllMarkets[0][i].addTerm(1, crossBorderGenerationAtoB[i]);
+
+                generationEquationsForAllMarkets[1][i].addTerm(1, crossBorderGenerationAtoB[i]);
+                demandEquationsForAllMarkets[1][i].addTerm(1, crossBorderGenerationBtoA[i]);
+            }
+
+            cplex.addMinimize(objective);
+
+            for (int j = 0; j < numberOfElectricitySpotMarkets; j++) {
+                for (int i = 0; i < timeSteps; i++) {
+                    cplex.addEq(generationEquationsForAllMarkets[j][i], demandEquationsForAllMarkets[j][i]);
+
+
+                }
+            }
+            cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets), co2Cap);
+
+            System.out.println(generationCapacityofPlantsMatrix.length);
+            System.out.println(generationCapacityofPlantsMatrix[0].length);
+            System.out.println(co2Cap);
+
+            cplex.setParam(IloCplex.IntParam.Simplex.Display, 0);
+
+            if (cplex.solve()) {
+                int ppdpIndex = 0;
+                System.out.println("----------------------------------------------------------");
+                System.out.println("Objective = " + cplex.getObjValue());
+                System.out.println("Objective = " + cplex.getStatus());
+                System.out.println("---------------------Market Clearing-------------------------");
+                for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                    for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
+                        changeAcceptedAmountPpdpAnnual(ppdp,
+                                cplex.getValues(generationCapacityofPlantsMatrix[ppdpIndex]));
+                        ppdpIndex++;
+                        acceptAnnualBids(ppdp);// TODO:Cash flow and emissions.
+                                               // Think about how to store the
+                                               // supply of a plant over a year
+                                               // (hashmap etc..)
+                        // TODO:Investment role
+                    }
+                }
+                try{
+                    FileWriter FW = new FileWriter(
+                            "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Generation.csv");
+                    for (int i = 0; i < timeSteps; ++i) {
+                        for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                            for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
+                                FW.write(ppdp.getPowerPlant().toString() + " " + ",");
+                                FW.write(ppdp.getAcceptedHourlyAmount()[i] + " " + ",");
+                            }
+                        }
+                        FW.write("\n");
+                    }
+                    FW.flush();
+                    FW.close();
+
+                    FileWriter FW1 = new FileWriter(
+                            "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Emission.csv");
+                    for (int i = 0; i < timeSteps; ++i) {
+                        FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i]) + " " + "," + "\n");
+                    }
+                    FW1.flush();
+                    FW1.close();
+
+                }
+
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+
+            } else {
+                System.out.println("Something went wrong");
+            }
+            cplex.end();
+            System.out.println("------------------------------------------------------");
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -294,353 +386,25 @@ implements Role<DecarbonizationModel> {
         System.out.println("Starting optimization model");
         System.out.println("Starting optimization model");
 
+        // System.exit(0);
+
     }
 
-    public void populate_plantValue(ArrayList<Plant> pp) {
 
-        readInput();
 
-        int timeSteps = totalDemand.length;
-
-        for (Plant p : pp) {
-            // p.availableRESCapacityArray = new double[8760];
-            if (p.getZone().equals("Zone Country A") && p.getTechnology().equals("Wind")) {
-
-                ArrayList<Double> availableWindPlantCapacity = new ArrayList<Double>(timeSteps);
-
-                for (int i = 0; i < timeSteps; i++)
-
-                {
-                    // p.availableRESCapacityArray[i] =
-                    // p.getActualNominalCapacity() * WindSpeed[i];// changes
-                    // by
-                    // emile
-
-                    availableWindPlantCapacity.add(i, p.getActualNominalCapacity() * WindSpeed[i]);
-                }
-                p.setAvailableRESCapacity(availableWindPlantCapacity);
-            }
-
-            else if (p.getZone().equals("Zone Country A") && p.getTechnology().equals("Photovoltaic")) {
-
-                ArrayList<Double> availableSolarPlantCapacity = new ArrayList<Double>(timeSteps);
-
-                for (int i = 0; i < timeSteps; i++)
-
-                {
-                    availableSolarPlantCapacity.add(i, p.getActualNominalCapacity() * SolarIrradiance[i]);
-                }
-                p.setAvailableRESCapacity(availableSolarPlantCapacity);
-            }
-
-            else if (p.getZone().equals("Zone Country B") && p.getTechnology().equals("Wind")) {
-
-                ArrayList<Double> availableWindPlantCapacity = new ArrayList<Double>(timeSteps);
-
-                for (int i = 0; i < timeSteps; i++)
-
-                {
-                    availableWindPlantCapacity.add(i, p.getActualNominalCapacity() * WindSpeed[i]);
-                }
-                p.setAvailableRESCapacity(availableWindPlantCapacity);
-            }
-
-            else if (p.getZone().equals("Zone Country B") && p.getTechnology().equals("Photovoltaic")) {
-
-                ArrayList<Double> availableSolarPlantCapacity = new ArrayList<Double>(timeSteps);
-
-                for (int i = 0; i < timeSteps; i++)
-
-                {
-                    availableSolarPlantCapacity.add(i, p.getActualNominalCapacity() * SolarIrradiance[i]);
-                }
-                p.setAvailableRESCapacity(availableSolarPlantCapacity);
-            }
-        }
-        run_optimization(pp);
+    @Transactional
+    public void chageactualhourlynomcap(PowerPlant plant, HourlyCSVTimeSeries num) {
+        plant.setActualHourlyNominalCapacity(num);
+        plant.persist();
+        // logger.warn("check within function " +
+        // plant.getActualHourlyNominalCapacity().getHourlyArray(1));
     }
 
-    // ArrayList<IloNumVar[]> generationCapacityPlantArrayList = new
-    // ArrayList<IloNumVar[]>();
-
-    public void run_optimization(ArrayList<Plant> pp) {
-        Timer hourlyTimerMarket = new Timer();
-        hourlyTimerMarket.start();
-
-        System.out.println("----------------------------------------------------------");
-        System.out.println("Starting optimization model");
-        System.out.println(totalDemand.length);
-
-        int timeSteps = totalDemand.length;
-
-        System.gc();
-
-        try {
-            IloCplex cplex = new IloCplex();
-
-            for (Plant p : pp) {
-
-                ArrayList<IloNumVar> generationCapacityOfPlant = new ArrayList<IloNumVar>(timeSteps);
-
-                for (int i = 0; i < timeSteps; i++) {
-
-                    if (p.getZone().equals("Zone Country A") && p.getTechnology().equals("Wind")) {
-
-                        generationCapacityOfPlant.add(i, cplex.numVar(0, p.getAvailableRESCapacity().get(i)));
-                    }
-
-                    else if (p.getZone().equals("Zone Country A") && p.getTechnology().equals("Photovoltaic")) {
-
-                        generationCapacityOfPlant.add(i, cplex.numVar(0, p.getAvailableRESCapacity().get(i)));
-
-                    }
-                    if (p.getZone().equals("Zone Country B") && p.getTechnology().equals("Wind")) {
-
-                        generationCapacityOfPlant.add(i, cplex.numVar(0, p.getAvailableRESCapacity().get(i)));
-                    }
-
-                    else if (p.getZone().equals("Zone Country B") && p.getTechnology().equals("Photovoltaic")) {
-
-                        generationCapacityOfPlant.add(i, cplex.numVar(0, p.getAvailableRESCapacity().get(i)));
-
-                    } else {
-                        generationCapacityOfPlant.add(i, cplex.numVar(0, p.getActualNominalCapacity()));
-                    }
-                }
-                p.setGenerationCapacityOfPlant(generationCapacityOfPlant);
-            }
-
-            // defining variables for Country A
-
-            IloNumVar[] demandPerHourA = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                demandPerHourA[i] = cplex.numVar(totalDemand[i], totalDemand[i]);
-            }
-
-            IloNumVar[] storageChargingA = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                storageChargingA[i] = cplex.numVar(minStorageFlowInA, maxStorageFlowInA);
-            }
-
-            IloNumVar[] storageDischargingA = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                storageDischargingA[i] = cplex.numVar(minStorageFlowOutA, maxStorageFlowOutA);
-            }
-
-            IloNumVar[] stateOfChargeInStorageA = new IloNumVar[timeSteps];
-            stateOfChargeInStorageA[0] = cplex.numVar(initialChargeInStorageA, initialChargeInStorageA);
-            for (int i = 1; i < timeSteps; i++) {
-                stateOfChargeInStorageA[i] = cplex.numVar(minEnergycontentStorageA, maxEnergycontentStorageA);
-            }
-
-            // defining variables for Country B
-
-            IloNumVar[] demandPerHourB = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                demandPerHourB[i] = cplex.numVar(totalDemand[i], totalDemand[i]);
-            }
-
-            IloNumVar[] storageChargingB = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                storageChargingB[i] = cplex.numVar(minStorageFlowInB, maxStorageFlowInB);
-            }
-
-            IloNumVar[] storageDischargingB = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                storageDischargingB[i] = cplex.numVar(minStorageFlowOutB, maxStorageFlowOutB);
-            }
-
-            IloNumVar[] stateOfChargeInStorageB = new IloNumVar[timeSteps];
-            stateOfChargeInStorageB[0] = cplex.numVar(initialChargeInStorageB, initialChargeInStorageB);
-            for (int i = 1; i < timeSteps; i++) {
-                stateOfChargeInStorageB[i] = cplex.numVar(minEnergycontentStorageB, maxEnergycontentStorageB);
-            }
-
-            // Market coupling (congestion management) variables
-
-            IloNumVar[] interconnectorCapacityAandB = new IloNumVar[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                interconnectorCapacityAandB[i] = cplex.numVar(maxInterCapAandB, maxInterCapAandB);
-            }
-
-            IloNumVar[] crossBorderGenerationAtoB = new IloNumVar[timeSteps];
-            // Power flow from zone A to B
-            for (int i = 0; i < timeSteps; i++) {
-                crossBorderGenerationAtoB[i] = cplex.numVar(minMarketCrossBorderFlowAandB,
-                        maxMarketCrossBorderFlowAandB);
-            }
-
-            IloNumVar[] crossBorderGenerationBtoA = new IloNumVar[timeSteps];
-            // Power flow from zone B to A
-            for (int i = 0; i < timeSteps; i++) {
-                crossBorderGenerationBtoA[i] = cplex.numVar(minMarketCrossBorderFlowAandB,
-                        maxMarketCrossBorderFlowAandB);
-            }
-
-            // defining expressions for Country A
-
-            IloLinearNumExpr[] GenerationSideA = new IloLinearNumExpr[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                GenerationSideA[i] = cplex.linearNumExpr();
-                for (Plant p : pp) {
-                    if (p.getZone().equals("Zone Country A")) {
-                        GenerationSideA[i].addTerm(1, p.getGenerationCapacityOfPlant().get(i));
-                    }
-                }
-                GenerationSideA[i].addTerm(1, storageDischargingA[i]);
-                GenerationSideA[i].addTerm(1, crossBorderGenerationBtoA[i]);
-            }
-
-            IloLinearNumExpr[] DemandSideA = new IloLinearNumExpr[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                DemandSideA[i] = cplex.linearNumExpr();
-                DemandSideA[i].addTerm(1, demandPerHourA[i]);
-                DemandSideA[i].addTerm(1, storageChargingA[i]);
-                DemandSideA[i].addTerm(1, crossBorderGenerationAtoB[i]);
-            }
-
-            IloLinearNumExpr[] exprStorageContentA = new IloLinearNumExpr[timeSteps];
-            for (int i = 1; i < timeSteps; i++) {
-                exprStorageContentA[i] = cplex.linearNumExpr();
-                exprStorageContentA[i].addTerm(1, stateOfChargeInStorageA[i - 1]);
-                exprStorageContentA[i].addTerm(nA, storageChargingA[i]);
-                exprStorageContentA[i].addTerm(-nInvA, storageDischargingA[i]);
-            }
-
-            // defining expressions for Country B
-
-            IloLinearNumExpr[] GenerationSideB = new IloLinearNumExpr[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                GenerationSideB[i] = cplex.linearNumExpr();
-                for (Plant p : pp) {
-                    if (p.getZone().equals("Zone Country B")) {
-                        GenerationSideB[i].addTerm(1, p.getGenerationCapacityOfPlant().get(i));
-                    }
-                }
-                GenerationSideB[i].addTerm(1, storageDischargingA[i]);
-                GenerationSideB[i].addTerm(1, crossBorderGenerationAtoB[i]);
-            }
-
-            IloLinearNumExpr[] DemandSideB = new IloLinearNumExpr[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                DemandSideB[i] = cplex.linearNumExpr();
-                DemandSideB[i].addTerm(1, demandPerHourA[i]);
-                DemandSideB[i].addTerm(1, storageChargingA[i]);
-                DemandSideB[i].addTerm(1, crossBorderGenerationBtoA[i]);
-            }
-
-            IloLinearNumExpr[] exprStorageContentB = new IloLinearNumExpr[timeSteps];
-            for (int i = 1; i < timeSteps; i++) {
-                exprStorageContentB[i] = cplex.linearNumExpr();
-                exprStorageContentB[i].addTerm(1, stateOfChargeInStorageB[i - 1]);
-                exprStorageContentB[i].addTerm(nB, storageChargingB[i]);
-                exprStorageContentB[i].addTerm(-nInvB, storageDischargingB[i]);
-            }
-
-            ////////// Carbon Emissions
-
-            IloLinearNumExpr[] CarbonCreditsExpr = new IloLinearNumExpr[timeSteps];
-            for (int i = 0; i < timeSteps; i++) {
-                CarbonCreditsExpr[i] = cplex.linearNumExpr();
-                for (Plant p : pp) {
-                    CarbonCreditsExpr[i].addTerm(p.getEmissionsIntensity(), p.getGenerationCapacityOfPlant().get(i));
-                }
-            }
-
-            // OBJECTIVE FUNCTION EXPRESSION
-
-            IloLinearNumExpr objective = cplex.linearNumExpr();
-            for (int i = 0; i < timeSteps; ++i) {
-                for (Plant p : pp) {
-                    objective.addTerm(p.getMc(), p.getGenerationCapacityOfPlant().get(i));
-                }
-            }
-
-            // defining objective
-
-            cplex.addMinimize(objective);
-
-            // defining constraints for Country A
-
-            for (int i = 0; i < timeSteps; ++i) {
-                cplex.addEq(GenerationSideA[i], DemandSideA[i]);
-            }
-
-            cplex.addEq(stateOfChargeInStorageA[0], initialChargeInStorageA);
-
-            cplex.addLe(storageDischargingA[0], stateOfChargeInStorageA[0]);
-
-            for (int i = 1; i < timeSteps; i++) {
-                cplex.addLe(storageDischargingA[i], cplex.prod(nA, stateOfChargeInStorageA[i]));
-            }
-
-            for (int i = 1; i < timeSteps; i++) {
-                cplex.addEq(exprStorageContentA[i], stateOfChargeInStorageA[i]);
-            }
-
-            // defining constraints for Country B
-
-            for (int i = 0; i < timeSteps; ++i) {
-                cplex.addEq(GenerationSideB[i], DemandSideB[i]);
-            }
-
-            cplex.addEq(stateOfChargeInStorageB[0], initialChargeInStorageB);
-
-            cplex.addLe(storageDischargingB[0], stateOfChargeInStorageB[0]);
-
-            for (int i = 1; i < timeSteps; i++) {
-                cplex.addLe(storageDischargingB[i], cplex.prod(nB, stateOfChargeInStorageB[i]));
-            }
-
-            for (int i = 1; i < timeSteps; i++) {
-                cplex.addEq(exprStorageContentB[i], stateOfChargeInStorageB[i]);
-            }
-
-            // clearing carbon market
-
-            cplex.addLe(cplex.sum(CarbonCreditsExpr), 45000);
-
-            // solve
-
-            if (cplex.solve()) {
-                System.out.println("----------------------------------------------------------");
-                System.out.println("Objective = " + cplex.getObjValue());
-                System.out.println("Objective = " + cplex.getStatus());
-                System.out.println("---------------------Market Cleared-----------------------");
-
-                for (int i = 0; i < timeSteps; i++) {
-                    for (Plant p : pp) {
-                        System.out.println(
-                                "Generation Capacity: " + cplex.getValue(p.getGenerationCapacityOfPlant().get(i)));
-                    }
-                    System.out.println("Time Step over:" + i
-                            + "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-
-                }
-                for (int i = 0; i < timeSteps; i++) {
-                    System.out.println(
-                            "Cross Border Generation from B to A  = " + cplex.getValue(crossBorderGenerationBtoA[i]));
-                    System.out.println(
-                            "Cross Border Generation from A to B  = " + cplex.getValue(crossBorderGenerationAtoB[i]));
-                    System.out.println("Carbon emissions  = " + cplex.getValue(CarbonCreditsExpr[i]));
-                }
-
-
-
-            } else {
-                System.out.println("Something went wrong");
-            }
-            cplex.end();
-
-
-            hourlyTimerMarket.stop();
-            System.out.println("Optimization took: " + hourlyTimerMarket.seconds() + " seconds");
-            // System.exit(0);
-        } catch (IloException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+    @Transactional
+    public void changeAcceptedAmountPpdpAnnual(PpdpAnnual ppdp, double[] amount) {
+        ppdp.setAcceptedHourlyAmount(amount);
+        ppdp.persist();
     }
+
 
 }

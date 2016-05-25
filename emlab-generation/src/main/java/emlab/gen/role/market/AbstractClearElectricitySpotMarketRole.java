@@ -37,6 +37,7 @@ import emlab.gen.domain.market.ClearingPoint;
 import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.PowerPlantDispatchPlan;
+import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.domain.technology.Substance;
@@ -460,6 +461,28 @@ public abstract class AbstractClearElectricitySpotMarketRole<T extends Decarboni
 
         return plantSupply;
     }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /*
+     * Accept the bids after yearly optimization
+     *
+     */
+    double acceptAnnualBids(PpdpAnnual plan) {
+        double [] plantGeneration = plan.getAcceptedHourlyAmount();
+        double supply = 0;
+        for (i = 0; i < plantGeneration.length; i++) {
+            supply += plantgeneration[i];
+        }
+        if (supply == 0)
+            plan.setStatus(Bid.FAILED);
+        else
+            plan.setStatus(Bid.PARTLY_ACCEPTED);
+
+        plan.setYearlySupply(supply);
+
+        return supply;
+
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Determine the total CO2 emissions based on all current power plant dispatch plans.

@@ -45,6 +45,9 @@ public class Reps {
     public PowerPlantDispatchPlanRepository powerPlantDispatchPlanRepository;
 
     @Autowired
+    public PpdpAnnualRepository ppdpAnnualRepository;
+
+    @Autowired
     public ContractRepository contractRepository;
 
     @Autowired

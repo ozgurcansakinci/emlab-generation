@@ -52,6 +52,7 @@ import emlab.gen.role.market.SelectLongTermElectricityContractsRole;
 import emlab.gen.role.market.SubmitBidsToCommodityMarketRole;
 import emlab.gen.role.market.SubmitLongTermElectricityContractsRole;
 import emlab.gen.role.market.SubmitOffersToCommodityMarketRole;
+import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketAnnualRole;
 import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketRole;
 import emlab.gen.role.operating.DetermineFuelMixRole;
 import emlab.gen.role.operating.PayCO2AuctionRole;
@@ -76,6 +77,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private GenericInvestmentRole<EnergyProducer> genericInvestmentRole;
     @Autowired
     private SubmitOffersToElectricitySpotMarketRole submitOffersToElectricitySpotMarketRole;
+    @Autowired
+    private SubmitOffersToElectricitySpotMarketAnnualRole submitOffersToElectricitySpotMarketAnnualRole;
     @Autowired
     private ClearCommodityMarketRole clearCommodityMarketRole;
     @Autowired
@@ -203,7 +206,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             submitOffersToElectricitySpotMarketRole.act(producer);
-
+            submitOffersToElectricitySpotMarketAnnualRole.act(producer);
             /////////////////////////////////////////////////////////////////////////////////
             // pl.addAll(submitOffersToElectricitySpotMarketRole.getplants());
             /////////////////////////////////////////////////////////////////////////////////

@@ -53,10 +53,6 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
         // Save the data in a long String
         if (variableName == null) {
             try {
-                System.out.println(variableName);
-                System.out.println(filename);
-                System.out.println(delimiter);
-                System.out.println(timeSeriesAreInDifferentColumns);
                 InputStreamReader inputStreamReader = new InputStreamReader(
                         this.getClass().getResourceAsStream(filename));
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -72,7 +68,7 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
                 setHourlyArray(parseString(vals), 0);
 
             } catch (Exception e) {
-                logger.error("Couldn't read CSV file hghghghggh: " + filename);
+                logger.error("Couldn't read CSV file: " + filename);
                 e.printStackTrace();
             }
         } else {
@@ -221,11 +217,8 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
      */
     public void scalarMultiply(double scalar) {
         // TODO Auto-generated method stub
-        int i = 0;
-        for (double element : this.hourlyArray) {
-            this.hourlyArray[i] = element * scalar;
-            i++;
-        }
+        for (int i = 0; i < this.hourlyArray.length; i++)
+            this.hourlyArray[i] *= scalar;
 
     }
 

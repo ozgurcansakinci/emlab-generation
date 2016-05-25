@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,13 +28,13 @@ import emlab.gen.domain.technology.PowerPlant;
 /**
  * The power plant dispatch plan is an extension to the bid, and takes into account information that is necessary for the fulfillment of longt-term contracts and the dispatch of specific power plants.
  * However, the function of it for a pure spot market clearing is identical to a normal bid.
- * 
+ *
  * The Electricity Long Term Bid is the reflecting commitment to meet long term contracts. Before being able to make a(n updated) valid bid on the spot market, we need to define what part of capacity
  * of a certain power plant in a certain segment is covered by long-term contracts. This needs to be updated every iteration in the market clearing algorithm.
- * 
+ *
  * @author ejlchappin
  * @author jcrichstein
- * 
+ *
  */
 @NodeEntity
 public class PowerPlantDispatchPlan extends Bid {
@@ -135,7 +135,7 @@ public class PowerPlantDispatchPlan extends Bid {
     @Override
     public String toString() {
         return "for " + getBidder() + " power plant: " + getPowerPlant() + " in segment " + segment + " plans to sell long term: "
- + getCapacityLongTermContract() + " plans to sell capacity spot: "
+                + getCapacityLongTermContract() + " plans to sell capacity spot: "
                 + getAmount() + "for price: " + getPrice();
     }
 
