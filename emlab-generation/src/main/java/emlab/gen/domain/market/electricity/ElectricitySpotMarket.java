@@ -21,6 +21,7 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
+import agentspring.simulation.SimulationParameter;
 import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.trend.DailyCSVTimeSeries;
 import emlab.gen.trend.HourlyCSVTimeSeries;
@@ -35,6 +36,7 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     @RelatedTo(type = "DEMANDGROWTH_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl demandGrowthTrend;
+    // <<<<<<< HEAD
 
     @RelatedTo(type = "HOURLYDEMAND", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private HourlyCSVTimeSeries hourlyInElasticDemandForESMarket;
@@ -46,12 +48,6 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     public IloLinearNumExpr[] getGenerationEquationForElectrictySpotMarket() {
         return generationEquationForElectrictySpotMarket;
-    }
-
-    public void setGenerationEquationForElectrictySpotMarket(
-            IloLinearNumExpr[] generationEquationForElectrictySpotMarket) {
-        this.generationEquationForElectrictySpotMarket = generationEquationForElectrictySpotMarket;
-        this.persist();
     }
 
     public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
@@ -69,8 +65,32 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     public void setDailyElasticDemandForESMarket(DailyCSVTimeSeries dailyElasticDemandForESMarket) {
         this.dailyElasticDemandForESMarket = dailyElasticDemandForESMarket;
     }
+    // =======
+    // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
 
     private double valueOfLostLoad;
+
+    @SimulationParameter(label = "Lookback for dismantling", from = 0, to = 10)
+    private long lookback;
+
+    @SimulationParameter(label = "Look back for demand forecasting", from = 0, to = 10)
+    private long backlookingForDemandForecastinginDismantling;
+
+    public long getLookback() {
+        return lookback;
+    }
+
+    public void setLookback(long lookback) {
+        this.lookback = lookback;
+    }
+
+    public long getBacklookingForDemandForecastinginDismantling() {
+        return backlookingForDemandForecastinginDismantling;
+    }
+
+    public void setBacklookingForDemandForecastinginDismantling(long backlookingForDemandForecastinginDismantling) {
+        this.backlookingForDemandForecastinginDismantling = backlookingForDemandForecastinginDismantling;
+    }
 
     public Set<SegmentLoad> getLoadDurationCurve() {
         return loadDurationCurve;

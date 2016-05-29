@@ -93,6 +93,9 @@ public class Reps {
     public PowerGeneratingTechnologyNodeLimitRepository powerGeneratingTechnologyNodeLimitRepository;
 
     @Autowired
+    public InterconnectorRepository interconnectorRepository;
+
+    @Autowired
     public StrategicReserveOperatorRepository strategicReserveOperatorRepository;
 
     @Autowired
@@ -102,5 +105,19 @@ public class Reps {
     public IntermittentTechnologyNodeLoadFactorRepository intermittentTechnologyNodeLoadFactorRepository;
 
     @Autowired
+    // <<<<<<< HEAD
     public FinancialPowerPlantReportRepository financialPowerPlantReportRepository;
+    // =======
+    public CapacityMarketRepository capacityMarketRepository;
+
+    @Autowired
+    public CapacityClearingPointRepository capacityClearingPointRepository;
+
+    @Autowired
+    public RegulatorRepository regulatorRepository;
+
+    @Autowired
+    public CapacityDispatchPlanRepository capacityDispatchPlanRepository;
+
+    // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
 }

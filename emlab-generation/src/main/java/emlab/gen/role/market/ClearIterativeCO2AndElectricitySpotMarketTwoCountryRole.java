@@ -59,8 +59,8 @@ import emlab.gen.util.Utils;
  *
  */
 @RoleComponent
-public class ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole extends
-AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
+public class ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole
+        extends AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
 
     @Autowired
     private Reps reps;
@@ -117,8 +117,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         Iterable<NationalGovernment> nationalGovernments = template.findAll(NationalGovernment.class);
         for (NationalGovernment nG : nationalGovernments) {
             if (model.isCo2TradingImplemented()) {
-                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), nG
-                        .getMinNationalCo2PriceTrend().getValue(clearingTick));
+                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG),
+                        nG.getMinNationalCo2PriceTrend().getValue(clearingTick));
             } else {
                 nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), 0d);
             }
@@ -141,8 +141,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
         if (clearingTick > model.getCentralForecastingYear()) {
             CO2Auction co2Auction = template.findAll(CO2Auction.class).iterator().next();
-            ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(
-                    co2Auction, clearingTick - 1, true);
+            ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository
+                    .findClearingPointForMarketAndTime(co2Auction, clearingTick - 1, true);
             ClearingPoint lastCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(co2Auction,
                     clearingTick - model.getCentralForecastingYear() - 1, false);
 
@@ -193,8 +193,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         Iterable<NationalGovernment> nationalGovernments = template.findAll(NationalGovernment.class);
         for (NationalGovernment nG : nationalGovernments) {
             if (model.isCo2TradingImplemented()) {
-                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), nG
-                        .getMinNationalCo2PriceTrend().getValue(clearingTick));
+                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG),
+                        nG.getMinNationalCo2PriceTrend().getValue(clearingTick));
             } else {
                 nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), 0d);
             }
@@ -256,8 +256,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
                 // co2PriceStability =
                 // determineStabilityOfCO2andElectricityPricesAndAdjustIfNecessary(co2PriceStability,
                 // model, government);
-                co2SecantSearch = co2PriceSecantSearchUpdate(co2SecantSearch, model, government, forecast,
-                        clearingTick, co2CapAdjustment);
+                co2SecantSearch = co2PriceSecantSearchUpdate(co2SecantSearch, model, government, forecast, clearingTick,
+                        co2CapAdjustment);
                 breakOffIterator++;
 
             }
@@ -269,8 +269,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
                 determineCommitmentOfPowerPlantsOnTheBasisOfLongTermContracts(segments, forecast);
             for (Segment segment : segments) {
                 clearOneOrTwoConnectedElectricityMarketsAtAGivenCO2PriceForOneSegment(
-                        interconnector.getCapacity(clearingTick),
-                        segment, government, clearingTick, forecast, demandGrowthMap);
+                        interconnector.getCapacity(clearingTick), segment, government, clearingTick, forecast,
+                        demandGrowthMap);
             }
 
         }
@@ -364,7 +364,6 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
                 firstImporting = false;
             }
 
-
             for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                 boolean first = market.equals(firstMarket);
                 // Update the load for this market. Which is market's true load
@@ -398,7 +397,7 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
                 reps.clearingPointRepositoryOld.createOrUpdateSegmentClearingPoint(segment, market,
                         marketOutcomes.prices.get(market),
                         (marketOutcomes.supplies.get(market) + interconenctorFlowForCurrentMarket)
-                        * segment.getLengthInHours(),
+                                * segment.getLengthInHours(),
                         (interconenctorFlowForCurrentMarket * segment.getLengthInHours()), clearingTick, forecast);
                 logger.info("Stored a market specific price for market " + market + " / segment " + segment
                         + " -- supply " + marketOutcomes.supplies.get(market) + " -- demand: "
@@ -423,8 +422,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
         for (Segment segment : segments) {
             clearOneOrTwoConnectedElectricityMarketsAtAGivenCO2PriceForOneSegment(
-                    interconnector.getCapacity(clearingTick),
-                    segment, government, clearingTick, forecast, demandGrowthMap);
+                    interconnector.getCapacity(clearingTick), segment, government, clearingTick, forecast,
+                    demandGrowthMap);
         }
     }
 
@@ -452,7 +451,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
     }
 
     void clearCO2AndElectricitySpotMarketTwoCountryWithBanking(DecarbonizationModel model, boolean forecast,
-            long clearingTick, Map<Substance, Double> fuelPriceMap, Map<ElectricitySpotMarket, Double> demandGrowthMap) {
+            long clearingTick, Map<Substance, Double> fuelPriceMap,
+            Map<ElectricitySpotMarket, Double> demandGrowthMap) {
 
         double previouslyBankedCertificates = reps.decarbonizationAgentRepository
                 .determineTotallyBankedCO2Certificates();
@@ -472,8 +472,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         // find all segments
         List<Segment> segments = Utils.asList(reps.segmentRepository.findAll());
 
-        ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(
-                co2Auction, clearingTick + model.getCentralForecastingYear(), true);
+        ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(co2Auction,
+                clearingTick + model.getCentralForecastingYear(), true);
         ClearingPoint lastCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(co2Auction,
                 clearingTick - 1, false);
 
@@ -492,16 +492,15 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         Iterable<NationalGovernment> nationalGovernments = template.findAll(NationalGovernment.class);
         for (NationalGovernment nG : nationalGovernments) {
             if (model.isCo2TradingImplemented()) {
-                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), nG
-                        .getMinNationalCo2PriceTrend().getValue(clearingTick));
+                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG),
+                        nG.getMinNationalCo2PriceTrend().getValue(clearingTick));
             } else {
                 nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), 0d);
             }
         }
 
-        double adjustedFundamentalCO2Price = fundamentalCO2Price
-                * calculateCO2PriceReductionFactor(government, maximumEnergyProducerBanking,
-                        previouslyBankedCertificates, 10, clearingTick);
+        double adjustedFundamentalCO2Price = fundamentalCO2Price * calculateCO2PriceReductionFactor(government,
+                maximumEnergyProducerBanking, previouslyBankedCertificates, 10, clearingTick);
 
         double previousAdjustedFundamentalCO2Price = adjustedFundamentalCO2Price;
         double co2emissions;
@@ -520,9 +519,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             co2emissions = determineTotalEmissionsBasedOnPowerPlantDispatchPlan(forecast, clearingTick);
 
             deltaBankedEmissionCertificates = government.getCo2Cap(clearingTick) - co2emissions;
-            adjustedFundamentalCO2Price = fundamentalCO2Price
-                    * calculateCO2PriceReductionFactor(government, maximumEnergyProducerBanking,
-                            previouslyBankedCertificates, 10, clearingTick);
+            adjustedFundamentalCO2Price = fundamentalCO2Price * calculateCO2PriceReductionFactor(government,
+                    maximumEnergyProducerBanking, previouslyBankedCertificates, 10, clearingTick);
 
             i++;
             adjustedFundamentalCO2Price = fundamentalCO2Price
@@ -541,9 +539,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
             for (EnergyProducer producer : reps.energyProducerRepository.findAll()) {
                 producer.setLastYearsCo2Allowances(producer.getCo2Allowances());
-                double futureEmissionShare = determineTotalEmissionsBasedOnPowerPlantDispatchPlanForEnergyProducer(
-                        true, clearingTick + model.getCentralForecastingYear(), producer)
-                        / forecastedCO2Clearing.getVolume();
+                double futureEmissionShare = determineTotalEmissionsBasedOnPowerPlantDispatchPlanForEnergyProducer(true,
+                        clearingTick + model.getCentralForecastingYear(), producer) / forecastedCO2Clearing.getVolume();
                 double bankedEmissionsOfProducer = (deltaBankedEmissionCertificates + previouslyBankedCertificates)
                         * futureEmissionShare;
                 producer.setCo2Allowances(bankedEmissionsOfProducer);
@@ -614,8 +611,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         nationalGovernments = template.findAll(NationalGovernment.class);
         for (NationalGovernment nG : nationalGovernments) {
             if (model.isCo2TradingImplemented()) {
-                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), nG
-                        .getMinNationalCo2PriceTrend().getValue(clearingTick));
+                nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG),
+                        nG.getMinNationalCo2PriceTrend().getValue(clearingTick));
             } else {
                 nationalMinCo2Prices.put(reps.marketRepository.findElectricitySpotMarketByNationalGovernment(nG), 0d);
             }
@@ -630,10 +627,11 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
         double targetEnergyProducerBanking = calculateTargetCO2EmissionBankingOfEnergyProducers(clearingTick,
                 clearingTick + model.getCentralForecastingYear(), government, model);
-        logger.warn("Hedging Target: {}, Relative Hedging: {}", targetEnergyProducerBanking, targetEnergyProducerBanking/government.getCo2Cap(getCurrentTick()));
+        logger.warn("Hedging Target: {}, Relative Hedging: {}", targetEnergyProducerBanking,
+                targetEnergyProducerBanking / government.getCo2Cap(getCurrentTick()));
 
-        double deltaBankedEmissionCertificateToReachBankingTarget = (targetEnergyProducerBanking - previouslyBankedCertificates)
-                / model.getCentralCO2TargetReversionSpeedFactor();
+        double deltaBankedEmissionCertificateToReachBankingTarget = (targetEnergyProducerBanking
+                - previouslyBankedCertificates) / model.getCentralCO2TargetReversionSpeedFactor();
         ;
         double deltaBankedEmissionCertificates;
 
@@ -665,8 +663,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
         // Change Iteration algorithm here, and a few lines below...
 
-        ClearingPoint lastClearingPointOfCo2Market = reps.clearingPointRepositoryOld.findClearingPointForMarketAndTime(
-                co2Auction, getCurrentTick() - 1, false);
+        ClearingPoint lastClearingPointOfCo2Market = reps.clearingPointRepositoryOld
+                .findClearingPointForMarketAndTime(co2Auction, getCurrentTick() - 1, false);
         if (lastClearingPointOfCo2Market != null) {
             co2SecantSearch.co2Emissions = lastClearingPointOfCo2Market.getVolume();
         } else {
@@ -705,9 +703,9 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
 
             deltaBankedEmissionCertificates = government.getCo2Cap(clearingTick) - currentEmissions;
 
-            co2SecantSearch = co2PriceSecantSearchUpdateWithCO2Banking(co2SecantSearch, model, government,
-                    clearingTick, -deltaBankedEmissionCertificateToReachBankingTarget, currentEmissions,
-                    futureEmissions, previouslyBankedCertificates, averageCO2PriceOfLastTwoYears);
+            co2SecantSearch = co2PriceSecantSearchUpdateWithCO2Banking(co2SecantSearch, model, government, clearingTick,
+                    -deltaBankedEmissionCertificateToReachBankingTarget, currentEmissions, futureEmissions,
+                    previouslyBankedCertificates, averageCO2PriceOfLastTwoYears);
 
             // logger.warn("Iteration: " + breakOffIterator + ": " +
             // co2SecantSearch.toString() + ", Future: "
@@ -716,35 +714,41 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             if (!co2SecantSearch.stable) {
                 targetEnergyProducerBanking = calculateTargetCO2EmissionBankingOfEnergyProducers(currentEmissions,
                         futureEmissions, model);
-                // logger.warn("Hedging Target: {}, Relative Hedging: {}",
-                // targetEnergyProducerBanking,
+                // <<<<<<< HEAD
+                // // logger.warn("Hedging Target: {}, Relative Hedging: {}",
+                // // targetEnergyProducerBanking,
+                // //
                 // targetEnergyProducerBanking/government.getCo2Cap(getCurrentTick()));
+                // =======
+                logger.warn("Hedging Target: {}, Relative Hedging: {}", targetEnergyProducerBanking,
+                        targetEnergyProducerBanking / government.getCo2Cap(getCurrentTick()));
+                // >>>>>>>
+                // PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
 
-                deltaBankedEmissionCertificateToReachBankingTarget = (targetEnergyProducerBanking - previouslyBankedCertificates)
-                        / model.getCentralCO2TargetReversionSpeedFactor();
+                deltaBankedEmissionCertificateToReachBankingTarget = (targetEnergyProducerBanking
+                        - previouslyBankedCertificates) / model.getCentralCO2TargetReversionSpeedFactor();
             }
 
             if (co2SecantSearch.stable || breakOffIterator >= 15) {
                 logger.warn("Average price last 2 years: {}, Clearing price {}", averageCO2PriceOfLastTwoYears,
                         co2SecantSearch.co2Price);
-                logger.warn("StabilityReserveActive: "
-                        + model.isStabilityReserveIsActive()
-                        + ", InOperation: "
+                logger.warn("StabilityReserveActive: " + model.isStabilityReserveIsActive() + ", InOperation: "
                         + (model.getStabilityReserveFirstYearOfOperation() <= clearingTick
-                        + model.getCentralForecastingYear()) + ", priceEmergencyTriggerNotActive: "
-                        + !emergencyPriceTriggerActive + ", 3x Price: "
+                                + model.getCentralForecastingYear())
+                        + ", priceEmergencyTriggerNotActive: " + !emergencyPriceTriggerActive + ", 3x Price: "
                         + (co2SecantSearch.co2Price > 3 * averageCO2PriceOfLastTwoYears));
                 if ((model.isStabilityReserveIsActive()
-                        && (model.getStabilityReserveFirstYearOfOperation() <= clearingTick) && !emergencyPriceTriggerActive)
+                        && (model.getStabilityReserveFirstYearOfOperation() <= clearingTick)
+                        && !emergencyPriceTriggerActive)
                         && (co2SecantSearch.co2Price > 3 * averageCO2PriceOfLastTwoYears)
                         && government.getStabilityReserve() > 0) {
                     breakOffIterator = 0;
                     emergencyPriceTriggerActive = true;
-                    emergencyAllowancesToBeReleased = Math.min(government.getStabilityReserve(), government
-                            .getStabilityReserveReleaseQuantityTrend().getValue(clearingTick));
+                    emergencyAllowancesToBeReleased = Math.min(government.getStabilityReserve(),
+                            government.getStabilityReserveReleaseQuantityTrend().getValue(clearingTick));
                     logger.warn(
                             "Stability Reserve releasing " + emergencyAllowancesToBeReleased
-                            + " credits since price would be {}, which has 3x time higher than {}",
+                                    + " credits since price would be {}, which has 3x time higher than {}",
                             co2SecantSearch.co2Price, averageCO2PriceOfLastTwoYears);
                     co2SecantSearch.stable = false;
                     co2SecantSearch.twoPricesExistWithBelowAboveEmissions = false;
@@ -769,9 +773,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             int i = 0;
             for (ClearingPoint cp : clearingPoints) {
                 averagePastCO2Price = (cp.getPrice()
-                        / Math.pow(1 + model.getCentralPrivateDiscountingRate(), clearingTick - cp.getTime()) + i
-                        * averagePastCO2Price)
-                        / (i + 1);
+                        / Math.pow(1 + model.getCentralPrivateDiscountingRate(), clearingTick - cp.getTime())
+                        + i * averagePastCO2Price) / (i + 1);
                 i++;
             }
 
@@ -784,7 +787,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
                         * Math.pow(1 + model.getCentralPrivateDiscountingRate(), model.getCentralForecastingYear());
                 clearOneOrTwoConnectedElectricityMarketsAtAGivenCO2PriceForSegments(government,
                         clearingTick + model.getCentralForecastingYear(), true, futureDemandGrowthMap,
-                        futureFuelPriceMap, futureCO2Price, futureNationalMinCo2Prices, segments, interconnector, model);
+                        futureFuelPriceMap, futureCO2Price, futureNationalMinCo2Prices, segments, interconnector,
+                        model);
                 futureEmissions = determineTotalEmissionsBasedOnPowerPlantDispatchPlan(true,
                         clearingTick + model.getCentralForecastingYear());
 
@@ -797,13 +801,16 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             }
         }
 
-        logger.warn("CO2Price that is saved: " + co2SecantSearch.co2Price);
+        // <<<<<<< HEAD
+        // logger.warn("CO2Price that is saved: " + co2SecantSearch.co2Price);
+        // =======
+        // >>>>>>>
+        // PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
         reps.clearingPointRepositoryOld.createOrUpdateCO2MarketClearingPoint(co2Auction, co2SecantSearch.co2Price,
                 currentEmissions, emergencyPriceTriggerActive, emergencyAllowancesToBeReleased, clearingTick, false);
         reps.clearingPointRepositoryOld.createOrUpdateCO2MarketClearingPoint(co2Auction,
                 Math.max(futureCO2Price, Collections.min(futureNationalMinCo2Prices.values())), futureEmissions, false,
-                0,
-                clearingTick + model.getCentralForecastingYear(), true);
+                0, clearingTick + model.getCentralForecastingYear(), true);
 
         if (co2SecantSearch.co2Price > co2SecantSearch.bankingEffectiveMinimumPrice)
             deltaBankedEmissionCertificates = government.getCo2Cap(clearingTick) - currentEmissions;
@@ -823,8 +830,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             }
         } else {
             logger.warn("Banking exhausted.");
-            clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, true, clearingTick
-                    + model.getCentralForecastingYear(), futureFuelPriceMap, futureDemandGrowthMap, 0);
+            clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, true,
+                    clearingTick + model.getCentralForecastingYear(), futureFuelPriceMap, futureDemandGrowthMap, 0);
             clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false, clearingTick,
                     fuelPriceMap, null, previouslyBankedCertificates);
             for (EnergyProducer producer : reps.energyProducerRepository.findAll()) {
@@ -855,27 +862,27 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         ClearingPoint laterCp = cp1.getTime() <= cp2.getTime() ? cp2 : cp1;
         double[] volumeInterpolation = new double[length];
         for (int i = 0; i < length; i++) {
-            volumeInterpolation[i] = earlierCp.getVolume() + ((double) i + 1) / (length)
-                    * (laterCp.getVolume() - earlierCp.getVolume());
+            volumeInterpolation[i] = earlierCp.getVolume()
+                    + ((double) i + 1) / (length) * (laterCp.getVolume() - earlierCp.getVolume());
         }
 
         return volumeInterpolation;
     }
 
-    double calculateTargetCO2EmissionBankingOfEnergyProducers(long timeFrom, long timeTo, Government government, DecarbonizationModel model) {
+    double calculateTargetCO2EmissionBankingOfEnergyProducers(long timeFrom, long timeTo, Government government,
+            DecarbonizationModel model) {
         int length = (int) (timeTo - timeFrom);
         double[] volumeInterpolation = new double[length];
         for (int i = 0; i < length; i++) {
-            volumeInterpolation[i] = government.getCo2Cap(timeFrom) + ((double) i + 1) / (length)
-                    * (government.getCo2Cap(timeTo) - government.getCo2Cap(timeFrom));
+            volumeInterpolation[i] = government.getCo2Cap(timeFrom)
+                    + ((double) i + 1) / (length) * (government.getCo2Cap(timeTo) - government.getCo2Cap(timeFrom));
         }
         // double targetBankedEmissions = 0.8 * volumeInterpolation[0] + 0.5 *
         // volumeInterpolation[1] + 0.2
         // * volumeInterpolation[2];
         double targetBankedEmissions = model.getStabilityReserveBankingFirstYear() * volumeInterpolation[0]
                 + model.getStabilityReserveBankingSecondYear() * volumeInterpolation[1]
-                        + model.getStabilityReserveBankingThirdYear()
-                        * volumeInterpolation[2];
+                + model.getStabilityReserveBankingThirdYear() * volumeInterpolation[2];
 
         return targetBankedEmissions;
     }
@@ -885,15 +892,15 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         int length = (int) model.getCentralForecastingYear();
         double[] volumeInterpolation = new double[length];
         for (int i = 0; i < length; i++) {
-            volumeInterpolation[i] = currentEmissions + ((double) i + 1) / (length)
-                    * (futureEmissions - currentEmissions);
+            volumeInterpolation[i] = currentEmissions
+                    + ((double) i + 1) / (length) * (futureEmissions - currentEmissions);
         }
-        // double targetBankedEmissions = 0.8 * volumeInterpolation[0] + 0.5 * volumeInterpolation[1] + 0.2
-        //         * volumeInterpolation[2];
+        // double targetBankedEmissions = 0.8 * volumeInterpolation[0] + 0.5 *
+        // volumeInterpolation[1] + 0.2
+        // * volumeInterpolation[2];
         double targetBankedEmissions = model.getStabilityReserveBankingFirstYear() * volumeInterpolation[0]
                 + model.getStabilityReserveBankingSecondYear() * volumeInterpolation[1]
-                        + model.getStabilityReserveBankingThirdYear()
-                        * volumeInterpolation[2];
+                + model.getStabilityReserveBankingThirdYear() * volumeInterpolation[2];
 
         return targetBankedEmissions;
     }
@@ -901,8 +908,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
     double calculateFundamentalCO2PriceForEnergyProducers(long clearingTick, DecarbonizationModel model,
             CO2Auction co2Auction, CO2SecantSearch co2SecantSearch) {
 
-        ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(
-                co2Auction, clearingTick + model.getCentralForecastingYear(), true);
+        ClearingPoint forecastedCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(co2Auction,
+                clearingTick + model.getCentralForecastingYear(), true);
         ClearingPoint lastCO2Clearing;
         if (co2SecantSearch == null)
             lastCO2Clearing = reps.clearingPointRepository.findClearingPointForMarketAndTime(co2Auction,
@@ -935,7 +942,8 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         for (long i = clearingTick; i < (clearingTick + yearsForwardLooking); i++) {
             allowedEmissionsInFuture += government.getCo2Cap(i);
         }
-        double co2PriceReductionFactor = 1 - ((bankedCertificates - maximumEnergyProducerBanking) / allowedEmissionsInFuture);
+        double co2PriceReductionFactor = 1
+                - ((bankedCertificates - maximumEnergyProducerBanking) / allowedEmissionsInFuture);
         return co2PriceReductionFactor;
     }
 
@@ -959,164 +967,179 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
         co2SecantSearch.stable = false;
         double capDeviationCriterion = model.getCapDeviationCriterion();
         double currentCap = government.getCo2Cap(clearingTick);
-        // logger.warn("Current cap: {}", currentCap);
+        // <<<<<<< HEAD
+        // // logger.warn("Current cap: {}", currentCap);
+        // double futureCap = government.getCo2Cap(clearingTick +
+        // model.getCentralForecastingYear());
+        // // logger.warn("Future cap: {}", futureCap);
+        // =======
+        logger.warn("Current cap: {}", currentCap);
         double futureCap = government.getCo2Cap(clearingTick + model.getCentralForecastingYear());
-        // logger.warn("Future cap: {}", futureCap);
-        //        logger.warn("Is MSR active in future ? {}.",
-        //                (model.isStabilityReserveIsActive() && (model.getStabilityReserveFirstYearOfOperation() <= clearingTick
-        //                + model.getCentralForecastingYear())));
-        //        logger.warn("First year MSR is active: {}", model.getStabilityReserveFirstYearOfOperation());
+        logger.warn("Future cap: {}", futureCap);
+        // >>>>>>>
+        // PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
+        // logger.warn("Is MSR active in future ? {}.",
+        // (model.isStabilityReserveIsActive() &&
+        // (model.getStabilityReserveFirstYearOfOperation() <= clearingTick
+        // + model.getCentralForecastingYear())));
+        // logger.warn("First year MSR is active: {}",
+        // model.getStabilityReserveFirstYearOfOperation());
         double expectedBankedPermits = calculateExpectedBankedCertificates(currentEmissions, futureEmissions,
                 currentCap, futureCap, previouslyBankedCertificates, model.getCentralForecastingYear(), government);
         double effectiveCapInFuture = (model.isStabilityReserveIsActive() && (model
-                .getStabilityReserveFirstYearOfOperation() <= clearingTick + model.getCentralForecastingYear())) ? futureCap
-                        - marketStabilityReserveRole.calculateInflowToMarketReserveForTimeStep(
-                                clearingTick + model.getCentralForecastingYear(),
-                                expectedBankedPermits,
-                                government)
-                                : futureCap;
-                                // logger.warn("effective future cap: {}", effectiveCapInFuture);
-                                effectiveCapInFuture -= (government.isActivelyAdjustingTheCO2Cap() & getCurrentTick() > 0) ? renewableAdaptiveCO2CapRole
-                                        .calculatedExpectedCapReductionForTimeStep(government, clearingTick,
-                                                clearingTick + model.getCentralForecastingYear(), currentEmissions, futureEmissions,
-                                                model.getCentralForecastingYear()) : 0;
-                                        double co2Cap = currentCap + effectiveCapInFuture + co2CapAdjustment;
-                                        co2SecantSearch.co2Emissions = currentEmissions + futureEmissions;
+                .getStabilityReserveFirstYearOfOperation() <= clearingTick + model.getCentralForecastingYear()))
+                        ? futureCap - marketStabilityReserveRole.calculateInflowToMarketReserveForTimeStep(
+                                clearingTick + model.getCentralForecastingYear(), expectedBankedPermits, government)
+                        : futureCap;
+        // <<<<<<< HEAD
+        // // logger.warn("effective future cap: {}", effectiveCapInFuture);
+        // =======
+        logger.warn("effective future cap: {}", effectiveCapInFuture);
+        // >>>>>>>
+        // PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
+        effectiveCapInFuture -= (government.isActivelyAdjustingTheCO2Cap() & getCurrentTick() > 0)
+                ? renewableAdaptiveCO2CapRole.calculatedExpectedCapReductionForTimeStep(government, clearingTick,
+                        clearingTick + model.getCentralForecastingYear(), currentEmissions, futureEmissions,
+                        model.getCentralForecastingYear())
+                : 0;
+        double co2Cap = currentCap + effectiveCapInFuture + co2CapAdjustment;
+        co2SecantSearch.co2Emissions = currentEmissions + futureEmissions;
 
-                                        double deviation = (co2SecantSearch.co2Emissions - co2Cap) / co2Cap;
+        double deviation = (co2SecantSearch.co2Emissions - co2Cap) / co2Cap;
 
-                                        if (co2SecantSearch.co2Price == co2SecantSearch.bankingEffectiveMinimumPrice
-                                                && co2SecantSearch.co2Emissions < co2Cap) {
-                                            co2SecantSearch.stable = true;
-                                            return co2SecantSearch;
-                                        }
+        if (co2SecantSearch.co2Price == co2SecantSearch.bankingEffectiveMinimumPrice
+                && co2SecantSearch.co2Emissions < co2Cap) {
+            co2SecantSearch.stable = true;
+            return co2SecantSearch;
+        }
 
-                                        // Check if current price leads to emissions close to the cap.
-                                        if (Math.abs(deviation) < capDeviationCriterion
-                                                && co2SecantSearch.co2Price > co2SecantSearch.bankingEffectiveMinimumPrice) {
-                                            // logger.warn("Deviation is less than capDeviationCriterion");
-                                            co2SecantSearch.stable = true;
-                                            return co2SecantSearch;
-                                        }
+        // Check if current price leads to emissions close to the cap.
+        if (Math.abs(deviation) < capDeviationCriterion
+                && co2SecantSearch.co2Price > co2SecantSearch.bankingEffectiveMinimumPrice) {
+            // logger.warn("Deviation is less than capDeviationCriterion");
+            co2SecantSearch.stable = true;
+            return co2SecantSearch;
+        }
 
-                                        // Check and update the twoPricesExistWithBelowAboveEmissions
+        // Check and update the twoPricesExistWithBelowAboveEmissions
 
-                                        if (co2SecantSearch.tooHighEmissionsPair != null && co2SecantSearch.tooLowEmissionsPair != null) {
-                                            co2SecantSearch.twoPricesExistWithBelowAboveEmissions = true;
-                                        } else if (co2SecantSearch.co2Price == government.getMinCo2Price(clearingTick)
-                                                && co2SecantSearch.co2Emissions < co2Cap) {
-                                            // logger.warn("Deviation CO2 price has reached minimum");
-                                            // check if stable enough --> 2. Cap is met with a co2Price
-                                            // equal to the minimum co2 price
-                                            co2SecantSearch.stable = true;
-                                            return co2SecantSearch;
-                                        } else if (co2SecantSearch.co2Price >= government.getCo2Penalty(clearingTick)
-                                                && co2SecantSearch.co2Emissions >= co2Cap) {
-                                            // Only if above the cap...
-                                            // logger.warn("CO2 price ceiling reached {}",
-                                            // co2SecantSearch.co2Price);
-                                            co2SecantSearch.co2Price = government.getCo2Penalty(clearingTick);
-                                            co2SecantSearch.stable = true;
-                                            return co2SecantSearch;
-                                        }
+        if (co2SecantSearch.tooHighEmissionsPair != null && co2SecantSearch.tooLowEmissionsPair != null) {
+            co2SecantSearch.twoPricesExistWithBelowAboveEmissions = true;
+        } else if (co2SecantSearch.co2Price == government.getMinCo2Price(clearingTick)
+                && co2SecantSearch.co2Emissions < co2Cap) {
+            // logger.warn("Deviation CO2 price has reached minimum");
+            // check if stable enough --> 2. Cap is met with a co2Price
+            // equal to the minimum co2 price
+            co2SecantSearch.stable = true;
+            return co2SecantSearch;
+        } else if (co2SecantSearch.co2Price >= government.getCo2Penalty(clearingTick)
+                && co2SecantSearch.co2Emissions >= co2Cap) {
+            // Only if above the cap...
+            // logger.warn("CO2 price ceiling reached {}",
+            // co2SecantSearch.co2Price);
+            co2SecantSearch.co2Price = government.getCo2Penalty(clearingTick);
+            co2SecantSearch.stable = true;
+            return co2SecantSearch;
+        }
 
-                                        // Check whether we know two pairs, one with EmissionsAboveCap, one with
-                                        // EmissionsBelowCap
-                                        // in case of yes: calculate new CO2 price via secant calculation. In
-                                        // case of no: Take last known
-                                        // price above or below, or halve/double the price.
-                                        if (co2SecantSearch.twoPricesExistWithBelowAboveEmissions) {
+        // Check whether we know two pairs, one with EmissionsAboveCap, one with
+        // EmissionsBelowCap
+        // in case of yes: calculate new CO2 price via secant calculation. In
+        // case of no: Take last known
+        // price above or below, or halve/double the price.
+        if (co2SecantSearch.twoPricesExistWithBelowAboveEmissions) {
 
-                                            // Update the emission pairs
-                                            if (deviation > 0) {
-                                                co2SecantSearch.tooHighEmissionsPair.price = co2SecantSearch.co2Price;
-                                                co2SecantSearch.tooHighEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
-                                            } else {
-                                                co2SecantSearch.tooLowEmissionsPair.price = co2SecantSearch.co2Price;
-                                                co2SecantSearch.tooLowEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
-                                            }
+            // Update the emission pairs
+            if (deviation > 0) {
+                co2SecantSearch.tooHighEmissionsPair.price = co2SecantSearch.co2Price;
+                co2SecantSearch.tooHighEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
+            } else {
+                co2SecantSearch.tooLowEmissionsPair.price = co2SecantSearch.co2Price;
+                co2SecantSearch.tooLowEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
+            }
 
-                                            double p2 = co2SecantSearch.tooHighEmissionsPair.price;
-                                            double p1 = co2SecantSearch.tooLowEmissionsPair.price;
-                                            double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
-                                            double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
+            double p2 = co2SecantSearch.tooHighEmissionsPair.price;
+            double p1 = co2SecantSearch.tooLowEmissionsPair.price;
+            double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
+            double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
 
-                                            // Interrupts long iterations by making a binary search step.
-                                            if (co2SecantSearch.iteration < 5) {
-                                                co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
-                                                co2SecantSearch.iteration++;
-                                                // logger.warn("New CO2 Secant price {}",
-                                                // co2SecantSearch.co2Price);
-                                            } else {
-                                                co2SecantSearch.co2Price = (p1 + p2) / 2;
-                                                co2SecantSearch.iteration = 0;
-                                                // logger.warn("New CO2 Binary price {}",
-                                                // co2SecantSearch.co2Price);
-                                            }
+            // Interrupts long iterations by making a binary search step.
+            if (co2SecantSearch.iteration < 5) {
+                co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
+                co2SecantSearch.iteration++;
+                // logger.warn("New CO2 Secant price {}",
+                // co2SecantSearch.co2Price);
+            } else {
+                co2SecantSearch.co2Price = (p1 + p2) / 2;
+                co2SecantSearch.iteration = 0;
+                // logger.warn("New CO2 Binary price {}",
+                // co2SecantSearch.co2Price);
+            }
 
-                                        } else {
+        } else {
 
-                                            if (deviation > 0) {
-                                                if (co2SecantSearch.tooHighEmissionsPair == null)
-                                                    co2SecantSearch.tooHighEmissionsPair = new PriceEmissionPair();
+            if (deviation > 0) {
+                if (co2SecantSearch.tooHighEmissionsPair == null)
+                    co2SecantSearch.tooHighEmissionsPair = new PriceEmissionPair();
 
-                                                co2SecantSearch.tooHighEmissionsPair.price = co2SecantSearch.co2Price;
-                                                co2SecantSearch.tooHighEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
+                co2SecantSearch.tooHighEmissionsPair.price = co2SecantSearch.co2Price;
+                co2SecantSearch.tooHighEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
 
-                                                if (co2SecantSearch.tooLowEmissionsPair == null) {
-                                                    co2SecantSearch.co2Price = (co2SecantSearch.co2Price != 0d) ? ((co2SecantSearch.co2Price * 2 < government
-                                                            .getCo2Penalty(clearingTick)) ? (co2SecantSearch.co2Price * 2) : government
-                                                                    .getCo2Penalty(clearingTick)) : 5d;
-                                                            // logger.warn("New doubled CO2 search price {}",
-                                                            // co2SecantSearch.co2Price);
-                                                } else {
-                                                    double p2 = co2SecantSearch.tooHighEmissionsPair.price;
-                                                    double p1 = co2SecantSearch.tooLowEmissionsPair.price;
-                                                    double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
-                                                    double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
+                if (co2SecantSearch.tooLowEmissionsPair == null) {
+                    co2SecantSearch.co2Price = (co2SecantSearch.co2Price != 0d)
+                            ? ((co2SecantSearch.co2Price * 2 < government.getCo2Penalty(clearingTick))
+                                    ? (co2SecantSearch.co2Price * 2) : government.getCo2Penalty(clearingTick))
+                            : 5d;
+                    // logger.warn("New doubled CO2 search price {}",
+                    // co2SecantSearch.co2Price);
+                } else {
+                    double p2 = co2SecantSearch.tooHighEmissionsPair.price;
+                    double p1 = co2SecantSearch.tooLowEmissionsPair.price;
+                    double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
+                    double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
 
-                                                    co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
-                                                    co2SecantSearch.iteration++;
-                                                    // logger.warn("New CO2 Secant price {}",
-                                                    // co2SecantSearch.co2Price);
-                                                }
+                    co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
+                    co2SecantSearch.iteration++;
+                    // logger.warn("New CO2 Secant price {}",
+                    // co2SecantSearch.co2Price);
+                }
 
-                                            } else {
+            } else {
 
-                                                if (co2SecantSearch.tooLowEmissionsPair == null)
-                                                    co2SecantSearch.tooLowEmissionsPair = new PriceEmissionPair();
+                if (co2SecantSearch.tooLowEmissionsPair == null)
+                    co2SecantSearch.tooLowEmissionsPair = new PriceEmissionPair();
 
-                                                co2SecantSearch.tooLowEmissionsPair.price = co2SecantSearch.co2Price;
-                                                co2SecantSearch.tooLowEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
+                co2SecantSearch.tooLowEmissionsPair.price = co2SecantSearch.co2Price;
+                co2SecantSearch.tooLowEmissionsPair.emission = co2SecantSearch.co2Emissions - co2Cap;
 
-                                                if (co2SecantSearch.tooHighEmissionsPair == null) {
-                                                    co2SecantSearch.co2Price = Math.max((co2SecantSearch.co2Price / 2),
-                                                            co2SecantSearch.bankingEffectiveMinimumPrice);
-                                                    // logger.warn("New halved CO2 search price {}",
-                                                    // co2SecantSearch.co2Price);
-                                                } else {
-                                                    double p2 = co2SecantSearch.tooHighEmissionsPair.price;
-                                                    double p1 = co2SecantSearch.tooLowEmissionsPair.price;
-                                                    double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
-                                                    double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
+                if (co2SecantSearch.tooHighEmissionsPair == null) {
+                    co2SecantSearch.co2Price = Math.max((co2SecantSearch.co2Price / 2),
+                            co2SecantSearch.bankingEffectiveMinimumPrice);
+                    // logger.warn("New halved CO2 search price {}",
+                    // co2SecantSearch.co2Price);
+                } else {
+                    double p2 = co2SecantSearch.tooHighEmissionsPair.price;
+                    double p1 = co2SecantSearch.tooLowEmissionsPair.price;
+                    double e2 = co2SecantSearch.tooHighEmissionsPair.emission;
+                    double e1 = co2SecantSearch.tooLowEmissionsPair.emission;
 
-                                                    co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
-                                                    // logger.warn("New CO2 Secant price {}",
-                                                    // co2SecantSearch.co2Price);
-                                                    co2SecantSearch.iteration++;
+                    co2SecantSearch.co2Price = p1 - (e1 * (p2 - p1) / (e2 - e1));
+                    // logger.warn("New CO2 Secant price {}",
+                    // co2SecantSearch.co2Price);
+                    co2SecantSearch.iteration++;
 
-                                                }
+                }
 
-                                                if (co2SecantSearch.co2Price < 0.5
-                                                        || co2SecantSearch.co2Price - government.getMinCo2Price(clearingTick) < 0.5) {
-                                                    co2SecantSearch.stable = true;
-                                                }
+                if (co2SecantSearch.co2Price < 0.5
+                        || co2SecantSearch.co2Price - government.getMinCo2Price(clearingTick) < 0.5) {
+                    co2SecantSearch.stable = true;
+                }
 
-                                            }
+            }
 
-                                        }
+        }
 
-                                        return co2SecantSearch;
+        return co2SecantSearch;
 
     }
 
@@ -1124,10 +1147,17 @@ AbstractClearElectricitySpotMarketRole<DecarbonizationModel> implements Role<Dec
             double futureCap, double currentlyBankedEmissions, long centralForecastingYear, Government government) {
         double expectedBankedCertificates = currentlyBankedEmissions + currentCap - currentEmissions + futureCap
                 - futureEmissions;
-        expectedBankedCertificates = government.isStabilityReserveHasOneYearDelayInsteadOfTwoYearDelay() ? 2.0 / 3.0
-                * expectedBankedCertificates + 1.0 / 3.0 * currentlyBankedEmissions : 1 / 3.0
-                * expectedBankedCertificates
-                + 2 / 3.0 * currentlyBankedEmissions;
+        // <<<<<<< HEAD
+        // expectedBankedCertificates =
+        // government.isStabilityReserveHasOneYearDelayInsteadOfTwoYearDelay() ?
+        // 2.0 / 3.0
+        // * expectedBankedCertificates + 1.0 / 3.0 * currentlyBankedEmissions :
+        // 1 / 3.0
+        // =======
+        expectedBankedCertificates = 1 / 3.0
+        // >>>>>>>
+        // PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
+                * expectedBankedCertificates + 2 / 3.0 * currentlyBankedEmissions;
         return expectedBankedCertificates;
 
     }

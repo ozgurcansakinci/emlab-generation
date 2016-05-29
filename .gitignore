@@ -5,4 +5,9 @@
 */.project
 */.settings
 facedb.lck
+<<<<<<< HEAD
 doxygenDoc
+=======
+*/.Rhistory
+*/.Rapp.history
+>>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
