@@ -58,6 +58,8 @@ implements Role<DecarbonizationModel> {
     @Autowired
     Neo4jTemplate template;
 
+    // merging prad's branch to get the dismantle role
+
     ///////////////////////////////////////// parameters for country A
 
     double maxEnergycontentStorageA = 1000;
@@ -334,9 +336,9 @@ implements Role<DecarbonizationModel> {
                                 cplex.getValues(generationCapacityofPlantsMatrix[ppdpIndex]));
                         ppdpIndex++;
                         acceptAnnualBids(ppdp);// TODO:Cash flow and emissions.
-                                               // Think about how to store the
-                                               // supply of a plant over a year
-                                               // (hashmap etc..)
+                        // Think about how to store the
+                        // supply of a plant over a year
+                        // (hashmap etc..)
                         // TODO:Investment role
                     }
                 }
