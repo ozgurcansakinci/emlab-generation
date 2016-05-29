@@ -22,6 +22,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.transaction.annotation.Transactional;
 
+import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 //import emlab.gen.trend.HourlyVariableTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
@@ -32,6 +33,9 @@ public class Interconnector {
     @RelatedTo(type = "INTERCONNECTIONS", elementClass = PowerGridNode.class, direction = Direction.OUTGOING)
     // TODO: Limit the set to the size of two.
     private Set<PowerGridNode> connections;
+
+    @RelatedTo(type = "MARKET_INTERCONNECTIONS", elementClass = ElectricitySpotMarket.class, direction = Direction.OUTGOING)
+    private Set<ElectricitySpotMarket> spotMarketConnections;
 
     @RelatedTo(type = "INTERCONNECTOR_CAPACITY_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl interconnectorCapacityTrend;
@@ -53,6 +57,14 @@ public class Interconnector {
 
     public double getMaxInterconnectorCapacity() {
         return maxInterconnectorCapacity;
+    }
+
+    public Set<ElectricitySpotMarket> getSpotMarketConnections() {
+        return spotMarketConnections;
+    }
+
+    public void setSpotMarketConnections(Set<ElectricitySpotMarket> spotMarketConnections) {
+        this.spotMarketConnections = spotMarketConnections;
     }
 
     public void setMaxInterconnectorCapacity(double maxInterconnectorCapacity) {
@@ -104,7 +116,6 @@ public class Interconnector {
     public double getCapacity(long time) {
         return getInterconnectorCapacityTrend().getValue(time);
     }
-
 
     public void setCapacity(long time, double capacity) {
         interconnectorCapacityTrend.setValue(time, capacity);

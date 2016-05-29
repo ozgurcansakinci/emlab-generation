@@ -42,6 +42,7 @@ import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.util.Utils;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
+import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 
 /**
@@ -50,7 +51,7 @@ import ilog.cplex.IloCplex;
  */
 @RoleComponent
 public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySpotMarketRole<DecarbonizationModel>
-implements Role<DecarbonizationModel> {
+        implements Role<DecarbonizationModel> {
 
     @Autowired
     private Reps reps;
@@ -102,8 +103,6 @@ implements Role<DecarbonizationModel> {
     double maxMarketCrossBorderFlowAandB = 3000;
 
     //////////////////////////////////////////////////////////////////
-
-
 
     ///////////////////////////////////////////////////////////////////
 
@@ -182,10 +181,9 @@ implements Role<DecarbonizationModel> {
             // }
             // }
 
-
             powerPlantList = reps.powerPlantRepository.findOperationalPowerPlants(getCurrentTick());
 
-            double numberofMarkets =reps.marketRepository.countAllElectricitySpotMarkets();
+            double numberofMarkets = reps.marketRepository.countAllElectricitySpotMarkets();
 
             int numberOfElectricitySpotMarkets = (int) numberofMarkets;
             int numberOfPowerPlants = reps.powerPlantRepository.findNumberOfOperationalPowerPlants(getCurrentTick());
@@ -194,8 +192,7 @@ implements Role<DecarbonizationModel> {
 
             // The i th row contains the array of variable generation capacity
             // of plant i
-            IloNumVar[][] generationCapacityofPlantsMatrix = new
-                    IloNumVar[numberOfPowerPlants][timeSteps];
+            IloNumVar[][] generationCapacityofPlantsMatrix = new IloNumVar[numberOfPowerPlants][timeSteps];
 
             // Only works when there is one interconnector
             // TODO:think about the multi node implementation
@@ -221,7 +218,7 @@ implements Role<DecarbonizationModel> {
             int marketIndex = 0;
             int plantIndex = 0;
             int Index = 0;
-            //TODO: Right now, it is assumed that there are only two markets.
+            // TODO: Right now, it is assumed that there are only two markets.
 
             Map<ElectricitySpotMarket, List<PowerPlant>> ESMtoPPList = new HashMap<ElectricitySpotMarket, List<PowerPlant>>();
             Map<ElectricitySpotMarket, List<PpdpAnnual>> ESMtoPPDPList = new HashMap<ElectricitySpotMarket, List<PpdpAnnual>>();
@@ -243,6 +240,7 @@ implements Role<DecarbonizationModel> {
             IloLinearNumExpr[][] demandEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
             IloLinearNumExpr[] carbonEmissionsEquationsForAllMarkets = new IloLinearNumExpr[timeSteps];
             IloNumVar[][] inelasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+            IloNumVar[][] valueOfLostLoadInMWH = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
             IloLinearNumExpr objective = cplex.linearNumExpr();
             double[] marginalCostOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
             double[] emissionsIntensityOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
@@ -253,9 +251,12 @@ implements Role<DecarbonizationModel> {
                     inelasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(
                             market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i],
                             market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i]);
+                    valueOfLostLoadInMWH[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);
                     demandEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
                     demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
                             inelasticDemandForAllMarkets[marketIndex][i]);
+                    generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);
+                    objective.addTerm(market.getValueOfLostLoad(), valueOfLostLoadInMWH[marketIndex][i]);
                     if (marketIndex == 0)
                         carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();
                 }
@@ -308,15 +309,26 @@ implements Role<DecarbonizationModel> {
             }
 
             cplex.addMinimize(objective);
-
+            // List<IloRange> constraints = new ArrayList<IloRange>();
+            // for (int j = 0; j < numberOfElectricitySpotMarkets; j++) {
+            // for (int i = 0; i < timeSteps; i++) {
+            // cplex.addEq(generationEquationsForAllMarkets[j][i],
+            // demandEquationsForAllMarkets[j][i]);
+            // }
+            // }
+            IloRange[][] constraints = new IloRange[numberOfElectricitySpotMarkets][timeSteps];
             for (int j = 0; j < numberOfElectricitySpotMarkets; j++) {
                 for (int i = 0; i < timeSteps; i++) {
-                    cplex.addEq(generationEquationsForAllMarkets[j][i], demandEquationsForAllMarkets[j][i]);
-
-
+                    // cplex.addEq(generationEquationsForAllMarkets[j][i],
+                    // demandEquationsForAllMarkets[j][i]);
+                    constraints[j][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[j][i],
+                            demandEquationsForAllMarkets[j][i]);
                 }
             }
-            cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets), co2Cap);
+            // cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets),
+            // co2Cap);
+            IloRange carbonConstraint = (IloRange) cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets),
+                    co2Cap);
 
             System.out.println(generationCapacityofPlantsMatrix.length);
             System.out.println(generationCapacityofPlantsMatrix[0].length);
@@ -330,6 +342,14 @@ implements Role<DecarbonizationModel> {
                 System.out.println("Objective = " + cplex.getObjValue());
                 System.out.println("Objective = " + cplex.getStatus());
                 System.out.println("---------------------Market Clearing-------------------------");
+                for (int k = 0; k < numberOfElectricitySpotMarkets; k++) {
+                    System.out.print("Dual Constraint for market " + k + " =");
+                    for (int i = 0; i < timeSteps; i++) {
+                        System.out.print(cplex.getDual(constraints[k][i]) + " ");
+                    }
+                    System.out.println(" ");
+                }
+                System.out.println("Carbon constraint = " + cplex.getDual(carbonConstraint));
                 for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                     for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
                         changeAcceptedAmountPpdpAnnual(ppdp,
@@ -342,7 +362,7 @@ implements Role<DecarbonizationModel> {
                         // TODO:Investment role
                     }
                 }
-                try{
+                try {
                     FileWriter FW = new FileWriter(
                             "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Generation.csv");
                     for (int i = 0; i < timeSteps; ++i) {
@@ -360,23 +380,23 @@ implements Role<DecarbonizationModel> {
                     FileWriter FW1 = new FileWriter(
                             "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Emission.csv");
                     for (int i = 0; i < timeSteps; ++i) {
-                        FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i]) + " " + "," + "\n");
+                        // FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i])
+                        // + " " + "," + "\n");
+                        FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
+                                + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
+
                     }
                     FW1.flush();
                     FW1.close();
 
-                }
-
-                catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             } else {
                 System.out.println("Something went wrong");
             }
             cplex.end();
             System.out.println("------------------------------------------------------");
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -392,8 +412,6 @@ implements Role<DecarbonizationModel> {
 
     }
 
-
-
     @Transactional
     public void chageactualhourlynomcap(PowerPlant plant, HourlyCSVTimeSeries num) {
         plant.setActualHourlyNominalCapacity(num);
@@ -407,6 +425,5 @@ implements Role<DecarbonizationModel> {
         ppdp.setAcceptedHourlyAmount(amount);
         ppdp.persist();
     }
-
 
 }

@@ -330,12 +330,15 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        logger.warn("executing matrix code");
+        logger.warn("executing CPLEX code");
         clearHourlyElectricityMarketRole.act(model);
+        timerMarket.stop();
+        logger.warn("        took: {} seconds.", timerMarket.seconds());
         // clearHourlyElectricityMarketRole.populate_plantValue(pl);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        timerMarket.reset();
+        timerMarket.start();
         logger.warn("  4. Clearing electricity spot and CO2 markets");
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole.act(model);
         // model.act(clearIterativeCO2AndElectricitySpotMarketTwoCountryRole);

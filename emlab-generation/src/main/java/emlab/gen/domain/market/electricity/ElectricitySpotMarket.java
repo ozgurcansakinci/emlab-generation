@@ -26,7 +26,6 @@ import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.trend.DailyCSVTimeSeries;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
-import ilog.concert.IloLinearNumExpr;
 
 @NodeEntity
 public class ElectricitySpotMarket extends DecarbonizationMarket {
@@ -43,12 +42,6 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     @RelatedTo(type = "DAILYDEMAND", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private DailyCSVTimeSeries dailyElasticDemandForESMarket;
-
-    private IloLinearNumExpr[] generationEquationForElectrictySpotMarket;
-
-    public IloLinearNumExpr[] getGenerationEquationForElectrictySpotMarket() {
-        return generationEquationForElectrictySpotMarket;
-    }
 
     public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
         return hourlyInElasticDemandForESMarket;
