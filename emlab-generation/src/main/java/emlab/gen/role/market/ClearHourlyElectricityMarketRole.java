@@ -237,43 +237,67 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             }
 
             IloLinearNumExpr[][] generationEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
+
             IloLinearNumExpr[][] demandEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
+
             IloLinearNumExpr[] carbonEmissionsEquationsForAllMarkets = new IloLinearNumExpr[timeSteps];
+
             IloNumVar[][] inelasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
             IloNumVar[][] valueOfLostLoadInMWH = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
             IloLinearNumExpr objective = cplex.linearNumExpr();
+
             double[] marginalCostOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
+
             double[] emissionsIntensityOfPowerPlantsForCurrentTick = new double[numberOfPowerPlants];
+
             for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                 // ESMtoPPList.get(market)
                 for (int i = 0; i < timeSteps; i++) {
+
                     generationEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
+
                     inelasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(
                             market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i],
                             market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i]);
+
                     valueOfLostLoadInMWH[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);
+
                     demandEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
+
                     demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
                             inelasticDemandForAllMarkets[marketIndex][i]);
+
                     generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);
+
                     objective.addTerm(market.getValueOfLostLoad(), valueOfLostLoadInMWH[marketIndex][i]);
+
                     if (marketIndex == 0)
                         carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();
                 }
                 for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
+
                     marginalCostOfPowerPlantsForCurrentTick[plantIndex] = ppdp.getPrice();
+
                     emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex] = ppdp.getPowerPlant()
                             .calculateEmissionIntensity();
+
                     for (int i = 0; i < timeSteps; i++) {
+
                         generationCapacityofPlantsMatrix[plantIndex][i] = cplex.numVar(0,
                                 ppdp.getAvailableHourlyAmount().getHourlyArray(0)[i]);
+
                         generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
                                 generationCapacityofPlantsMatrix[plantIndex][i]);
+
                         objective.addTerm(marginalCostOfPowerPlantsForCurrentTick[plantIndex],
                                 generationCapacityofPlantsMatrix[plantIndex][i]);
+
                         carbonEmissionsEquationsForAllMarkets[i].addTerm(
                                 emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex],
                                 generationCapacityofPlantsMatrix[plantIndex][i]);
+
                     }
                     plantIndex++;
                 }
@@ -336,35 +360,53 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             cplex.setParam(IloCplex.IntParam.Simplex.Display, 0);
 
+            List<PpdpAnnual> ppdpAnnualList1 = Utils
+                    .asList(reps.ppdpAnnualRepository.findAllSubmittedPpdpAnnualForGivenTime(getCurrentTick()));
+
+            System.out.println(ppdpAnnualList1.size());
+
+            // for (PpdpAnnual ppdp1 : ppdpAnnualList1) {
+            // // if (ppdp1.getPowerPlant().getTechnology().isIntermittent() =
+            // // "false") {
+            //
+            // System.out.println("Capacity is: " +
+            // ppdp1.getAvailableHourlyAmount().getHourlyArray(0).toString()
+            // + " Price is: " + ppdp1.getPrice());
+            //
+            // // }
+            // }
+
             if (cplex.solve()) {
                 int ppdpIndex = 0;
                 System.out.println("----------------------------------------------------------");
                 System.out.println("Objective = " + cplex.getObjValue());
                 System.out.println("Objective = " + cplex.getStatus());
                 System.out.println("---------------------Market Clearing-------------------------");
-                for (int k = 0; k < numberOfElectricitySpotMarkets; k++) {
-                    System.out.print("Dual Constraint for market " + k + " =");
-                    for (int i = 0; i < timeSteps; i++) {
-                        System.out.print(cplex.getDual(constraints[k][i]) + " ");
-                    }
-                    System.out.println(" ");
-                }
+                // for (int k = 0; k < numberOfElectricitySpotMarkets; k++) {
+                // System.out.print("Dual Constraint for market " + k + " =");
+                // for (int i = 0; i < timeSteps; i++) {
+                // System.out.print(cplex.getDual(constraints[k][i]) + " ");
+                // }
+                // System.out.println(" ");
+                // }
                 System.out.println("Carbon constraint = " + cplex.getDual(carbonConstraint));
                 for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                     for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
                         changeAcceptedAmountPpdpAnnual(ppdp,
                                 cplex.getValues(generationCapacityofPlantsMatrix[ppdpIndex]));
                         ppdpIndex++;
-                        acceptAnnualBids(ppdp);// TODO:Cash flow and emissions.
-                        // Think about how to store the
-                        // supply of a plant over a year
-                        // (hashmap etc..)
-                        // TODO:Investment role
+                        acceptAnnualBids(ppdp);
+
                     }
+                    // TODO:Cash flow and emissions.
+                    // Think about how to store the
+                    // supply of a plant over a year
+                    // (hashmap etc..)
+                    // TODO:Investment role
                 }
+
                 try {
-                    FileWriter FW = new FileWriter(
-                            "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Generation.csv");
+                    FileWriter FW = new FileWriter("/home/sk/Test CSVs/4380 Time Steps/Output/Generation.csv");
                     for (int i = 0; i < timeSteps; ++i) {
                         for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                             for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
@@ -377,13 +419,14 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     FW.flush();
                     FW.close();
 
-                    FileWriter FW1 = new FileWriter(
-                            "/home/sk/Test CSVs/4380 Time Steps/Output/Optimization_Test_Writer_Emission.csv");
+                    FileWriter FW1 = new FileWriter("/home/sk/Test CSVs/4380 Time Steps/Output/Emission.csv");
                     for (int i = 0; i < timeSteps; ++i) {
-                        // FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i])
-                        // + " " + "," + "\n");
-                        FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
+                        FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i]) + " " + ","
+                                + cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
                                 + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
+                        // FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i])
+                        // + " " + ","
+                        // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
 
                     }
                     FW1.flush();
@@ -398,7 +441,9 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             cplex.end();
             System.out.println("------------------------------------------------------");
 
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
         }
 
