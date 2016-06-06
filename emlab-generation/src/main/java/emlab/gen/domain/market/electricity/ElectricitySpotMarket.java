@@ -33,14 +33,20 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     @RelatedTo(type = "SEGMENT_LOAD", elementClass = SegmentLoad.class, direction = Direction.OUTGOING)
     private Set<SegmentLoad> loadDurationCurve;
 
+    @RelatedTo(type = "YEARLYSEGMENT_MARKET", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
+    private YearlySegment yearlySegment;
+
+    @RelatedTo(type = "YEARLYSEGMENTLOAD", elementClass = YearlySegmentLoad.class, direction = Direction.OUTGOING)
+    private YearlySegmentLoad yearlySegmentLoad;
+
     @RelatedTo(type = "DEMANDGROWTH_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl demandGrowthTrend;
     // <<<<<<< HEAD
 
-    @RelatedTo(type = "HOURLYDEMAND", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    @RelatedTo(type = "HOURLYDEMAND_MARKET", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private HourlyCSVTimeSeries hourlyInElasticDemandForESMarket;
 
-    @RelatedTo(type = "DAILYDEMAND", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    @RelatedTo(type = "DAILYDEMAND_MARKET", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private DailyCSVTimeSeries dailyElasticDemandForESMarket;
 
     public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
@@ -58,8 +64,25 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     public void setDailyElasticDemandForESMarket(DailyCSVTimeSeries dailyElasticDemandForESMarket) {
         this.dailyElasticDemandForESMarket = dailyElasticDemandForESMarket;
     }
+
+    public YearlySegment getYearlySegment() {
+        return yearlySegment;
+    }
+
+    public void setYearlySegment(YearlySegment yearlySegment) {
+        this.yearlySegment = yearlySegment;
+    }
+
     // =======
     // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
+
+    public YearlySegmentLoad getYearlySegmentLoad() {
+        return yearlySegmentLoad;
+    }
+
+    public void setYearlySegmentLoad(YearlySegmentLoad yearlySegmentLoad) {
+        this.yearlySegmentLoad = yearlySegmentLoad;
+    }
 
     private double valueOfLostLoad;
 

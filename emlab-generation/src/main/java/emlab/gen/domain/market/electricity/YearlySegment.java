@@ -18,11 +18,27 @@ package emlab.gen.domain.market.electricity;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
 @NodeEntity
-public class YearlySegment extends Segment {
+public class YearlySegment {
 
-    private double lengthInHours;
+    private double yearlySegmentLengthInHours;
 
-    // private int segmentID;
+    public double getYearlySegmentLengthInHours() {
+        return yearlySegmentLengthInHours;
+    }
+
+    public void setYearlySegmentLengthInHours(double yearlySegmentLengthInHours) {
+        this.yearlySegmentLengthInHours = yearlySegmentLengthInHours;
+    }
+
+    public int getYearlySegmentID() {
+        return yearlySegmentID;
+    }
+
+    public void setYearlySegmentID(int yearlySegmentID) {
+        this.yearlySegmentID = yearlySegmentID;
+    }
+
+    private int yearlySegmentID;
 
     /**
      * Should be 8760 hours long, and only one TRUE value for each index over
@@ -30,16 +46,16 @@ public class YearlySegment extends Segment {
      */
     // private boolean[] representsHoursOfTheYear;
 
-    @Override
-    public double getLengthInHours() {
-        return lengthInHours;
-    }
-
-    @Override
-    public void setLengthInHours(double lengthInHours) {
-        this.lengthInHours = lengthInHours;
-        // this.persist();
-    }
+    // @Override
+    // public double getLengthInHours() {
+    // return lengthInHours;
+    // }
+    //
+    // @Override
+    // public void setLengthInHours(double lengthInHours) {
+    // this.lengthInHours = lengthInHours;
+    // // this.persist();
+    // }
 
     // public boolean[] getRepresentsHoursOfTheYear() {
     // return representsHoursOfTheYear;
@@ -60,7 +76,7 @@ public class YearlySegment extends Segment {
 
     @Override
     public String toString() {
-        return "length in hours: " + getLengthInHours();
+        return "length in hours: " + getYearlySegmentLengthInHours();
     }
 
 }

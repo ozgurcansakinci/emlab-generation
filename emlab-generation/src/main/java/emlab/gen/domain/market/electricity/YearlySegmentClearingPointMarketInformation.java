@@ -30,14 +30,83 @@ import emlab.gen.trend.HourlyCSVTimeSeries;
  *
  */
 @NodeEntity
-public class YearlySegmentClearingPointMarketInformation extends SegmentClearingPoint {
+public class YearlySegmentClearingPointMarketInformation {// extends
+                                                          // SegmentClearingPoint
+                                                          // {
 
     @RelatedTo(type = "YEARLY_SEGMENT_POINT", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
     private YearlySegment yearlySegment;
 
-    private HourlyCSVTimeSeries marketPrice;
-    private HourlyCSVTimeSeries marketVolume;
-    private HourlyCSVTimeSeries timeStep;
+    @RelatedTo(type = "MARKET_INFORMATION_POINT", elementClass = ElectricitySpotMarket.class, direction = Direction.INCOMING)
+    private ElectricitySpotMarket electricitySpotMarket;
+
+    // private HourlyCSVTimeSeries marketPrice;
+    // private HourlyCSVTimeSeries marketSupply;
+    // private HourlyCSVTimeSeries marketDemand;
+    // private HourlyCSVTimeSeries valueOfLostLoad;
+
+    private double[] marketPrice;
+    private double[] marketSupply;
+    private double[] marketDemand;
+    private double[] valueOfLostLoad;
+
+    private double CO2Price;
+
+    private long time;
+
+    /**
+     * @param marketPrice
+     * @param marketSupply
+     * @param marketDemand
+     * @param valueOfLostLoad
+     */
+    // public YearlySegmentClearingPointMarketInformation() {
+    // // super();
+    // this.marketPrice = new HourlyCSVTimeSeries();
+    // this.marketSupply = new HourlyCSVTimeSeries();
+    // this.marketDemand = new HourlyCSVTimeSeries();
+    // this.valueOfLostLoad = new HourlyCSVTimeSeries();
+    // }
+
+    public double getCO2Price() {
+        return CO2Price;
+    }
+
+    public double[] getMarketPrice() {
+        return marketPrice;
+    }
+
+    public void setMarketPrice(double[] marketPrice) {
+        this.marketPrice = marketPrice;
+    }
+
+    public double[] getMarketSupply() {
+        return marketSupply;
+    }
+
+    public void setMarketSupply(double[] marketSupply) {
+        this.marketSupply = marketSupply;
+    }
+
+    public double[] getMarketDemand() {
+        return marketDemand;
+    }
+
+    public void setMarketDemand(double[] marketDemand) {
+        this.marketDemand = marketDemand;
+    }
+
+    public double[] getValueOfLostLoad() {
+        return valueOfLostLoad;
+    }
+
+    public void setValueOfLostLoad(double[] valueOfLostLoad) {
+        this.valueOfLostLoad = valueOfLostLoad;
+    }
+
+    public void setCO2Price(double cO2Price) {
+        CO2Price = cO2Price;
+    }
 
     public YearlySegment getYearlySegment() {
         return yearlySegment;
@@ -47,29 +116,69 @@ public class YearlySegmentClearingPointMarketInformation extends SegmentClearing
         this.yearlySegment = yearlySegment;
     }
 
-    public HourlyCSVTimeSeries getMarketPrice() {
-        return marketPrice;
+    public ElectricitySpotMarket getElectricitySpotMarket() {
+        return electricitySpotMarket;
     }
 
-    public void setMarketPrice(HourlyCSVTimeSeries marketPrice) {
-        this.marketPrice = marketPrice;
+    public void setElectricitySpotMarket(ElectricitySpotMarket electricitySpotMarket) {
+        this.electricitySpotMarket = electricitySpotMarket;
     }
 
-    public HourlyCSVTimeSeries getMarketVolume() {
-        return marketVolume;
+    public long getTime() {
+        return time;
     }
 
-    public void setMarketVolume(HourlyCSVTimeSeries marketVolume) {
-        this.marketVolume = marketVolume;
+    public void setTime(long time) {
+        this.time = time;
     }
 
-    public HourlyCSVTimeSeries getTimeStep() {
-        return timeStep;
-    }
-
-    public void setTimeStep(HourlyCSVTimeSeries timeStep) {
-        this.timeStep = timeStep;
-    }
+    // public HourlyCSVTimeSeries getMarketPrice() {
+    // return marketPrice;
+    // }
+    //
+    // public void updateMarketPrice(double[] marketPrice) {
+    // this.marketPrice.setHourlyArray(marketPrice, 0);
+    // }
+    //
+    // public HourlyCSVTimeSeries getMarketSupply() {
+    // return marketSupply;
+    // }
+    //
+    // public void updateMarketSupply(double[] marketSupply) {
+    // this.marketSupply.setHourlyArray(marketSupply, 0);
+    // }
+    //
+    // public void updateMarketDemand(double[] marketDemand) {
+    // this.marketDemand.setHourlyArray(marketDemand, 0);
+    // }
+    //
+    // public HourlyCSVTimeSeries getValueOfLostLoad() {
+    // return valueOfLostLoad;
+    // }
+    //
+    // public void updateValueOfLostLoad(double[] valueOfLostLoad) {
+    // this.valueOfLostLoad.setHourlyArray(valueOfLostLoad, 0);
+    // }
+    //
+    // public void setMarketPrice(HourlyCSVTimeSeries marketPrice) {
+    // this.marketPrice = marketPrice;
+    // }
+    //
+    // public void setMarketSupply(HourlyCSVTimeSeries marketSupply) {
+    // this.marketSupply = marketSupply;
+    // }
+    //
+    // public HourlyCSVTimeSeries getMarketDemand() {
+    // return marketDemand;
+    // }
+    //
+    // public void setMarketDemand(HourlyCSVTimeSeries marketDemand) {
+    // this.marketDemand = marketDemand;
+    // }
+    //
+    // public void setValueOfLostLoad(HourlyCSVTimeSeries valueOfLostLoad) {
+    // this.valueOfLostLoad = valueOfLostLoad;
+    // }
 
     /**
      * The interconnector flow is specified as a source of electricity from the
@@ -86,6 +195,5 @@ public class YearlySegmentClearingPointMarketInformation extends SegmentClearing
     public void setYearlyInterconnectorFlow(HourlyCSVTimeSeries yearlyInterconnectorFlow) {
         this.yearlyInterconnectorFlow = yearlyInterconnectorFlow;
     }
-
 
 }

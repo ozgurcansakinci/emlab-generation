@@ -101,11 +101,7 @@ public class DetermineResidualLoadCurveTest {
         co2TaxTrend.setIncrement(0);
         gov.setCo2TaxTrend(co2TaxTrend);
 
-
-
         CO2Auction co2Auction = new CO2Auction().persist();
-
-
 
         Zone zone1 = new Zone();
         Zone zone2 = new Zone();
@@ -134,10 +130,15 @@ public class DetermineResidualLoadCurveTest {
 
         HourlyCSVTimeSeries load1TimeSeries = new HourlyCSVTimeSeries();
         load1TimeSeries.setFilename("/data/ZoneALoad.csv");
+        //////////////////////////////////////////
+        load1TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
 
         HourlyCSVTimeSeries load2TimeSeries = new HourlyCSVTimeSeries();
         load2TimeSeries.setFilename("/data/ZoneBLoad.csv");
-
+        //////////////////////////////////////////
+        load2TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
         load1TimeSeries.persist();
         load2TimeSeries.persist();
 
@@ -256,7 +257,7 @@ public class DetermineResidualLoadCurveTest {
         gas.setName("Gas");
         gas.setEnergyDensity(1000);
 
-        CommodityMarket coalMarket =  new CommodityMarket().persist();
+        CommodityMarket coalMarket = new CommodityMarket().persist();
         CommodityMarket gasMarket = new CommodityMarket().persist();
 
         coalMarket.setSubstance(coal);
@@ -276,7 +277,6 @@ public class DetermineResidualLoadCurveTest {
         HashSet<Substance> fuelMixGas = new HashSet<Substance>();
         fuelMixGas.add(gas);
 
-
         PowerGeneratingTechnology coalTech = new PowerGeneratingTechnology();
         coalTech.setFuels(fuelMixCoal);
         coalTech.setPeakSegmentDependentAvailability(1);
@@ -291,7 +291,6 @@ public class DetermineResidualLoadCurveTest {
         windTech.setName("WindTech");
         windTech.setIntermittent(true);
 
-
         coalTech.persist();
         gasTech.persist();
         windTech.persist();
@@ -300,11 +299,13 @@ public class DetermineResidualLoadCurveTest {
         windIntermittentResourceProfile1.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile1.setIntermittentProductionNode(node1);
         windIntermittentResourceProfile1.setFilename("/data/ResLFA.csv");
+        windIntermittentResourceProfile1.setLengthInHours(8760);
 
         IntermittentResourceProfile windIntermittentResourceProfile2 = new IntermittentResourceProfile();
         windIntermittentResourceProfile2.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile2.setIntermittentProductionNode(node2);
         windIntermittentResourceProfile2.setFilename("/data/ResLFB.csv");
+        windIntermittentResourceProfile2.setLengthInHours(8760);
 
         windIntermittentResourceProfile1.persist();
         windIntermittentResourceProfile2.persist();
@@ -498,7 +499,6 @@ public class DetermineResidualLoadCurveTest {
     public void determineResidualLoadCurveRoleTest() {
 
         DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
-
 
         determineResidualLoadCurvesForTwoCountriesRole.act(model);
 

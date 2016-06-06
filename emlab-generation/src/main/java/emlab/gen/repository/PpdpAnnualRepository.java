@@ -21,6 +21,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.technology.PowerPlant;
@@ -36,12 +37,18 @@ public interface PpdpAnnualRepository extends GraphRepository<PpdpAnnual> {
     public Iterable<PpdpAnnual> findAllSubmittedPpdpAnnualForGivenMarketAndTime(
             @Param("market") DecarbonizationMarket esm, @Param("time") long time);
 
+    @Query(value = "g.v(market).in('BIDDINGMARKET').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}", type = QueryType.Gremlin)
+    public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForGivenMarketAndTime(
+            @Param("market") DecarbonizationMarket esm, @Param("time") long time);
+
+    @Query(value = "g.v(producer).in('BIDDER').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}", type = QueryType.Gremlin)
+    public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForGivenProducerAndTime(
+            @Param("producer") EnergyProducer producer, @Param("time") long time);
+
     // g.idx('__types__')[[className:'emlab.gen.domain.technology.PowerPlant']].
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.PpdpAnnual']].propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 1}", type = QueryType.Gremlin)
-    public Iterable<PpdpAnnual> findAllSubmittedPpdpAnnualForGivenTime(
-            @Param("time") long time);
+    public Iterable<PpdpAnnual> findAllSubmittedPpdpAnnualForGivenTime(@Param("time") long time);
 
-    @Query(value = "g.v(plant).in('PPDPANNUAL_POWERPLANT').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}", type = QueryType.Gremlin)
-    public PpdpAnnual findAllPPDPAnnualforPlantsForAllMarketsForCurrentTick(@Param("plant") PowerPlant plant,
-            @Param("time") long time);
+    @Query(value = "g.v(plant).in('PPDPANNUAL_POWERPLANT').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
+    public PpdpAnnual findPPDPAnnualforPlantForCurrentTick(@Param("plant") PowerPlant plant, @Param("time") long time);
 }

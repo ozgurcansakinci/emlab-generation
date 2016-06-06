@@ -103,11 +103,7 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         co2TaxTrend.setIncrement(0);
         gov.setCo2TaxTrend(co2TaxTrend);
 
-
-
         CO2Auction co2Auction = new CO2Auction().persist();
-
-
 
         Zone zone1 = new Zone();
         Zone zone2 = new Zone();
@@ -136,9 +132,15 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
 
         HourlyCSVTimeSeries load1TimeSeries = new HourlyCSVTimeSeries();
         load1TimeSeries.setFilename("/data/ZoneALoad.csv");
+        //////////////////////////////////////////
+        load1TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
 
         HourlyCSVTimeSeries load2TimeSeries = new HourlyCSVTimeSeries();
         load2TimeSeries.setFilename("/data/ZoneBLoad.csv");
+        //////////////////////////////////////////
+        load2TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
 
         load1TimeSeries.persist();
         load2TimeSeries.persist();
@@ -229,7 +231,7 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         gas.setName("Gas");
         gas.setEnergyDensity(1000);
 
-        CommodityMarket coalMarket =  new CommodityMarket().persist();
+        CommodityMarket coalMarket = new CommodityMarket().persist();
         CommodityMarket gasMarket = new CommodityMarket().persist();
 
         coalMarket.setSubstance(coal);
@@ -249,7 +251,6 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         HashSet<Substance> fuelMixGas = new HashSet<Substance>();
         fuelMixGas.add(gas);
 
-
         PowerGeneratingTechnology coalTech = new PowerGeneratingTechnology();
         coalTech.setFuels(fuelMixCoal);
         coalTech.setPeakSegmentDependentAvailability(1);
@@ -264,7 +265,6 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         windTech.setName("WindTech");
         windTech.setIntermittent(true);
 
-
         coalTech.persist();
         gasTech.persist();
         windTech.persist();
@@ -273,11 +273,13 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         windIntermittentResourceProfile1.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile1.setIntermittentProductionNode(node1);
         windIntermittentResourceProfile1.setFilename("/data/ResLFA.csv");
+        windIntermittentResourceProfile1.setLengthInHours(8760);
 
         IntermittentResourceProfile windIntermittentResourceProfile2 = new IntermittentResourceProfile();
         windIntermittentResourceProfile2.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile2.setIntermittentProductionNode(node2);
         windIntermittentResourceProfile2.setFilename("/data/ResLFB.csv");
+        windIntermittentResourceProfile2.setLengthInHours(8760);
 
         windIntermittentResourceProfile1.persist();
         windIntermittentResourceProfile2.persist();
@@ -472,7 +474,6 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
 
         DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
 
-
         determineResidualLoadCurvesForTwoCountriesRole.act(model);
 
         for (SegmentLoad segmentLoad : reps.segmentLoadRepository.findAll()) {
@@ -503,7 +504,6 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
             producer.act(determineFuelMixRole);
         }
 
-
         // submitOffersToElectricitySpotMarketRole
         // .createOffersForElectricitySpotMarket(null, getCurrentTick(), true,
         // null);
@@ -512,16 +512,15 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         // null);
 
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
-        .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
-                getCurrentTick(), null, null, 0);
+                .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
+                        getCurrentTick(), null, null, 0);
 
-
-        //Check that
+        // Check that
         for (PowerPlant plant : reps.powerPlantRepository.findAll()) {
-            for(Segment s : reps.segmentRepository.findAll()){
+            for (Segment s : reps.segmentRepository.findAll()) {
                 PowerPlantDispatchPlan plan = reps.powerPlantDispatchPlanRepository
                         .findOnePowerPlantDispatchPlanForPowerPlantForSegmentForTime(plant, s, 0, false);
-                if(plan.getPowerPlant().getName().equals("CoalInM1")){
+                if (plan.getPowerPlant().getName().equals("CoalInM1")) {
                     assertEquals("CoalInM1 right price", 24, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM1 right amount", 700, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -532,7 +531,7 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
                         assertEquals("CoalInM1 right accepted amount in S2", 672.055, plan.getAcceptedAmount(), 0.001);
                     }
                     break;
-                } else if(plan.getPowerPlant().getName().equals("CoalInM2")){
+                } else if (plan.getPowerPlant().getName().equals("CoalInM2")) {
                     assertEquals("CoalInM2 right price", 27, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM2 right amount", 1300, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -594,9 +593,9 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
 
         }
 
-        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAll()){
-            if(scp.getAbstractMarket().getName().equals("Market1")){
-                switch(scp.getSegment().getSegmentID()){
+        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAll()) {
+            if (scp.getAbstractMarket().getName().equals("Market1")) {
+                switch (scp.getSegment().getSegmentID()) {
                 case 1:
                     assertEquals("Clearing Point Market 1, segment1 price", 36, scp.getPrice(), 0.001);
                     assertEquals("Clearing Point Market 1, segment1 volume", 5067441, scp.getVolume(), 0.001);
@@ -606,7 +605,7 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
                     assertEquals("Clearing Point Market 1, segment2 volume", 3149001, scp.getVolume(), 0.001);
                     break;
                 }
-            } else if(scp.getAbstractMarket().getName().equals("Market2")){
+            } else if (scp.getAbstractMarket().getName().equals("Market2")) {
                 switch (scp.getSegment().getSegmentID()) {
                 case 1:
                     assertEquals("Clearing Point Market 2, segment1 price", 40, scp.getPrice(), 0.001);
@@ -619,7 +618,6 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
                 }
             }
         }
-
 
     }
 
@@ -637,7 +635,7 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         }
 
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
-        .makeCentralElectricityMarketForecastForTimeStep(getCurrentTick() + model.getCentralForecastingYear());
+                .makeCentralElectricityMarketForecastForTimeStep(getCurrentTick() + model.getCentralForecastingYear());
 
         ppdps = reps.powerPlantDispatchPlanRepository.findAll();
         for (PowerPlantDispatchPlan ppdp : ppdps) {
@@ -687,8 +685,8 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
             }
         }
 
-        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAllSegmentClearingPointsForTime(
-                getCurrentTick() + 3, true)) {
+        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository
+                .findAllSegmentClearingPointsForTime(getCurrentTick() + 3, true)) {
             if (scp.getAbstractMarket().getName().equals("Market1")) {
                 switch (scp.getSegment().getSegmentID()) {
                 case 1:
@@ -788,8 +786,8 @@ public class IntermittentElectricityMarketSubmittingAndClearingTest {
         // null);
 
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
-        .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
-                getCurrentTick(), null, null, 0);
+                .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
+                        getCurrentTick(), null, null, 0);
 
         // Check that
         for (PowerPlant plant : reps.powerPlantRepository.findAll()) {

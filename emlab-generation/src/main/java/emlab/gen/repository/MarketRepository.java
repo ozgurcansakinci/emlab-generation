@@ -30,6 +30,7 @@ import emlab.gen.domain.market.DecarbonizationMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.market.electricity.SegmentLoad;
+import emlab.gen.domain.market.electricity.YearlySegment;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.domain.technology.Substance;
 
@@ -56,6 +57,14 @@ public interface MarketRepository extends GraphRepository<DecarbonizationMarket>
 
     @Query(value = "start market=node:__types__(\"className:emlab.gen.domain.market.electricity.ElectricitySpotMarket\") return count(market)")
     double countAllElectricitySpotMarkets();
+
+    /*
+     * Finds the YearlySegment associated with the ElectricitySpotMarket
+     */
+
+    @Query(value = "g.v(market).out('YEARLYSEGMENT_MARKET').filter{it.__type__=='emlab.gen.domain.market.electricity.YearlySegment'}", type = QueryType.Gremlin)
+    public YearlySegment findYearlySegmentForElectricitySpotMarketForTime(
+            @Param("market") ElectricitySpotMarket market);
 
     /**
      * Finds the CO2Auction

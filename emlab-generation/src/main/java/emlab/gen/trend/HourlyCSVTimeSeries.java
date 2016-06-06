@@ -40,6 +40,8 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     private boolean timeSeriesAreInDifferentColumns;
 
+    private int lengthInHours;
+
     private double[] hourlyArray;
 
     @Transactional
@@ -151,7 +153,7 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
             try {
                 return hourlyArray;
             } catch (Exception e) {
-                logger.error("CSV File has wrong length (!= 8760 hours");
+                logger.error("CSV File has wrong length (!= " + lengthInHours + " hours");
                 e.printStackTrace();
             }
         else {
@@ -162,6 +164,14 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     }
 
+    public int getLengthInHours() {
+        return lengthInHours;
+    }
+
+    public void setLengthInHours(int lengthInHours) {
+        this.lengthInHours = lengthInHours;
+    }
+
     @Override
     public void setHourlyArray(double[] hourlyArray, long time) {
         this.hourlyArray = hourlyArray;
@@ -169,7 +179,7 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     private double[] parseString(String[] vals) throws Exception {
 
-        if (vals.length == 8760) {
+        if (vals.length == this.getLengthInHours()) {
             double[] doubleArrayData = new double[vals.length];
             for (int i = 0; i <= vals.length - 1; i++) {
                 doubleArrayData[i] = Double.parseDouble(vals[i]);

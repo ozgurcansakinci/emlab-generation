@@ -48,10 +48,12 @@ import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
 import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
 import emlab.gen.role.market.ProcessAcceptedBidsRole;
+import emlab.gen.role.market.ProcessAcceptedPPDPAnnualRole;
 import emlab.gen.role.market.ProcessAcceptedPowerPlantDispatchRole;
 import emlab.gen.role.market.ReassignPowerPlantsToLongTermElectricityContractsRole;
 import emlab.gen.role.market.ReceiveLongTermContractPowerRevenuesRole;
 import emlab.gen.role.market.SelectLongTermElectricityContractsRole;
+import emlab.gen.role.market.SubmitBidsToCommodityMarketAnnualRole;
 import emlab.gen.role.market.SubmitBidsToCommodityMarketRole;
 import emlab.gen.role.market.SubmitLongTermElectricityContractsRole;
 import emlab.gen.role.market.SubmitOffersToCommodityMarketRole;
@@ -59,6 +61,7 @@ import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketAnnualRole;
 import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketRole;
 import emlab.gen.role.operating.DetermineFuelMixRole;
 import emlab.gen.role.operating.PayCO2AuctionRole;
+import emlab.gen.role.operating.PayCO2TaxAnnualRole;
 import emlab.gen.role.operating.PayCO2TaxRole;
 import emlab.gen.role.operating.PayForLoansRole;
 import emlab.gen.role.operating.PayOperatingAndMaintainanceCostsRole;
@@ -77,6 +80,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     private PayCO2AuctionRole payCO2AuctionRole;
     @Autowired
+    private PayCO2TaxAnnualRole payCO2TaxAnnualRole;
+    @Autowired
     private GenericInvestmentRole<EnergyProducer> genericInvestmentRole;
     @Autowired
     private SubmitOffersToElectricitySpotMarketRole submitOffersToElectricitySpotMarketRole;
@@ -86,6 +91,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private ClearCommodityMarketRole clearCommodityMarketRole;
     @Autowired
     private SubmitBidsToCommodityMarketRole submitBidsToCommodityMarketRole;
+    @Autowired
+    private SubmitBidsToCommodityMarketAnnualRole submitBidsToCommodityMarketAnnualRole;
     @Autowired
     private SubmitOffersToCommodityMarketRole submitOffersToCommodityMarketRole;
     @Autowired
@@ -104,6 +111,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private ReceiveLongTermContractPowerRevenuesRole receiveLongTermContractPowerRevenuesRole;
     @Autowired
     private ProcessAcceptedPowerPlantDispatchRole processAcceptedPowerPlantDispatchRole;
+    @Autowired
+    private ProcessAcceptedPPDPAnnualRole processAcceptedPPDPAnnualRole;
     @Autowired
     private ProcessAcceptedBidsRole processAcceptedBidsRole;
     @Autowired
@@ -353,6 +362,9 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         }
         for (ElectricitySpotMarket electricitySpotMarket : reps.marketRepository.findAllElectricitySpotMarkets()) {
             processAcceptedPowerPlantDispatchRole.act(electricitySpotMarket);
+            //////////////////////////////////////////////////////////////////
+            processAcceptedPPDPAnnualRole.act(electricitySpotMarket);
+            //////////////////////////////////////////////////////////////////
             // electricitySpotMarket.act(processAcceptedPowerPlantDispatchRole);
         }
         for (StrategicReserveOperator strategicReserveOperator : reps.strategicReserveOperatorRepository.findAll()) {
@@ -373,6 +385,9 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             // producer.act(payOperatingAndMaintainanceCostsRole);
             // pay tax
             payCO2TaxRole.act(producer);
+            /////////////////////////////////////////////////////////
+            payCO2TaxAnnualRole.act(producer);
+            /////////////////////////////////////////////////////////
             // producer.act(payCO2TaxRole);
             // pay for CO2 auction only if CO2 trading
             if (model.isCo2TradingImplemented()) {
@@ -401,6 +416,9 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             // 2) submit bids
             submitBidsToCommodityMarketRole.act(producer);
+            ///////////////////////////////////////////////////////////////////////
+            submitBidsToCommodityMarketAnnualRole.act(producer);
+            ///////////////////////////////////////////////////////////////////////
             // producer.act(submitBidsToCommodityMarketRole);
         }
 

@@ -142,9 +142,15 @@ public class IntermittentElectricityMarketWithInterconnectorTest {
 
         HourlyCSVTimeSeries load1TimeSeries = new HourlyCSVTimeSeries();
         load1TimeSeries.setFilename("/data/ZoneALoad.csv");
+        //////////////////////////////////////////
+        load1TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
 
         HourlyCSVTimeSeries load2TimeSeries = new HourlyCSVTimeSeries();
         load2TimeSeries.setFilename("/data/ZoneBLoad.csv");
+        //////////////////////////////////////////
+        load2TimeSeries.setLengthInHours(8760);
+        //////////////////////////////////////////
 
         load1TimeSeries.persist();
         load2TimeSeries.persist();
@@ -292,11 +298,13 @@ public class IntermittentElectricityMarketWithInterconnectorTest {
         windIntermittentResourceProfile1.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile1.setIntermittentProductionNode(node1);
         windIntermittentResourceProfile1.setFilename("/data/ResLFA.csv");
+        windIntermittentResourceProfile1.setLengthInHours(8760);
 
         IntermittentResourceProfile windIntermittentResourceProfile2 = new IntermittentResourceProfile();
         windIntermittentResourceProfile2.setIntermittentTechnology(windTech);
         windIntermittentResourceProfile2.setIntermittentProductionNode(node2);
         windIntermittentResourceProfile2.setFilename("/data/ResLFB.csv");
+        windIntermittentResourceProfile2.setLengthInHours(8760);
 
         windIntermittentResourceProfile1.persist();
         windIntermittentResourceProfile2.persist();

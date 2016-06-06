@@ -60,6 +60,15 @@ public class Reps {
     public SegmentRepository segmentRepository;
 
     @Autowired
+    public YearlySegmentLoadRepository yearlySegmentLoadRepository;
+
+    @Autowired
+    public YearlySegmentRepository yearlySegmentRepository;
+
+    @Autowired
+    public YearlySegmentClearingPointMarketInformationRepository yearlySegmentClearingPointMarketInformationRepository;
+
+    @Autowired
     public NationalGovernmentRepository nationalGovernmentRepository;
 
     @Autowired

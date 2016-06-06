@@ -38,6 +38,7 @@ import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.agent.Government;
 import emlab.gen.domain.agent.PowerPlantManufacturer;//<<<<<<<HEAD=======
 import emlab.gen.domain.agent.Regulator;//>>>>>>>PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
+import emlab.gen.domain.agent.StochasticTargetInvestor;
 import emlab.gen.domain.agent.StrategicReserveOperator;
 import emlab.gen.domain.agent.TargetInvestor;
 import emlab.gen.domain.contract.CashFlow;
@@ -446,7 +447,8 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
 
                         Zone zoneTemp = market.getZone();
                         Regulator regulator = reps.regulatorRepository.findRegulatorForZone(zoneTemp);
-                        CapacityMarket cMarket = reps.capacityMarketRepository.findCapacityMarketForZone(zoneTemp);
+                        // CapacityMarket cMarket =
+                        // reps.capacityMarketRepository.findCapacityMarketForZone(zoneTemp);
 
                         double capacityRevenue = 0d;
                         double sumCapacityRevenue = 0d;
@@ -455,6 +457,7 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
                         double resPeakCapacity = 0d;
 
                         if ((agent.isSimpleCapacityMarketEnabled()) && (regulator != null)) {
+                            CapacityMarket cMarket = reps.capacityMarketRepository.findCapacityMarketForZone(zoneTemp);
 
                             double phaseInPeriod = 0;
 
@@ -909,26 +912,50 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
             // targetInvestor:reps.targetInvestorRepository.findAllByMarket(market)){=======
             // get difference between technology target and expected operational
             // capacity
-            for (TargetInvestor targetInvestor : reps.targetInvestorRepository.findAll()) {// >>>>>>>PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
-                                                                                           // if(!(targetInvestor
-                                                                                           // instanceof
-                                                                                           // StochasticTargetInvestor)){for(PowerGeneratingTechnologyTarget
-                                                                                           // pggt:targetInvestor.getPowerGenerationTechnologyTargets()){double
-                                                                                           // expectedTechnologyCapacity=reps.powerPlantRepository.calculateCapacityOfExpectedOperationalPowerPlantsInMarketAndTechnology(market,pggt.getPowerGeneratingTechnology(),time);double
-                                                                                           // targetDifference=pggt.getTrend().getValue(time)-expectedTechnologyCapacity;if(targetDifference>0){PowerPlant
-                                                                                           // plant=new
-                                                                                           // PowerPlant();plant.specifyNotPersist(getCurrentTick(),new
-                                                                                           // EnergyProducer(),reps.powerGridNodeRepository.findFirstPowerGridNodeByElectricitySpotMarket(market),pggt.getPowerGeneratingTechnology());plant.setActualNominalCapacity(targetDifference);double
-                                                                                           // plantMarginalCost=determineExpectedMarginalCost(plant,fuelPrices,co2price);marginalCostMap.put(plant,plantMarginalCost);capacitySum+=targetDifference;}}}else{for(PowerGeneratingTechnologyTarget
-                                                                                           // pggt:targetInvestor.getPowerGenerationTechnologyTargets()){double
-                                                                                           // expectedTechnologyCapacity=reps.powerPlantRepository.calculateCapacityOfExpectedOperationalPowerPlantsInMarketAndTechnology(market,pggt.getPowerGeneratingTechnology(),time);double
-                                                                                           // expectedTechnologyAddition=0;long
-                                                                                           // contructionTime=getCurrentTick()+pggt.getPowerGeneratingTechnology().getExpectedLeadtime()+pggt.getPowerGeneratingTechnology().getExpectedPermittime();for(long
-                                                                                           // investmentTimeStep=contructionTime+1;investmentTimeStep<=time;investmentTimeStep=investmentTimeStep+1){expectedTechnologyAddition+=(pggt.getTrend().getValue(investmentTimeStep)-pggt.getTrend().getValue(investmentTimeStep-1));}if(expectedTechnologyAddition>0){PowerPlant
-                                                                                           // plant=new
-                                                                                           // PowerPlant();plant.specifyNotPersist(getCurrentTick(),new
-                                                                                           // EnergyProducer(),reps.powerGridNodeRepository.findFirstPowerGridNodeByElectricitySpotMarket(market),pggt.getPowerGeneratingTechnology());plant.setActualNominalCapacity(expectedTechnologyAddition);double
-                                                                                           // plantMarginalCost=determineExpectedMarginalCost(plant,fuelPrices,co2price);marginalCostMap.put(plant,plantMarginalCost);capacitySum+=expectedTechnologyAddition;}}}
+            for (TargetInvestor targetInvestor : reps.targetInvestorRepository.findAll()) {
+                if (!(targetInvestor instanceof StochasticTargetInvestor)) {
+                    for (PowerGeneratingTechnologyTarget pggt : targetInvestor.getPowerGenerationTechnologyTargets()) {
+                        double expectedTechnologyCapacity = reps.powerPlantRepository
+                                .calculateCapacityOfExpectedOperationalPowerPlantsInMarketAndTechnology(market,
+                                        pggt.getPowerGeneratingTechnology(), time);
+                        double targetDifference = pggt.getTrend().getValue(time) - expectedTechnologyCapacity;
+                        if (targetDifference > 0) {
+                            PowerPlant plant = new PowerPlant();
+                            plant.specifyNotPersist(getCurrentTick(), new EnergyProducer(),
+                                    reps.powerGridNodeRepository.findFirstPowerGridNodeByElectricitySpotMarket(market),
+                                    pggt.getPowerGeneratingTechnology());
+                            plant.setActualNominalCapacity(targetDifference);
+                            double plantMarginalCost = determineExpectedMarginalCost(plant, fuelPrices, co2price);
+                            marginalCostMap.put(plant, plantMarginalCost);
+                            capacitySum += targetDifference;
+                        }
+                    }
+                } else {
+                    for (PowerGeneratingTechnologyTarget pggt : targetInvestor.getPowerGenerationTechnologyTargets()) {
+                        double expectedTechnologyCapacity = reps.powerPlantRepository
+                                .calculateCapacityOfExpectedOperationalPowerPlantsInMarketAndTechnology(market,
+                                        pggt.getPowerGeneratingTechnology(), time);
+                        double expectedTechnologyAddition = 0;
+                        long contructionTime = getCurrentTick()
+                                + pggt.getPowerGeneratingTechnology().getExpectedLeadtime()
+                                + pggt.getPowerGeneratingTechnology().getExpectedPermittime();
+                        for (long investmentTimeStep = contructionTime
+                                + 1; investmentTimeStep <= time; investmentTimeStep = investmentTimeStep + 1) {
+                            expectedTechnologyAddition += (pggt.getTrend().getValue(investmentTimeStep)
+                                    - pggt.getTrend().getValue(investmentTimeStep - 1));
+                        }
+                        if (expectedTechnologyAddition > 0) {
+                            PowerPlant plant = new PowerPlant();
+                            plant.specifyNotPersist(getCurrentTick(), new EnergyProducer(),
+                                    reps.powerGridNodeRepository.findFirstPowerGridNodeByElectricitySpotMarket(market),
+                                    pggt.getPowerGeneratingTechnology());
+                            plant.setActualNominalCapacity(expectedTechnologyAddition);
+                            double plantMarginalCost = determineExpectedMarginalCost(plant, fuelPrices, co2price);
+                            marginalCostMap.put(plant, plantMarginalCost);
+                            capacitySum += expectedTechnologyAddition;
+                        }
+                    }
+                }
 
             }
 

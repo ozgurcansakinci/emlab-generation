@@ -65,11 +65,11 @@
 	</bean>
 	
 	<bean id="demandBL" class="emlab.gen.trend.HourlyCSVTimeSeries"
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl"
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:lengthInHours="${lengthInHours}"
 		p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
 
 	<bean id="demandDE" class="emlab.gen.trend.HourlyCSVTimeSeries"
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de"
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:lengthInHours="${lengthInHours}"
 		p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
 
 	<bean id="interconnectorBeneluxGermany" class="emlab.gen.domain.technology.Interconnector"
@@ -89,47 +89,54 @@
 	</bean>
 	
 	<bean id="photovoltaicNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile" 
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="PHVT">
 		<property name="intermittentTechnology" ref="photovoltaicPGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="WindNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile" 
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windPGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="WindoffNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windOffshorePGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="photovoltaicNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="PHVT">
 		<property name="intermittentTechnology" ref="photovoltaicPGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>
 	</bean>
 	
 	<bean id="WindNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windPGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>
 	</bean>
 	
 	<bean id="WindoffNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:delimiter=","
+		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windOffshorePGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>
 	</bean>
 
+	<!-- Yearly segment for the annual optimization -->
+	<bean id="yearlySegment" class="emlab.gen.domain.market.electricity.YearlySegment"
+		p:yearlySegmentLengthInHours="8760" p:yearlySegmentID="1" />
+	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter="," />
+		
+		
 	<!-- Segments of load duration curves -->
 	<bean id="segment1" class="emlab.gen.domain.market.electricity.Segment"
 		p:lengthInHours="10" p:segmentID="20" />
@@ -172,16 +179,28 @@
 	<bean id="segment20" class="emlab.gen.domain.market.electricity.Segment"
 		p:lengthInHours="1" p:segmentID="1" />
 		
+	<bean id="yearlySegmentLoadNL" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">	
+		<property name="hourlyInElasticDemandForYearlySegment" ref="InElasticDemandNL" />
+		<property name="yearlySegment" ref="yearlySegment" />
+		<property name="electricitySpotMarket" ref="beneluxElectricitySpotMarket" />
+	</bean>
 	
+	<bean id="yearlySegmentLoadDE" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">
+		<property name="hourlyInElasticDemandForYearlySegment" ref="InElasticDemandDE" />
+		<property name="yearlySegment" ref="yearlySegment" />
+		<property name="electricitySpotMarket" ref="germanElectricitySpotMarket" />
+	</bean>
 
 	<!-- Markets -->
 	<!-- Electricity Spot -->
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
-		p:name="Country A electricity spot market" p:auction="false"
+		p:name="Country A electricity spot market" p:auction="false" 
 		p:referencePrice="40" p:valueOfLostLoad="5000">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
+		<property name="yearlySegment" ref="yearlySegment" />
+		<property name="yearlySegmentLoad" ref="yearlySegmentLoadNL" />
 		<property name="loadDurationCurve">
 			<set>
 				<ref bean="segment1nl" />
@@ -210,9 +229,7 @@
 
 	</bean>
 	
-	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
-		
+
 	<bean id="segment1nl" class="emlab.gen.domain.market.electricity.SegmentLoad"
 		p:baseLoad="${segment1nl}">
 		<property name="segment" ref="segment1" />
@@ -300,7 +317,8 @@
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendDE" />
 		<property name="zone" ref="de" />
-
+		<property name="yearlySegment" ref="yearlySegment" />
+		<property name="yearlySegmentLoad" ref="yearlySegmentLoadDE" />
 		<property name="loadDurationCurve">
 			<set>
 				<ref bean="segment1de" />
@@ -329,7 +347,7 @@
 	</bean>
 	
 	<bean id="InElasticDemandDE" class="emlab.gen.trend.HourlyCSVTimeSeries" 
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter="," />
 
 	<bean id="segment1de" class="emlab.gen.domain.market.electricity.SegmentLoad"
 		p:baseLoad="${segment1de}">
@@ -774,7 +792,7 @@
 		p:minValue="0" />
 
 	<!-- CO2 Cap -->
-	<bean id="co2CapTrend" class="emlab.gen.trend.StepTrend" p:start="200000000"
+	<bean id="co2CapTrend" class="emlab.gen.trend.StepTrend" p:start="300000000"
 		p:duration="${co2CapDuration}" p:increment="${co2CapIncrement}"
 		p:minValue="0" />
 

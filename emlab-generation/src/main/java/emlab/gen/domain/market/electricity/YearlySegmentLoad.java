@@ -19,18 +19,43 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
+import emlab.gen.trend.DailyCSVTimeSeries;
+import emlab.gen.trend.HourlyCSVTimeSeries;
+
 @NodeEntity
-public class YearlySegmentLoad extends SegmentLoad {
+public class YearlySegmentLoad {
 
     @RelatedTo(type = "YEARLYSEGMENTLOAD_SEGMENT", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
     private YearlySegment yearlySegment;
 
-    @RelatedTo(type = "YEARLYSEGMENT_LOAD", elementClass = ElectricitySpotMarket.class, direction = Direction.INCOMING)
+    @RelatedTo(type = "ELECTRICITYSPOTMARKET_LOAD", elementClass = ElectricitySpotMarket.class, direction = Direction.INCOMING)
     private ElectricitySpotMarket electricitySpotMarket;
 
     // private double baseLoad;
 
     // private double currentLoad;
+
+    @RelatedTo(type = "HOURLYDEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private HourlyCSVTimeSeries hourlyInElasticDemandForYearlySegment;
+
+    @RelatedTo(type = "DAILYDEMAND_SEGMENT", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private DailyCSVTimeSeries dailyElasticDemandForYearlySegment;
+
+    public HourlyCSVTimeSeries getHourlyInElasticDemandForYearlySegment() {
+        return hourlyInElasticDemandForYearlySegment;
+    }
+
+    public void setHourlyInElasticDemandForYearlySegment(HourlyCSVTimeSeries hourlyInElasticDemandForYearlySegment) {
+        this.hourlyInElasticDemandForYearlySegment = hourlyInElasticDemandForYearlySegment;
+    }
+
+    public DailyCSVTimeSeries getDailyElasticDemandForYearlySegment() {
+        return dailyElasticDemandForYearlySegment;
+    }
+
+    public void setDailyElasticDemandForYearlySegment(DailyCSVTimeSeries dailyElasticDemandForYearlySegment) {
+        this.dailyElasticDemandForYearlySegment = dailyElasticDemandForYearlySegment;
+    }
 
     public YearlySegment getYearlySegment() {
         return yearlySegment;
@@ -40,12 +65,10 @@ public class YearlySegmentLoad extends SegmentLoad {
         this.yearlySegment = yearlySegment;
     }
 
-    @Override
     public ElectricitySpotMarket getElectricitySpotMarket() {
         return electricitySpotMarket;
     }
 
-    @Override
     public void setElectricitySpotMarket(ElectricitySpotMarket electricitySpotMarket) {
         this.electricitySpotMarket = electricitySpotMarket;
     }

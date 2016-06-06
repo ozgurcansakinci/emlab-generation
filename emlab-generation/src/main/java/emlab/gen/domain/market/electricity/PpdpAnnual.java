@@ -93,16 +93,17 @@ public class PpdpAnnual extends YearlyBid {
     // this.generationInMWh = generationInMWh;
     // }
     //
-    // private HourlyCSVTimeSeries availableHourlyAmount;
+    private HourlyCSVTimeSeries availableHourlyAmount;
 
     public HourlyCSVTimeSeries getAvailableHourlyAmount() {
-        return powerPlant.getActualHourlyNominalCapacity();
+        return this.availableHourlyAmount;
+        // return powerPlant.getActualHourlyNominalCapacity();
     }
 
     // in hourly amount in MW
     public void setAvailableHourlyAmount(HourlyCSVTimeSeries availableHourlyAmount) {
-        // this.availableHourlyAmount = availableHourlyAmount;
-        this.powerPlant.setActualHourlyNominalCapacity(availableHourlyAmount);
+        this.availableHourlyAmount = availableHourlyAmount;
+        // this.powerPlant.setActualHourlyNominalCapacity(availableHourlyAmount);
     }
 
     public PowerPlant getPowerPlant() {
@@ -111,6 +112,10 @@ public class PpdpAnnual extends YearlyBid {
 
     public void setPowerPlant(PowerPlant powerPlant) {
         this.powerPlant = powerPlant;
+    }
+
+    public double calculateYearlyEmissions() {
+        return this.getYearlySupply() * this.getPowerPlant().calculateEmissionIntensity();
     }
 
     public void specifyNotPersist(PowerPlant plant, EnergyProducer producer, ElectricitySpotMarket market, long time,
