@@ -31,6 +31,7 @@ import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.YearlySegment;
+import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInformation;
 import emlab.gen.domain.technology.Interconnector;
 import emlab.gen.repository.Reps;
 import emlab.gen.util.Utils;
@@ -544,8 +545,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
     @Transactional
     public void storeInDatabase(double[] price, double[] generation, double[] demand, double[] valueOfLostLoad,
             ElectricitySpotMarket market, YearlySegment ys, long time, double cO2Price) {
-        // YearlySegmentClearingPointMarketInformation info = new
-        // YearlySegmentClearingPointMarketInformation();
+        YearlySegmentClearingPointMarketInformation info = new YearlySegmentClearingPointMarketInformation();
         // info.updateMarketPrice(price);
         // info.updateMarketSupply(generation);
         // info.updateValueOfLostLoad(valueOfLostLoad);

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.market.DecarbonizationMarket;
+import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.technology.PowerPlant;
 
@@ -44,6 +45,10 @@ public interface PpdpAnnualRepository extends GraphRepository<PpdpAnnual> {
     @Query(value = "g.v(producer).in('BIDDER').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}", type = QueryType.Gremlin)
     public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForGivenProducerAndTime(
             @Param("producer") EnergyProducer producer, @Param("time") long time);
+
+    @Query(value = "g.v(market).in('BIDDINGMARKET').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}.as('x').out('PPDPANNUAL_POWERPLANT').as('y').out('TECHNOLOGY').filter{it.isIntermittent == true}.back('y').back('x')", type = QueryType.Gremlin)
+    public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForIntermittentTechnologiesForMarketAndTime(
+            @Param("market") ElectricitySpotMarket esm, @Param("time") long time);
 
     // g.idx('__types__')[[className:'emlab.gen.domain.technology.PowerPlant']].
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.PpdpAnnual']].propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 1}", type = QueryType.Gremlin)
