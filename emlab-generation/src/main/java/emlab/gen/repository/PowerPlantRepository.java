@@ -225,6 +225,14 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
     public Iterable<PowerPlant> findExpectedOperationalPowerPlantsInMarket(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
 
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
+    public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarket(
+            @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
     @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}.sum{it.actualNominalCapacity}", type = QueryType.Gremlin)
     public double calculateCapacityOfExpectedOperationalPowerPlantsInMarket(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);

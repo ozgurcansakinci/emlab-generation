@@ -56,6 +56,7 @@ public class DecarbonizationModel extends AbstractAgent implements Agent {
 
     private boolean noPrivateIntermittentRESInvestment;
 
+    private boolean dailyDemandResponseImplemented;
 
     @SimulationParameter(label = "Simulation Length", from = 0, to = 75)
     private double simulationLength;
@@ -80,6 +81,14 @@ public class DecarbonizationModel extends AbstractAgent implements Agent {
 
     @SimulationParameter(label = "Simple Capacity Market")
     private boolean simpleCapacityMarketEnabled;
+
+    public boolean isDailyDemandResponseImplemented() {
+        return dailyDemandResponseImplemented;
+    }
+
+    public void setDailyDemandResponseImplemented(boolean dailyDemandResponseImplemented) {
+        this.dailyDemandResponseImplemented = dailyDemandResponseImplemented;
+    }
 
     public void setSimpleCapacityMarketEnabled(boolean simpleCapacityMarketEnabled) {
         this.simpleCapacityMarketEnabled = simpleCapacityMarketEnabled;

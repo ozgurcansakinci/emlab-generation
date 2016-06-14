@@ -157,6 +157,20 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
     }
 
     /**
+     * The same function as above, but the annual version
+     *
+     * @param substance
+     *            the price we want for
+     * @return the (average) price found
+     */
+    public double findCO2PriceOnAnnualMarket(long clearingTick) {
+        ElectricitySpotMarket market = reps.marketRepository.findAllElectricitySpotMarkets().iterator().next();
+        YearlySegmentClearingPointMarketInformation info = reps.yearlySegmentClearingPointMarketInformationRepository
+                .findMarketInformationForMarketAndTime(clearingTick, market);
+        return info.getCO2Price();
+    }
+
+    /**
      * Finds the last known price for a substance. We try to find the market for
      * it and get it get the price on that market for this tick, previous tick,
      * or from a possible supplier directly. If multiple prices are found, the
@@ -220,6 +234,15 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
         CO2Auction auction = reps.genericRepository.findFirst(CO2Auction.class);
         double co2Price = findLastKnownPriceOnMarket(auction, clearingTick);
         double electricityOutput = powerPlant.calculateElectricityOutputAtTime(clearingTick, forecast);
+        return co2Intensity * co2Price * electricityOutput;
+    }
+
+    public double calculateCO2MarketCostAnnual(PowerPlant powerPlant, boolean forecast, long clearingTick) {
+        double co2Intensity = powerPlant.calculateEmissionIntensity();
+
+        double co2Price = findCO2PriceOnAnnualMarket(clearingTick);
+        double electricityOutput = reps.ppdpAnnualRepository
+                .findPPDPAnnualforPlantForCurrentTick(powerPlant, clearingTick).getYearlySupply();
         return co2Intensity * co2Price * electricityOutput;
     }
 

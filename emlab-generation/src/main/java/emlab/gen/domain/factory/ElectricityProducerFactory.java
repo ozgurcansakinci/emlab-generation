@@ -53,22 +53,27 @@ public class ElectricityProducerFactory implements InitializingBean {
     }
 
     @Transactional
-    private PowerPlant createPowerPlant(PowerGeneratingTechnology technology, EnergyProducer energyProducer, PowerGridNode location) {
+    private PowerPlant createPowerPlant(PowerGeneratingTechnology technology, EnergyProducer energyProducer,
+            PowerGridNode location) {
         PowerPlant plant = new PowerPlant().persist();
         String label = energyProducer.getName() + " - " + technology.getName();
         plant.setName(label);
         plant.setTechnology(technology);
         plant.setOwner(energyProducer);
         plant.setLocation(location);
-        plant.setConstructionStartTime(-(technology.getExpectedLeadtime() + technology.getExpectedPermittime() + Math.round((Math.random() * technology
-                .getExpectedLifetime()))) + 2); // TODO: Why include expected lead
+        plant.setConstructionStartTime(-(technology.getExpectedLeadtime() + technology.getExpectedPermittime()
+                + Math.round((Math.random() * technology.getExpectedLifetime()))) + 2); // TODO:
+                                                                                        // Why
+                                                                                        // include
+                                                                                        // expected
+                                                                                        // lead
         // time and permit time? Wouldn't it
         // be realistic to have some PP in
         // the pipeline at the start?
         plant.setActualLeadtime(plant.getTechnology().getExpectedLeadtime());
         plant.setActualPermittime(plant.getTechnology().getExpectedPermittime());
-        plant.setExpectedEndOfLife(plant.getConstructionStartTime() + plant.getActualPermittime() + plant.getActualLeadtime()
-                + plant.getTechnology().getExpectedLifetime());
+        plant.setExpectedEndOfLife(plant.getConstructionStartTime() + plant.getActualPermittime()
+                + plant.getActualLeadtime() + plant.getTechnology().getExpectedLifetime());
         plant.setActualNominalCapacity(technology.getCapacity() * location.getCapacityMultiplicationFactor());
         plant.calculateAndSetActualInvestedCapital(plant.getConstructionStartTime());
         plant.calculateAndSetActualEfficiency(plant.getConstructionStartTime());
@@ -78,7 +83,8 @@ public class ElectricityProducerFactory implements InitializingBean {
         Loan loan = new Loan().persist();
         loan.setFrom(energyProducer);
         loan.setTo(null);
-        double amountPerPayment = determineLoanAnnuities(plant.getActualInvestedCapital() * energyProducer.getDebtRatioOfInvestments(),
+        double amountPerPayment = determineLoanAnnuities(
+                plant.getActualInvestedCapital() * energyProducer.getDebtRatioOfInvestments(),
                 plant.getTechnology().getDepreciationTime(), energyProducer.getLoanInterestRate());
         loan.setAmountPerPayment(amountPerPayment);
         loan.setTotalNumberOfPayments(plant.getTechnology().getDepreciationTime());
@@ -107,15 +113,18 @@ public class ElectricityProducerFactory implements InitializingBean {
         for (PowerGeneratingTechnology technology : portfolioShares.keySet()) {
             double pctValue = portfolioShares.get(technology);
             double requiredCapacityForTechnology = pctValue * requiredCapacity;
-            logger.info("required capacity within this market for technology {} is {}", technology, requiredCapacityForTechnology);
-            // logger.info("required capacity: {} for technology {} before creating",
+            logger.info("required capacity within this market for technology {} is {}", technology,
+                    requiredCapacityForTechnology);
+            // logger.info("required capacity: {} for technology {} before
+            // creating",
             // requiredCapacityForTechnology, technology);
             while (requiredCapacityForTechnology > 0) {
                 EnergyProducer energyProducer = getRandomProducer(producers);
                 PowerPlant plant = createPowerPlant(technology, energyProducer, getNodeForZone(market.getZone()));
                 requiredCapacityForTechnology -= plant.getAvailableCapacity(0);
             }
-            // logger.info("required capacity: {} for technology {} after creating",
+            // logger.info("required capacity: {} for technology {} after
+            // creating",
             // requiredCapacityForTechnology, technology);
         }
 

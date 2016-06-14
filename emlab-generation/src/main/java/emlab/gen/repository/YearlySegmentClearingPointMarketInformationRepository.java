@@ -42,4 +42,8 @@ public interface YearlySegmentClearingPointMarketInformationRepository
     YearlySegmentClearingPointMarketInformation findMarketInformationForPPDPAndTime(@Param("time") long time,
             @Param("ppdp") PpdpAnnual plan);
 
+    @Query(value = "g.v(market).out('MARKET_INFORMATION_POINT').propertyFilter('time', FilterPipe.Filter.GREATER_THAN_EQUAL, timeFrom).propertyFilter('time', FilterPipe.Filter.LESS_THAN_EQUAL, timeTo)", type = QueryType.Gremlin)
+    Iterable<YearlySegmentClearingPointMarketInformation> findAllMarketInformationsForMarketAndTimeRange(
+            @Param("market") ElectricitySpotMarket market, @Param("timeFrom") long timeFrom,
+            @Param("timeTo") long timeTo);
 }

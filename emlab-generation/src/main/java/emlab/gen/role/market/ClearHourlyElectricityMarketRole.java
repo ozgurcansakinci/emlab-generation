@@ -40,6 +40,8 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 
+//TODO: add papaya here, get the absolute values of electricity prices
+
 /**
  * @author asmkhan
  *
@@ -275,9 +277,9 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     // market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i],
                     // market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i]);
                     inelasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(
-                            market.getYearlySegmentLoad().getHourlyInElasticDemandForYearlySegment()
+                            market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment()
                                     .getHourlyArray(0)[i],
-                            market.getYearlySegmentLoad().getHourlyInElasticDemandForYearlySegment()
+                            market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment()
                                     .getHourlyArray(0)[i]);
 
                     valueOfLostLoadInMWH[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);

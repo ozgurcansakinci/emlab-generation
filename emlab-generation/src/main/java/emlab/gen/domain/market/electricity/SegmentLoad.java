@@ -32,6 +32,10 @@ public class SegmentLoad {
 
     private double currentLoad;
 
+    /// Residual generation load duration curve, to be used in the investment
+    /// role
+    private double residualGLDC;
+
     public Segment getSegment() {
         return segment;
     }
@@ -56,6 +60,13 @@ public class SegmentLoad {
         this.baseLoad = baseLoad;
     }
 
+    public double getResidualGLDC() {
+        return residualGLDC;
+    }
+
+    public void setResidualGLDC(double residualGLDC) {
+        this.residualGLDC = residualGLDC;
+    }
 
     public double getCurrentLoad() {
         return currentLoad;

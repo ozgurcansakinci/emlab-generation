@@ -21,42 +21,52 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 public class Segment {
 
     private double lengthInHours;
-    
+
     private int segmentID;
 
-	/**
-	 * Should be 8760 hours long, and only one TRUE value for each index over
-	 * all segments.
-	 */
-	private boolean[] representsHoursOfTheYear;
+    private double lengthInHoursGLDCForInvestmentRole;
+
+    /**
+     * Should be 8760 hours long, and only one TRUE value for each index over
+     * all segments.
+     */
+    private boolean[] representsHoursOfTheYear;
+
+    public double getLengthInHoursGLDCForInvestmentRole() {
+        return lengthInHoursGLDCForInvestmentRole;
+    }
+
+    public void setLengthInHoursGLDCForInvestmentRole(double lengthInHoursGLDCForInvestmentRole) {
+        this.lengthInHoursGLDCForInvestmentRole = lengthInHoursGLDCForInvestmentRole;
+    }
 
     public double getLengthInHours() {
-		return lengthInHours;
-	}
+        return lengthInHours;
+    }
 
-	public void setLengthInHours(double lengthInHours) {
-		this.lengthInHours = lengthInHours;
-	}
+    public void setLengthInHours(double lengthInHours) {
+        this.lengthInHours = lengthInHours;
+    }
 
-	public boolean[] getRepresentsHoursOfTheYear() {
-		return representsHoursOfTheYear;
-	}
+    public boolean[] getRepresentsHoursOfTheYear() {
+        return representsHoursOfTheYear;
+    }
 
-	public void setRepresentsHoursOfTheYear(boolean[] representsHoursOfTheYear) {
-		this.representsHoursOfTheYear = representsHoursOfTheYear;
-	}
+    public void setRepresentsHoursOfTheYear(boolean[] representsHoursOfTheYear) {
+        this.representsHoursOfTheYear = representsHoursOfTheYear;
+    }
 
-	public int getSegmentID() {
-		return segmentID;
-	}
+    public int getSegmentID() {
+        return segmentID;
+    }
 
-	public void setSegmentID(int segmentID) {
-		this.segmentID = segmentID;
-	}
+    public void setSegmentID(int segmentID) {
+        this.segmentID = segmentID;
+    }
 
     @Override
     public String toString() {
-    	return "length in hours: " + getLengthInHours();
+        return "length in hours: " + getLengthInHours();
     }
 
 }

@@ -879,17 +879,8 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
         Map<PowerPlant, Double> meritOrder;
         double capacitySum;
 
-        // <<<<<<<
-        //
-        // HEAD
-        // MarketInformation(ElectricitySpotMarket market,
-        // Map<ElectricitySpotMarket, Double> expectedDemand, Map<Substance,
-        // Double> fuelPrices, double co2price, long time) {
-        // =======
-
         MarketInformation(ElectricitySpotMarket market, Map<ElectricitySpotMarket, Double> expectedDemand,
                 Map<Substance, Double> fuelPrices, double co2price, long time) {
-            // >>>>>>>PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
             // determine expected power prices
             expectedElectricityPricesPerSegment = new HashMap<Segment, Double>();
             Map<PowerPlant, Double> marginalCostMap = new HashMap<PowerPlant, Double>();
@@ -966,6 +957,7 @@ public class InvestInPowerGenerationTechnologiesStandard<T extends EnergyProduce
             long numberOfSegments = reps.segmentRepository.count();
 
             double demandFactor = expectedDemand.get(market).doubleValue();
+            logger.warn("Demand factor:" + demandFactor);
 
             // find expected prices per segment given merit order
             for (SegmentLoad segmentLoad : market.getLoadDurationCurve()) {

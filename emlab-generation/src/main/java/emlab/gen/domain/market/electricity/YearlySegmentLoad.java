@@ -35,26 +35,51 @@ public class YearlySegmentLoad {
 
     // private double currentLoad;
 
+    @RelatedTo(type = "HOURLY_BASE_DEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private HourlyCSVTimeSeries hourlyInElasticBaseDemandForYearlySegment;
+
+    @RelatedTo(type = "DAILY_BASE_DEMAND_SEGMENT", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private DailyCSVTimeSeries dailyElasticBaseDemandForYearlySegment;
+
     @RelatedTo(type = "HOURLYDEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private HourlyCSVTimeSeries hourlyInElasticDemandForYearlySegment;
+    private HourlyCSVTimeSeries hourlyInElasticCurrentDemandForYearlySegment;
 
     @RelatedTo(type = "DAILYDEMAND_SEGMENT", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private DailyCSVTimeSeries dailyElasticDemandForYearlySegment;
+    private DailyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment;
 
-    public HourlyCSVTimeSeries getHourlyInElasticDemandForYearlySegment() {
-        return hourlyInElasticDemandForYearlySegment;
+    public HourlyCSVTimeSeries getHourlyInElasticBaseDemandForYearlySegment() {
+        return hourlyInElasticBaseDemandForYearlySegment;
     }
 
-    public void setHourlyInElasticDemandForYearlySegment(HourlyCSVTimeSeries hourlyInElasticDemandForYearlySegment) {
-        this.hourlyInElasticDemandForYearlySegment = hourlyInElasticDemandForYearlySegment;
+    public void setHourlyInElasticBaseDemandForYearlySegment(
+            HourlyCSVTimeSeries hourlyInElasticBaseDemandForYearlySegment) {
+        this.hourlyInElasticBaseDemandForYearlySegment = hourlyInElasticBaseDemandForYearlySegment;
     }
 
-    public DailyCSVTimeSeries getDailyElasticDemandForYearlySegment() {
-        return dailyElasticDemandForYearlySegment;
+    public DailyCSVTimeSeries getDailyElasticBaseDemandForYearlySegment() {
+        return dailyElasticBaseDemandForYearlySegment;
     }
 
-    public void setDailyElasticDemandForYearlySegment(DailyCSVTimeSeries dailyElasticDemandForYearlySegment) {
-        this.dailyElasticDemandForYearlySegment = dailyElasticDemandForYearlySegment;
+    public void setDailyElasticBaseDemandForYearlySegment(DailyCSVTimeSeries dailyElasticBaseDemandForYearlySegment) {
+        this.dailyElasticBaseDemandForYearlySegment = dailyElasticBaseDemandForYearlySegment;
+    }
+
+    public HourlyCSVTimeSeries getHourlyInElasticCurrentDemandForYearlySegment() {
+        return hourlyInElasticCurrentDemandForYearlySegment;
+    }
+
+    public void setHourlyInElasticCurrentDemandForYearlySegment(
+            HourlyCSVTimeSeries hourlyInElasticCurrentDemandForYearlySegment) {
+        this.hourlyInElasticCurrentDemandForYearlySegment = hourlyInElasticCurrentDemandForYearlySegment;
+    }
+
+    public DailyCSVTimeSeries getDailyElasticCurrentDemandForYearlySegment() {
+        return dailyElasticCurrentDemandForYearlySegment;
+    }
+
+    public void setDailyElasticCurrentDemandForYearlySegment(
+            DailyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment) {
+        this.dailyElasticCurrentDemandForYearlySegment = dailyElasticCurrentDemandForYearlySegment;
     }
 
     public YearlySegment getYearlySegment() {
