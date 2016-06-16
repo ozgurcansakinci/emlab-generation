@@ -135,18 +135,14 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     MarketStabilityReserveRole marketStabilityReserveRole;
     @Autowired
     private DetermineResidualLoadCurvesForTwoCountriesRole determineResidualLoadCurve;
-    // @Autowired
-    // <<<<<<< HEAD
-    // private CreatingFinancialReports creatingFinancialReports;
     @Autowired
     private ClearHourlyElectricityMarketRole clearHourlyElectricityMarketRole;
-    // =======
+    @Autowired
     private SimpleCapacityMarketMainRole simpleCapacityMarketMainRole;
     @Autowired
     private ExportLimiterRole exportLimiterRole;
     @Autowired
     private DetermineAnnualResidualLoadCurvesForTwoCountriesRole determineAnnualResidualLoadCurve;
-    // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
 
     @Autowired
     Reps reps;
@@ -244,20 +240,6 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
          * requirements- it needs values (revenues from electricity sport
          * market) from previous tick
          */
-
-        if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
-            timerMarket.reset();
-            timerMarket.start();
-            logger.warn(" 2a. Run Simple Capacity Market");
-            for (CapacityMarket market : reps.capacityMarketRepository.findAll()) {
-                simpleCapacityMarketMainRole.act(market);
-            }
-
-            // exportLimiterRole.act(model);
-
-            timerMarket.stop();
-            logger.warn("        took: {} seconds.", timerMarket.seconds());
-        }
 
         /*
          * Submit and select long-term electricity contracts
@@ -371,6 +353,21 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
+            timerMarket.reset();
+            timerMarket.start();
+            logger.warn(" 2a. Run Simple Capacity Market");
+
+            for (CapacityMarket cmarket : reps.capacityMarketRepository.findAll()) {
+                simpleCapacityMarketMainRole.act(cmarket);
+            }
+
+            // exportLimiterRole.act(model);
+
+            timerMarket.stop();
+            logger.warn("        took: {} seconds.", timerMarket.seconds());
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         timerMarket.reset();
         timerMarket.start();
         logger.warn("  4. Clearing electricity spot and CO2 markets");

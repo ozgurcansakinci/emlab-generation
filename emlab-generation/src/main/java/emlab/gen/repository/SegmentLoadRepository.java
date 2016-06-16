@@ -77,4 +77,8 @@ public interface SegmentLoadRepository extends GraphRepository<SegmentLoad> {
             + "adjustedTopSegments = topsegments*growthfactors;"
             + "return[adjustedTopSegments]", type = QueryType.Gremlin)
     double peakLoadbyMarketandTime(@Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+
+    @Query(value = "topsegments = g.v(market).out('SEGMENT_LOAD').max{it.residualGLDC}.residualGLDC;", type = QueryType.Gremlin)
+    double nonAdjustedPeakLoadbyMarketAnnual(@Param("market") ElectricitySpotMarket market);
+
 }

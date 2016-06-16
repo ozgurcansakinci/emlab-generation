@@ -39,8 +39,8 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  */
 
 @RoleComponent
-public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<EnergyProducer> implements
-        Role<EnergyProducer> {
+public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<EnergyProducer>
+        implements Role<EnergyProducer> {
 
     Logger logger = Logger.getLogger(SubmitCapacityBidToMarketRole.class);
 
@@ -50,15 +50,20 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
     @Override
     @Transactional
     public void act(EnergyProducer producer) {
-        // logger.warn("***********Submitting Bid Role for Energy Producer ********"
+        // logger.warn("***********Submitting Bid Role for Energy Producer
+        // ********"
         // + producer.getName());
 
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
-            CapacityMarket market = reps.capacityMarketRepository.findCapacityMarketForZone(plant.getLocation()
-                    .getZone());
+        // for (PowerPlant plant :
+        // reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+        // getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalNonIntermittentPowerPlantsByOwner(producer,
+                getCurrentTick())) {
+            CapacityMarket market = reps.capacityMarketRepository
+                    .findCapacityMarketForZone(plant.getLocation().getZone());
             if (market != null) {
-                ElectricitySpotMarket eMarket = reps.marketRepository.findElectricitySpotMarketForZone(plant
-                        .getLocation().getZone());
+                ElectricitySpotMarket eMarket = reps.marketRepository
+                        .findElectricitySpotMarketForZone(plant.getLocation().getZone());
 
                 double mc = 0d;
                 double bidPrice = 0d;
@@ -79,31 +84,37 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                 // plant.getName());
                 // get market for the plant by zone
 
-                // logger.warn("CapacityMarket is  " + market.getName());
+                // logger.warn("CapacityMarket is " + market.getName());
 
                 for (SegmentLoad segmentLoad : eMarket.getLoadDurationCurve()) {
-                    double segmentClearingPoint = 0;
+                    // double segmentClearingPoint = 0;
+                    double price = 0;
 
                     if (getCurrentTick() > 0) {
-                        segmentClearingPoint = reps.segmentClearingPointRepository
-                                .findSegmentClearingPointForMarketSegmentAndTime(getCurrentTick() - 1,
-                                        segmentLoad.getSegment(), eMarket, false).getPrice();
+                        price = segmentLoad.getResidualGLDCSegmentPrice();
+                        // segmentClearingPoint =
+                        // reps.segmentClearingPointRepository
+                        // .findSegmentClearingPointForMarketSegmentAndTime(getCurrentTick()
+                        // - 1,
+                        // segmentLoad.getSegment(), eMarket, false)
+                        // .getPrice();
                     } else {
                         if (getCurrentTick() == 0) {
-                            segmentClearingPoint = 0;
+                            // segmentClearingPoint = 0;
+                            price = 0;
                         }
 
                     }
                     double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability()) + (((plant
-                            .getTechnology().getBaseSegmentDependentAvailability() - plant.getTechnology()
-                            .getPeakSegmentDependentAvailability()) / ((double) (reps.segmentRepository
-                            .findBaseSegmentforMarket(eMarket).getSegmentID() - 1))) * (segmentLoad.getSegment()
-                            .getSegmentID() - 1)));
+                            .getTechnology().getBaseSegmentDependentAvailability()
+                            - plant.getTechnology().getPeakSegmentDependentAvailability())
+                            / ((double) (reps.segmentRepository.findBaseSegmentforMarket(eMarket).getSegmentID() - 1)))
+                            * (segmentLoad.getSegment().getSegmentID() - 1)));
 
-                    if (segmentClearingPoint >= mc) {
+                    if (price >= mc) {
                         expectedElectricityRevenues = expectedElectricityRevenues
-                                + ((segmentClearingPoint - mc) * plant.getActualNominalCapacity() * plantLoadFactor * segmentLoad
-                                        .getSegment().getLengthInHours());
+                                + ((price - mc) * plant.getActualNominalCapacity() * plantLoadFactor
+                                        * segmentLoad.getSegment().getLengthInHoursGLDCForInvestmentRole());
                     }
 
                 }
@@ -114,9 +125,8 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                         bidPrice = 0d;
                         // } else if (mcCapacity <= fixedOnMCost) {
                     } else {
-                        bidPrice = (netRevenues * (-1))
-                                / (plant.getActualNominalCapacity() * plant.getTechnology()
-                                        .getPeakSegmentDependentAvailability());
+                        bidPrice = (netRevenues * (-1)) / (plant.getActualNominalCapacity()
+                                * plant.getTechnology().getPeakSegmentDependentAvailability());
                     }
                 } else {
                     if (getCurrentTick() == 0) {

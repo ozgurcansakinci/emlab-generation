@@ -125,6 +125,12 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
     Iterable<PowerPlant> findOperationalPowerPlantsByOwner(@Param("owner") EnergyProducer owner,
             @Param("tick") long tick);
 
+    ////////////////////////////////////////////////////////
+    @Query(value = "g.v(owner).in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}", type = QueryType.Gremlin)
+    Iterable<PowerPlant> findOperationalNonIntermittentPowerPlantsByOwner(@Param("owner") EnergyProducer owner,
+            @Param("tick") long tick);
+    ////////////////////////////////////////////////////////
+
     @Query(value = "g.v(owner).in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.out('FUEL').count()>0}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}", type = QueryType.Gremlin)
     Iterable<PowerPlant> findOperationalPowerPlantsWithFuelsGreaterZeroByOwner(@Param("owner") EnergyProducer owner,
             @Param("tick") long tick);
@@ -229,6 +235,12 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
 
     @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
     public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarket(
+            @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+
+    @Query(value = "t = new Table();"
+            + "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.dismantleTime > tick)}.as('pp').out('TECHNOLOGY').filter{it.intermittent==false}.as('ty').table(t){it.actualNominalCapacity}{it.peakSegmentDependentAvailability}.cap().next(); "
+            + "capacitySum = 0; for (row in t){capacitySum += row.get(0) * row.get(1);}; return capacitySum;", type = QueryType.Gremlin)
+    public double calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
 
     /////////////////////////////////////////////////////////////////////////////////////////

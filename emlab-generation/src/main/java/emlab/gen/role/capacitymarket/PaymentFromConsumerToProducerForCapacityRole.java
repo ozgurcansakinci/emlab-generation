@@ -35,8 +35,8 @@ import emlab.gen.role.market.AbstractMarketRole;
  * 
  */
 @RoleComponent
-public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarketRole<CapacityMarket> implements
-        Role<CapacityMarket> {
+public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarketRole<CapacityMarket>
+        implements Role<CapacityMarket> {
 
     @Autowired
     Reps reps;
@@ -47,26 +47,26 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
     @Transactional
     public void act(CapacityMarket capacityMarket) {
 
-        for (CapacityDispatchPlan plan : reps.capacityMarketRepository.findAllAcceptedCapacityDispatchPlansForTime(
-                capacityMarket, getCurrentTick())) {
+        for (CapacityDispatchPlan plan : reps.capacityMarketRepository
+                .findAllAcceptedCapacityDispatchPlansForTime(capacityMarket, getCurrentTick())) {
 
             // logger.warn("Hi");
             // logger.warn("cdp for plant" + plan.getPlant());
 
             ClearingPoint capacityClearingPoint = reps.capacityMarketRepository
                     .findOneClearingPointForTimeAndCapacityMarket(getCurrentTick(), capacityMarket);
-
-            // logger.warn("capacity clearing point " +
-            // capacityClearingPoint.getPrice());
+            logger.warn("We are at tick " + getCurrentTick());
+            logger.warn("capacity clearing point " + capacityClearingPoint.getPrice());
             // double price = capacityClearingPoint.getPrice();
             ElectricitySpotMarket esm = reps.marketRepository
                     .findElectricitySpotMarketForZone(capacityMarket.getZone());
             // logger.warn("esmt " + esm.getName());
 
-            reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(), plan.getAcceptedAmount()
-                    * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET, getCurrentTick(),
-                    plan.getPlant());
-            // logger.warn("Cash flow from consumer {} to Producer {} of value {} "
+            reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(),
+                    plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
+                    getCurrentTick(), plan.getPlant());
+            // logger.warn("Cash flow from consumer {} to Producer {} of value
+            // {} "
             // + plan.getAcceptedAmount()
             // * capacityClearingPoint.getPrice(), plan.getBidder(),
             // capacityMarket.getConsumer());

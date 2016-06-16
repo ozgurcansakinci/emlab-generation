@@ -116,6 +116,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             columnIterator++;
         }
 
+        Map<Zone, Integer> PRICEFORZONE = new HashMap<Zone, Integer>();
+        for (Zone zone : zoneList) {
+            PRICEFORZONE.put(zone, columnIterator);
+            columnIterator++;
+        }
+
         double interConnectorCapacity = reps.template.findAll(Interconnector.class).iterator().next()
                 .getCapacity(clearingTick);
 
@@ -151,6 +157,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // a way to make generation growing
             ////////////////////////////////////////////////////////////////////////////////////////////////
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
+            DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
             double growthRate = reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
                     .getValue(clearingTick);
             DoubleMatrix1D growthFactors = hourlyArray.copy();
@@ -158,6 +165,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             hourlyArray.assign(growthFactors, Functions.mult);
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
+            m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
 
             // }
 
@@ -256,16 +264,20 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
         Map<Zone, DynamicBin1D[]> segmentRloadBinsByZone = new HashMap<Zone, DynamicBin1D[]>();
         Map<Zone, DynamicBin1D[]> segmentLoadBinsByZone = new HashMap<Zone, DynamicBin1D[]>();
+        Map<Zone, DynamicBin1D[]> segmentPriceBinsByZone = new HashMap<Zone, DynamicBin1D[]>();
 
         for (Zone zone : zoneList) {
             DynamicBin1D[] segmentRloadBinInZone = new DynamicBin1D[noSegments];
             DynamicBin1D[] segmentLoadBinInZone = new DynamicBin1D[noSegments];
+            DynamicBin1D[] segmentPriceBinInZone = new DynamicBin1D[noSegments];
             for (int i = 0; i < noSegments; i++) {
                 segmentRloadBinInZone[i] = new DynamicBin1D();
                 segmentLoadBinInZone[i] = new DynamicBin1D();
+                segmentPriceBinInZone[i] = new DynamicBin1D();
             }
             segmentRloadBinsByZone.put(zone, segmentRloadBinInZone);
             segmentLoadBinsByZone.put(zone, segmentLoadBinInZone);
+            segmentPriceBinsByZone.put(zone, segmentPriceBinInZone);
         }
 
         // Assign hours and load to bins and segments
@@ -284,6 +296,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             for (Zone zone : zoneList) {
                 segmentRloadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, RLOADINZONE.get(zone)));
                 segmentLoadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, LOADINZONE.get(zone)));
+                segmentPriceBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, PRICEFORZONE.get(zone)));
             }
             segmentInterConnectorBins[currentSegmentID - 1].add(m.get(row, INTERCONNECTOR));
             hoursAssignedToCurrentSegment++;
@@ -297,10 +310,20 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             double minInZone = m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.min, Functions.identity);
             double maxInZone = m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.max, Functions.identity);
 
+            // double minPriceInZone =
+            // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.min,
+            // Functions.identity);
+            // double maxPriceInZone =
+            // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.max,
+            // Functions.identity);
+
             double[] upperBoundSplitInZone = new double[noSegments];
+            // double[] upperBoundPriceSplitInZone = new double[noSegments];
 
             for (int i = 0; i < noSegments; i++) {
                 upperBoundSplitInZone[i] = maxInZone - (((double) (i)) / noSegments * (maxInZone - minInZone));
+                // upperBoundPriceSplitInZone[i] = maxPriceInZone - (((double)
+                // (i)) / noSegments * (maxPriceInZone - minPriceInZone));
             }
 
             m = m.viewSorted(RLOADINZONE.get(zone)).viewRowFlip();
@@ -412,11 +435,11 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             Zone zone = segmentLoad.getElectricitySpotMarket().getZone();
             double demandGrowthFactor = reps.marketRepository.findElectricitySpotMarketForZone(zone)
                     .getDemandGrowthTrend().getValue(clearingTick);
-            segmentLoad.setResidualGLDC(
-                    segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean() / demandGrowthFactor);
-            // logger.warn("Segment " + segment.getSegmentID() + ": " +
-            // segmentLoad.getBaseLoad() + "MW"
-            // + segmentLoad.getElectricitySpotMarket().toString());
+            segmentLoad.setResidualGLDC(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            segmentLoad
+                    .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getBaseLoad() + "MW" + "Segment Price "
+                    + segmentLoad.getResidualGLDCSegmentPrice() + segmentLoad.getElectricitySpotMarket().toString());
         }
 
         Iterable<Segment> segments = reps.segmentRepository.findAll();

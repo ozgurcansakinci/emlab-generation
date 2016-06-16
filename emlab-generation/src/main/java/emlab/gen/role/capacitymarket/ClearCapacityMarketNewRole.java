@@ -57,8 +57,9 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         if (getCurrentTick() <= (long) regulator.getImplementationPhaseLength()
                 && regulator.getImplementationPhaseLength() > 0) {
             phaseInPeriod = regulator.getReserveMargin()
-                    - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin()) / regulator
-                            .getImplementationPhaseLength()) * getCurrentTick()) + regulator.getInitialSupplyMargin());
+                    - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin())
+                            / regulator.getImplementationPhaseLength()) * getCurrentTick())
+                            + regulator.getInitialSupplyMargin());
             logger.warn("1 SET phase In " + phaseInPeriod);
         }
         logger.warn("2 TEst phase In " + phaseInPeriod);
@@ -82,10 +83,16 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                 .findAllSortedCapacityDispatchPlansByTime(getCurrentTick())) {
             totalVolumeBid = totalVolumeBid + currentCDP.getAmount();
         }
-        logger.warn("2 TotVol "
-                + totalVolumeBid
-                + " CalVol "
-                + reps.powerPlantRepository.calculatePeakCapacityOfOperationalPowerPlantsInMarket(
+        // logger.warn("2 TotVol "
+        // + totalVolumeBid
+        // + " CalVol "
+        // +
+        // reps.powerPlantRepository.calculatePeakCapacityOfOperationalPowerPlantsInMarket(
+        // reps.marketRepository.findElectricitySpotMarketForZone(regulator.getZone()),
+        // getCurrentTick())
+        // + " LMD " + (demandTarget * (lowerMargin)));
+        logger.warn("2 TotVol " + totalVolumeBid + " CalVol "
+                + reps.powerPlantRepository.calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(
                         reps.marketRepository.findElectricitySpotMarketForZone(regulator.getZone()), getCurrentTick())
                 + " LMD " + (demandTarget * (lowerMargin)));
 
@@ -114,25 +121,25 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
 
                 if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
                         && isTheMarketCleared == false) {
-                    if ((totalContractedCapacity + currentCDP.getAmount()) < (demandTarget * ((upperMargin) - ((currentCDP
-                            .getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
+                    if ((totalContractedCapacity + currentCDP.getAmount()) < (demandTarget
+                            * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
                         currentCDP.setStatus(Bid.ACCEPTED);
                         currentCDP.setAcceptedAmount(currentCDP.getAmount());
                         totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
                     }
-                    if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * ((upperMargin) - ((currentCDP
-                            .getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
+                    if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget
+                            * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
                         double tempAcceptedAmount = 0;
                         tempAcceptedAmount = currentCDP.getAmount()
-                                - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin) - ((currentCDP
-                                        .getPrice() * (upperMargin - lowerMargin)) / marketCap))));
+                                - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin)
+                                        - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
                         if (tempAcceptedAmount >= 0) {
                             currentCDP.setStatus(Bid.PARTLY_ACCEPTED);
 
-                            currentCDP
-                                    .setAcceptedAmount(currentCDP.getAmount()
-                                            - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin) - ((currentCDP
-                                                    .getPrice() * (upperMargin - lowerMargin)) / marketCap)))));
+                            currentCDP.setAcceptedAmount(currentCDP.getAmount() - ((totalContractedCapacity
+                                    + currentCDP.getAmount())
+                                    - (demandTarget * ((upperMargin)
+                                            - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))));
                             clearingPrice = currentCDP.getPrice();
                             totalContractedCapacity = totalContractedCapacity + currentCDP.getAcceptedAmount();
                             isTheMarketCleared = true;
@@ -185,7 +192,8 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
             clearingPoint.setCapacityMarket(market);
             clearingPoint.persist();
 
-            logger.warn("Clearing point Price {} and volume " + clearingPoint.getVolume(), clearingPoint.getPrice());
+            logger.warn("Clearing point Price {} and volume and time{} " + clearingPoint.getVolume(),
+                    clearingPoint.getPrice(), clearingPoint.getTime());
 
         }
 

@@ -28,10 +28,13 @@
 		p:name="Decarbonization Model" p:simulationLength="${simulationLength}"
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005"
-		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="false"
+		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
 		p:deletionOldPPDPBidsAndCashFlowsEnabled="true" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
+	
+	
+
 
 	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendNL"
 		p:start="${demandGrowthNLStart}" p:min="${demandGrowthNLMin}" p:max="${demandGrowthNLMax}"
@@ -528,7 +531,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" 		p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -540,7 +543,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -552,7 +555,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -564,7 +567,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -576,7 +579,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -588,7 +591,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}"  p:numberOfYearsBacklookingForForecasting="${numberOfYearsBacklookingForForecasting}"
@@ -599,7 +602,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}"  p:numberOfYearsBacklookingForForecasting="${numberOfYearsBacklookingForForecasting}"
@@ -610,7 +613,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -618,7 +621,7 @@
 		p:investorMarket-ref="germanElectricitySpotMarket"/>
 	<bean id="energyProducerI" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer I" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:simpleCapacityMarketEnabled="false"
+		p:investmentRole-ref="standardInvestmentRole" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -634,7 +637,7 @@
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="${priceMarkUp}" 
@@ -646,6 +649,37 @@
 
 <bean id="targetInvestmentRole" class="emlab.gen.role.investment.TargetInvestmentRole"/>
 	
+	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
+		p:name="Regulator A" p:capacityMarketPriceCap="${capacityMarketPriceCap}"
+		p:reserveMargin="${reserveMargin}" p:targetPeriod="0"
+		p:reserveDemandLowerMargin="${reserveDemandLowerMargin}" p:reserveDemandUpperMargin="${reserveDemandUpperMargin}"
+		p:numberOfYearsLookingBackToForecastDemand="4"> 
+		<property name="zone" ref="de" />
+	</bean>
+		
+	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
+		p:name="Capacity Market A" >
+		<property name="regulator" ref="regulatorA"/>
+		<property name="consumer" ref="energyConsumer"/>
+		<property name="zone" ref="nl" />
+	</bean>
+	
+	
+	<bean id="regulatorB" class="emlab.gen.domain.agent.Regulator"
+		p:name="Regulator B" p:capacityMarketPriceCap="${capacityMarketPriceCap}"
+		p:reserveMargin="${reserveMargin}" p:targetPeriod="0"
+		p:reserveDemandLowerMargin="${reserveDemandLowerMargin}" p:reserveDemandUpperMargin="${reserveDemandUpperMargin}"
+		p:numberOfYearsLookingBackToForecastDemand="4"> 
+		<property name="zone" ref="de" />
+	</bean>
+		
+	<bean id="capacityMarketB" class="emlab.gen.domain.market.capacity.CapacityMarket"
+		p:name="Capacity Market B" >
+		<property name="regulator" ref="regulatorB"/>
+		<property name="consumer" ref="energyConsumer"/>
+		<property name="zone" ref="de" />
+	</bean>
+
 	<!-- Renewable Targets CWE -->
 	
 	<bean id="renewableTargetInvestorCountryBL" class="emlab.gen.domain.agent.TargetInvestor"

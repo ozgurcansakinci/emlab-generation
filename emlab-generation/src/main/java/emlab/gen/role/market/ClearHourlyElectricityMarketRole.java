@@ -425,13 +425,14 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     // YearlySegmentClearingPointMarketInformation();
                     double[] gen = new double[timeSteps];
                     double[] dem = new double[timeSteps];
+                    double[] price = new double[timeSteps];
                     for (int i = 0; i < timeSteps; i++) {
                         gen[i] = cplex.getValue(generationEquationsForAllMarkets[ind][i]);
                         dem[i] = cplex.getValue(demandEquationsForAllMarkets[ind][i]);
+                        price[i] = Math.abs(cplex.getDual(constraints[ind][i]));
                     }
-                    storeInDatabase(cplex.getDuals(constraints[ind]), gen, dem,
-                            cplex.getValues(valueOfLostLoadInMWH[ind]), market, ys, getCurrentTick(),
-                            Math.abs(cplex.getDual(carbonConstraint)));
+                    storeInDatabase(price, gen, dem, cplex.getValues(valueOfLostLoadInMWH[ind]), market, ys,
+                            getCurrentTick(), Math.abs(cplex.getDual(carbonConstraint)));
                     // System.out.print(Arrays.toString(info.getMarketPrice().getHourlyArray(0)));
                     //
                     // System.out.print(Arrays.toString(info.getMarketDemand().getHourlyArray(0)));

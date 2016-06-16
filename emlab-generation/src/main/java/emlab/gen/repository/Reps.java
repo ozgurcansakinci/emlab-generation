@@ -117,6 +117,7 @@ public class Reps {
     // <<<<<<< HEAD
     public FinancialPowerPlantReportRepository financialPowerPlantReportRepository;
     // =======
+    @Autowired
     public CapacityMarketRepository capacityMarketRepository;
 
     @Autowired
