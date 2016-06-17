@@ -114,9 +114,8 @@ public class Reps {
     public IntermittentTechnologyNodeLoadFactorRepository intermittentTechnologyNodeLoadFactorRepository;
 
     @Autowired
-    // <<<<<<< HEAD
     public FinancialPowerPlantReportRepository financialPowerPlantReportRepository;
-    // =======
+
     @Autowired
     public CapacityMarketRepository capacityMarketRepository;
 
@@ -129,5 +128,4 @@ public class Reps {
     @Autowired
     public CapacityDispatchPlanRepository capacityDispatchPlanRepository;
 
-    // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
 }

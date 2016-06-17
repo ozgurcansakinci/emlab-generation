@@ -353,6 +353,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
             timerMarket.reset();
             timerMarket.start();
@@ -368,6 +370,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             logger.warn("        took: {} seconds.", timerMarket.seconds());
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         timerMarket.reset();
         timerMarket.start();
         logger.warn("  4. Clearing electricity spot and CO2 markets");

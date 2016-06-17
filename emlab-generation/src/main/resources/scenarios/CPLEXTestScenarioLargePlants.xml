@@ -32,9 +32,6 @@
 		p:deletionOldPPDPBidsAndCashFlowsEnabled="true" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
-	
-	
-
 
 	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendNL"
 		p:start="${demandGrowthNLStart}" p:min="${demandGrowthNLMin}" p:max="${demandGrowthNLMax}"
@@ -654,7 +651,7 @@
 		p:reserveMargin="${reserveMargin}" p:targetPeriod="0"
 		p:reserveDemandLowerMargin="${reserveDemandLowerMargin}" p:reserveDemandUpperMargin="${reserveDemandUpperMargin}"
 		p:numberOfYearsLookingBackToForecastDemand="4"> 
-		<property name="zone" ref="de" />
+		<property name="zone" ref="nl" />
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"

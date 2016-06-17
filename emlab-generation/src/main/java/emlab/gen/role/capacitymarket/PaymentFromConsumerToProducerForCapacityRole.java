@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import emlab.gen.domain.contract.CashFlow;
-import emlab.gen.domain.market.ClearingPoint;
+import emlab.gen.domain.market.capacity.CapacityClearingPoint;
 import emlab.gen.domain.market.capacity.CapacityDispatchPlan;
 import emlab.gen.domain.market.capacity.CapacityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
@@ -53,10 +53,11 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
             // logger.warn("Hi");
             // logger.warn("cdp for plant" + plan.getPlant());
 
-            ClearingPoint capacityClearingPoint = reps.capacityMarketRepository
-                    .findOneClearingPointForTimeAndCapacityMarket(getCurrentTick(), capacityMarket);
+            CapacityClearingPoint capacityClearingPoint = reps.capacityMarketRepository
+                    .findOneCapacityClearingPointForTimeAndMarket(getCurrentTick(), capacityMarket);
             logger.warn("We are at tick " + getCurrentTick());
-            logger.warn("capacity clearing point " + capacityClearingPoint.getPrice());
+            // logger.warn("capacity clearing point " +
+            // capacityClearingPoint.getPrice());
             // double price = capacityClearingPoint.getPrice();
             ElectricitySpotMarket esm = reps.marketRepository
                     .findElectricitySpotMarketForZone(capacityMarket.getZone());

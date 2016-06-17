@@ -180,22 +180,61 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         }
 
         CapacityClearingPoint clearingPoint = new CapacityClearingPoint();
+        clearingPoint.persist();
+
+        // persistClearingPoint(clearingPoint, clearingPrice, marketCap,
+        // totalContractedCapacity, market,
+        // isTheMarketCleared);
+
+        // persistClearingPoint(clearingPrice, marketCap,
+        // totalContractedCapacity, market, isTheMarketCleared);
+
         if (isTheMarketCleared == true) {
             if (clearingPrice > marketCap) {
                 clearingPoint.setPrice(marketCap);
             } else {
                 clearingPoint.setPrice(clearingPrice);
             }
-            logger.warn("MARKET CLEARED at price" + clearingPoint.getPrice());
+
+            // logger.warn("MARKET CLEARED at price" +
+            // clearingPoint.getPrice());
             clearingPoint.setVolume(totalContractedCapacity);
             clearingPoint.setTime(getCurrentTick());
             clearingPoint.setCapacityMarket(market);
             clearingPoint.persist();
 
-            logger.warn("Clearing point Price {} and volume and time{} " + clearingPoint.getVolume(),
+            // logger.warn("MARKET CLEARED at Volume" +
+            // clearingPoint.getVolume());
+            // logger.warn("MARKET CLEARED at time" + clearingPoint.getTime());
+
+            logger.warn("Clearing point Volume {} and Price {} and time {} " + clearingPoint.getVolume(),
                     clearingPoint.getPrice(), clearingPoint.getTime());
 
         }
 
     }
+
+    // public void persistClearingPoint(CapacityClearingPoint clearingPoint,
+    // double clearingPrice, double marketCap,
+    // double totalContractedCapacity, CapacityMarket market, boolean
+    // isTheMarketCleared) {
+
+    // @Transactional
+    // public void persistClearingPoint(double clearingPrice, double marketCap,
+    // double totalContractedCapacity,
+    // CapacityMarket market, boolean isTheMarketCleared) {
+    // CapacityClearingPoint clearingPoint = new CapacityClearingPoint();
+    // if (isTheMarketCleared == true) {
+    // if (clearingPrice > marketCap) {
+    // clearingPoint.setPrice(marketCap);
+    // } else {
+    // clearingPoint.setPrice(clearingPrice);
+    // }
+    // clearingPoint.setVolume(totalContractedCapacity);
+    // clearingPoint.setTime(getCurrentTick());
+    // clearingPoint.setCapacityMarket(market);
+    // clearingPoint.persist();
+    // }
+    //
+    // }
 }
