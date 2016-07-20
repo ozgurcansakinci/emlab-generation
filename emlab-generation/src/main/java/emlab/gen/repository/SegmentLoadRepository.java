@@ -86,6 +86,6 @@ public interface SegmentLoadRepository extends GraphRepository<SegmentLoad> {
     // QueryType.Gremlin)
 
     @Query(value = "g.v(market).out('SEGMENT_LOAD')", type = QueryType.Gremlin)
-    double findSegmentLoadByMarketAndTime(@Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+    SegmentLoad findSegmentLoadByMarketAndTime(@Param("market") ElectricitySpotMarket market);
 
 }

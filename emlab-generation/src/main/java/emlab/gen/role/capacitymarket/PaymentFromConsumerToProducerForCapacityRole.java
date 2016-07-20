@@ -55,7 +55,7 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
 
             CapacityClearingPoint capacityClearingPoint = reps.capacityMarketRepository
                     .findOneCapacityClearingPointForTimeAndMarket(getCurrentTick(), capacityMarket);
-            logger.warn("We are at tick " + getCurrentTick());
+            // logger.warn("We are at tick " + getCurrentTick());
             // logger.warn("capacity clearing point " +
             // capacityClearingPoint.getPrice());
             // double price = capacityClearingPoint.getPrice();

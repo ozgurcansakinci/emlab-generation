@@ -84,6 +84,9 @@ public class Reps {
     public SegmentClearingPointRepository segmentClearingPointRepository;
 
     @Autowired
+    public TimeSeriesToLDCClearingPointRepository timeSeriesToLDCClearingPointRepository;
+
+    @Autowired
     public TargetInvestorRepository targetInvestorRepository;
 
     @Autowired

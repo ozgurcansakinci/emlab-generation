@@ -36,7 +36,7 @@ public class SegmentLoad {
     /// role
     private double residualGLDC;
 
-    private double residualGLDCSegmentPrice;
+    // private double residualGLDCSegmentPrice;
 
     public Segment getSegment() {
         return segment;
@@ -70,13 +70,14 @@ public class SegmentLoad {
         this.residualGLDC = residualGLDC;
     }
 
-    public double getResidualGLDCSegmentPrice() {
-        return residualGLDCSegmentPrice;
-    }
-
-    public void setResidualGLDCSegmentPrice(double residualGLDCSegmentPrice) {
-        this.residualGLDCSegmentPrice = residualGLDCSegmentPrice;
-    }
+    // public double getResidualGLDCSegmentPrice() {
+    // return residualGLDCSegmentPrice;
+    // }
+    //
+    // public void setResidualGLDCSegmentPrice(double residualGLDCSegmentPrice)
+    // {
+    // this.residualGLDCSegmentPrice = residualGLDCSegmentPrice;
+    // }
 
     public double getCurrentLoad() {
         return currentLoad;

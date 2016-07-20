@@ -98,9 +98,15 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                         // - 1,
                         // segmentLoad.getSegment(), eMarket, false)
                         // .getPrice();
-                        price = reps.segmentLoadRepository.findSegmentLoadByMarketAndTime(eMarket,
-                                getCurrentTick() - 1);
-                        System.out.println("Price for segment for previous tick  = " + price);
+                        // price =
+                        // reps.segmentLoadRepository.findSegmentLoadByMarketAndTime(eMarket,
+                        // getCurrentTick() - 1);
+                        price = reps.timeSeriesToLDCClearingPointRepository
+                                .findOneTimeSeriesToLDCClearingPointForMarketSegmentAndTime(getCurrentTick() - 1,
+                                        segmentLoad.getSegment(), eMarket)
+                                .getPrice();
+                        // System.out.println("Price for segment for previous
+                        // tick = " + price);
 
                     } else {
                         if (getCurrentTick() == 0) {

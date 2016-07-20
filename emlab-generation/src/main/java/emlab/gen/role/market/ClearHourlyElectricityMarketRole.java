@@ -232,7 +232,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 List<PpdpAnnual> ppdpAnnualListPerESMarket = Utils.asList(reps.ppdpAnnualRepository
                         .findAllSubmittedPpdpAnnualForGivenMarketAndTime(market, getCurrentTick()));
                 ESMtoPPDPList.put(market, ppdpAnnualListPerESMarket);
-                System.out.println(market.getName());
+                // System.out.println(market.getName());
             }
 
             IloNumVar[] crossBorderGenerationAandB = new IloNumVar[timeSteps];
@@ -300,6 +300,9 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
                     // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
                     // ppdp.getPrice();
+
+                    System.out.println(
+                            "Plant: " + ppdp.getPowerPlant().toString() + " Bids at Price: " + ppdp.getPrice());
 
                     // emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex]
                     // = ppdp.getPowerPlant().calculateEmissionIntensity();
@@ -443,11 +446,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                         ppdpIndex++;
                         acceptAnnualBids(ppdp);
                     }
-                    // TODO:Cash flow and emissions.
-                    // Think about how to store the
-                    // supply of a plant over a year
-                    // (hashmap etc..)
-                    // TODO:Investment role
                     ind++;
                 }
 
@@ -494,7 +492,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // + cplex.getValue(demandEquationsForAllMarkets[1][i]) + " " +
                 // ","
                 // + cplex.getValue(crossBorderGenerationAandB[i]) + " " + ","
-                //
                 // + cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
                 // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
                 // // FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i])

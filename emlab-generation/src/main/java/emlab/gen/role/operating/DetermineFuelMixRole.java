@@ -38,8 +38,10 @@ import emlab.gen.role.AbstractEnergyProducerRole;
 /**
  * Run the business. Buy supplies, pay interest, account profits
  * 
- * @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a> @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a>
- *@author JCRichstein
+ * @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a> @author
+ *         <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
+ *         Chmieliauskas</a>
+ * @author JCRichstein
  *
  */
 @RoleComponent
@@ -71,14 +73,17 @@ public class DetermineFuelMixRole extends AbstractEnergyProducerRole implements 
         // logger.info("number of operational pps: {}", ops);
 
         // get the co2 tax and market prices
-        // CO2Auction market = reps.genericRepository.findFirst(CO2Auction.class);
+        // CO2Auction market =
+        // reps.genericRepository.findFirst(CO2Auction.class);
         // double co2AuctionPrice = findLastKnownPriceOnMarket(market);
-        HashMap<ElectricitySpotMarket, Double> expectedCO2Prices = determineExpectedCO2PriceInclTax(getCurrentTick(), 1, getCurrentTick());
+        HashMap<ElectricitySpotMarket, Double> expectedCO2Prices = determineExpectedCO2PriceInclTax(getCurrentTick(), 1,
+                getCurrentTick());
         Government government = reps.genericRepository.findFirst(Government.class);
         // double co2TaxLevel = government.getCO2Tax(getCurrentTick());
         // logger.warn("Expected CO2 price: " + expectedCO2Prices.toString());
 
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsWithFuelsGreaterZeroByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository
+                .findOperationalPowerPlantsWithFuelsGreaterZeroByOwner(producer, getCurrentTick())) {
             logger.info("Found operational power plant {} ", plant.getTechnology());
 
             // Fuels
@@ -102,8 +107,8 @@ public class DetermineFuelMixRole extends AbstractEnergyProducerRole implements 
         CO2Auction co2Auction = template.findAll(CO2Auction.class).iterator().next();
         double lastCO2Price;
         try {
-            lastCO2Price = reps.clearingPointRepositoryOld.findClearingPointForMarketAndTime(co2Auction,
-                    getCurrentTick() - 1, false).getPrice();
+            lastCO2Price = reps.clearingPointRepositoryOld
+                    .findClearingPointForMarketAndTime(co2Auction, getCurrentTick() - 1, false).getPrice();
         } catch (NullPointerException e) {
             lastCO2Price = 0;
         }
@@ -131,8 +136,7 @@ public class DetermineFuelMixRole extends AbstractEnergyProducerRole implements 
                 for (Substance substance : possibleFuels) {
                     substancePriceMap1.put(substance, findLastKnownPriceForSubstance(substance, getCurrentTick()));
                 }
-                Set<SubstanceShareInFuelMix> fuelMix = calculateFuelMix(plant, substancePriceMap1,
-                        effectiveCO2Price);
+                Set<SubstanceShareInFuelMix> fuelMix = calculateFuelMix(plant, substancePriceMap1, effectiveCO2Price);
                 plant.setFuelMix(fuelMix);
 
             }

@@ -207,8 +207,7 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
             // clearingPoint.getVolume());
             // logger.warn("MARKET CLEARED at time" + clearingPoint.getTime());
 
-            logger.warn("Clearing point Volume {} and Price {} and time {} " + clearingPoint.getVolume(),
-                    clearingPoint.getPrice(), clearingPoint.getTime());
+            logger.warn("Clearing point Volume {} and Price {}", clearingPoint.getVolume(), clearingPoint.getPrice());
 
         }
 

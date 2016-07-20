@@ -99,7 +99,8 @@ public class TargetInvestmentRole extends GenericInvestmentRole<TargetInvestor> 
                         plant.getTechnology().getDepreciationTime(), targetInvestor.getLoanInterestRate());
                 // logger.warn("Loan amount is: " + amount);
                 logger.warn(
-                        "Target investor {} invested in technology {}" + targetInvestor.toString() + pgt.toString());
+                        "********************* Target investor {} invested in technology {} at tick" + getCurrentTick(),
+                        targetInvestor.toString(), pgt.toString());
                 Loan loan = reps.loanRepository.createLoan(targetInvestor, bigbank, amount,
                         plant.getTechnology().getDepreciationTime(), getCurrentTick(), plant);
                 // Create the loan

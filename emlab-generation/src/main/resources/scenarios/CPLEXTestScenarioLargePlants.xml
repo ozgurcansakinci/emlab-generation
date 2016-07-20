@@ -21,25 +21,33 @@
 	<bean name="startCashBL" class="java.lang.String">
 	  <constructor-arg value="20e9" />
 	</bean>
-	
 
 	<!-- Decarbonization Model -->
 	<bean id="decarbonizationModel" class="emlab.gen.domain.agent.DecarbonizationModel"
 		p:name="Decarbonization Model" p:simulationLength="${simulationLength}"
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
-		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005"
+		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
-		p:deletionOldPPDPBidsAndCashFlowsEnabled="true" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
+		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
 
-	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendNL"
-		p:start="${demandGrowthNLStart}" p:min="${demandGrowthNLMin}" p:max="${demandGrowthNLMax}"
-		p:top="${demandGrowthNLTop}" />
+<!-- 	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendNL" -->
+<!-- 		p:start="${demandGrowthNLStart}" p:min="${demandGrowthNLMin}" p:max="${demandGrowthNLMax}" -->
+<!-- 		p:top="${demandGrowthNLTop}" /> -->
 
-	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendDE"
-		p:start="${demandGrowthDEStart}" p:min="${demandGrowthDEMin}" p:max="${demandGrowthDEMax}"
-		p:top="${demandGrowthDETop}" />
+<!-- 	<bean class="emlab.gen.trend.TriangularTrend" id="demandGrowthTrendDE" -->
+<!-- 		p:start="${demandGrowthDEStart}" p:min="${demandGrowthDEMin}" p:max="${demandGrowthDEMax}" -->
+<!-- 		p:top="${demandGrowthDETop}" /> -->
+		
+		<bean id="demandGrowthTrendNL" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/demandGrowthDE.csv"
+		p:startingYear="0" p:delimiter="," p:variableName="demandDE-1" />
+		
+		<bean id="demandGrowthTrendDE" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/demandGrowthDE.csv"
+		p:startingYear="0" p:delimiter="," p:variableName="demandDE-1" />
+		
 
 	<!-- Substances -->
 	<bean id="coal" class="emlab.gen.domain.technology.Substance" p:name="Coal"
@@ -47,7 +55,7 @@
 	<bean id="lignite" class="emlab.gen.domain.technology.Substance" p:name="Lignite"
 		p:quality="1" p:energyDensity="3600" p:co2Density="0.41" p:unit="MWh_th" />
 	<bean id="naturalgas" class="emlab.gen.domain.technology.Substance"
-		p:name="Natural Gas" p:quality="1" p:energyDensity="36" p:co2Density="0.00187" />
+		p:name="Natural Gas" p:quality="1" p:energyDensity="36000" p:co2Density="0.00187" />
 	<bean id="biomass" class="emlab.gen.domain.technology.Substance"
 		p:name="Biomass" p:quality="0.5" p:energyDensity="25000"
 		p:co2Density="0" />
@@ -206,7 +214,7 @@
 	<!-- Electricity Spot -->
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country A electricity spot market" p:auction="false" 
-		p:referencePrice="40" p:valueOfLostLoad="5000">
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
@@ -324,7 +332,7 @@
 
 	<bean id="germanElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country B electricity spot market" p:auction="false"
-		p:referencePrice="40" p:valueOfLostLoad="5000">
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendDE" />
 		<property name="zone" ref="de" />
@@ -472,18 +480,36 @@
 		p:substance-ref="co2" />
 
 	<!-- Fuel Prices -->
-	<bean id="coalPrice" class="emlab.gen.trend.TriangularTrend" p:start="${coalPriceStart}"
-		p:min="${coalPriceMin}" p:max="${coalPriceMax}" p:top="${coalPriceTop}" />
-	<bean id="gasPrice" class="emlab.gen.trend.TriangularTrend" p:start="${gasPriceStart}"
-		p:min="${gasPriceMin}" p:max="${gasPriceMax}" p:top="${gasPriceTop}" />
-	<bean id="biomassPrice" class="emlab.gen.trend.TriangularTrend"
-		p:start="${biomassPriceStart}" p:min="${biomassPriceMin}" p:max="${biomassPriceMax}"
-		p:top="${biomassPriceTop}" />
-	<bean id="uraniumPrice" class="emlab.gen.trend.TriangularTrend"
-		p:start="${uraniumPriceStart}" p:min="${uraniumPriceMin}" p:max="${uraniumPriceMax}"
-		p:top="${uraniumPriceTop}" />
-	<bean id="lignitePrice" class="emlab.gen.trend.TriangularTrend"
-		p:start="5.14" p:min="0.99" p:max="1.01" p:top="1.00"/>
+	
+	
+<!-- 	<bean id="coalPrice" class="emlab.gen.trend.TriangularTrend" p:start="${coalPriceStart}" -->
+<!-- 		p:min="${coalPriceMin}" p:max="${coalPriceMax}" p:top="${coalPriceTop}" /> -->
+<!-- 	<bean id="gasPrice" class="emlab.gen.trend.TriangularTrend" p:start="${gasPriceStart}" -->
+<!-- 		p:min="${gasPriceMin}" p:max="${gasPriceMax}" p:top="${gasPriceTop}" /> -->
+<!-- 	<bean id="biomassPrice" class="emlab.gen.trend.TriangularTrend" -->
+<!-- 		p:start="${biomassPriceStart}" p:min="${biomassPriceMin}" p:max="${biomassPriceMax}" -->
+<!-- 		p:top="${biomassPriceTop}" /> -->
+<!-- 	<bean id="uraniumPrice" class="emlab.gen.trend.TriangularTrend" -->
+<!-- 		p:start="${uraniumPriceStart}" p:min="${uraniumPriceMin}" p:max="${uraniumPriceMax}" -->
+<!-- 		p:top="${uraniumPriceTop}" /> -->
+<!-- 	<bean id="lignitePrice" class="emlab.gen.trend.TriangularTrend" -->
+<!-- 		p:start="50.14" p:min="0.99" p:max="1.01" p:top="1.00"/> -->
+		
+		<bean id="coalPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/coalPrice.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="coalPrice-1" />
+	<bean id="gasPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/gasPrice.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="gasPrice-1" />
+	<bean id="biomassPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/biomassPrice.csv"
+		p:startingYear="0" p:delimiter="," p:variableName="biomassPrice-1" />
+	<bean id="uraniumPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/uraniumPrice.csv"
+		p:startingYear="0" p:delimiter="," p:variableName="uraniumPrice-1" />
+	<bean id="lignitePrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/lignitePrice.csv"
+		p:startingYear="0" p:delimiter="," p:variableName="lignitePrice-1" />
 
 	<!-- Agents -->
 	<bean id="coalSupplier" class="emlab.gen.domain.agent.CommoditySupplier">
@@ -981,7 +1007,7 @@
 <!-- 		<property name="zone" ref="de" /> -->
 <!-- 	</bean> -->
 
-	<!-- Power Genration Technologies -->
+	<!-- Power Generation Technologies -->
 	<bean id="coalPulverizedSuperCritical" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
 		p:name="CoalPSC" p:capacity="5758"
 		p:investmentCostTimeSeries-ref="coalPSCInvestmentCostTimeSeries"

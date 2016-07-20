@@ -20,6 +20,7 @@ import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.market.electricity.SegmentLoad;
+import emlab.gen.domain.market.electricity.TimeSeriesToLDCClearingPoint;
 import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInformation;
 import emlab.gen.domain.technology.Interconnector;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
@@ -200,6 +201,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
                 // Add to zonal-technological RES column
                 // Substracts the above from the residual load curve
                 m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyRESGenerationPerZone, Functions.minus);
+
+                // TODO: We have to subtract VOLL (volume) from the residual
+                // generation as well.....
 
             }
 
@@ -433,13 +437,21 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             Segment segment = segmentLoad.getSegment();
             // System.out.println(segmentLoad.toString());
             Zone zone = segmentLoad.getElectricitySpotMarket().getZone();
-            double demandGrowthFactor = reps.marketRepository.findElectricitySpotMarketForZone(zone)
-                    .getDemandGrowthTrend().getValue(clearingTick);
+            TimeSeriesToLDCClearingPoint priceClearingPoint = new TimeSeriesToLDCClearingPoint();
+            priceClearingPoint.setSegment(segment);
+            priceClearingPoint.setAbstractMarket(segmentLoad.getElectricitySpotMarket());
+            priceClearingPoint.setPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            priceClearingPoint.setTime(getCurrentTick());
+            priceClearingPoint.persist();
+            // double demandGrowthFactor =
+            // reps.marketRepository.findElectricitySpotMarketForZone(zone)
+            // .getDemandGrowthTrend().getValue(clearingTick);
             segmentLoad.setResidualGLDC(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
-            segmentLoad
-                    .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            // segmentLoad
+            // .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID()
+            // - 1].mean());
             logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getBaseLoad() + "MW" + "Segment Price "
-                    + segmentLoad.getResidualGLDCSegmentPrice() + segmentLoad.getElectricitySpotMarket().toString());
+                    + priceClearingPoint.getPrice() + segmentLoad.getElectricitySpotMarket().toString());
         }
 
         Iterable<Segment> segments = reps.segmentRepository.findAll();
