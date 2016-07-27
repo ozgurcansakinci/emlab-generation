@@ -56,6 +56,26 @@ public class EnergyStorageTechnology {
 
     private double currentMaxStorageDischargingRate;
 
+    private double initialStateOfChargeInStorage;
+
+    public double getInitialStateOfChargeInStorage() {
+        return initialStateOfChargeInStorage;
+    }
+
+    public void setInitialStateOfChargeInStorage(double initialStateOfChargeInStorage) {
+        this.initialStateOfChargeInStorage = initialStateOfChargeInStorage;
+    }
+
+    public double getFinalStateOfChargeInStorage() {
+        return finalStateOfChargeInStorage;
+    }
+
+    public void setFinalStateOfChargeInStorage(double finalStateOfChargeInStorage) {
+        this.finalStateOfChargeInStorage = finalStateOfChargeInStorage;
+    }
+
+    private double finalStateOfChargeInStorage;
+
     public String getName() {
         return name;
     }

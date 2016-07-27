@@ -51,6 +51,16 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     private boolean dailyDemandResponseImplemented;
 
+    private boolean storageImplemented;
+
+    public boolean isStorageImplemented() {
+        return storageImplemented;
+    }
+
+    public void setStorageImplemented(boolean storageImplemented) {
+        this.storageImplemented = storageImplemented;
+    }
+
     public boolean isDailyDemandResponseImplemented() {
         return dailyDemandResponseImplemented;
     }
