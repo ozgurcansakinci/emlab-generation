@@ -49,6 +49,16 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     @RelatedTo(type = "DAILYDEMAND_MARKET", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private DailyCSVTimeSeries dailyElasticDemandForESMarket;
 
+    private boolean dailyDemandResponseImplemented;
+
+    public boolean isDailyDemandResponseImplemented() {
+        return dailyDemandResponseImplemented;
+    }
+
+    public void setDailyDemandResponseImplemented(boolean dailyDemandResponseImplemented) {
+        this.dailyDemandResponseImplemented = dailyDemandResponseImplemented;
+    }
+
     public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
         return hourlyInElasticDemandForESMarket;
     }
