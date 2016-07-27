@@ -1,0 +1,80 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for agentspring:agentspring-engine:jar:1.0.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework:spring-test:jar -> duplicate declaration of version ${spring.version} @ line 90, column 17
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for agentspring:agentspring-face:war:1.0.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework:spring-test:jar -> duplicate declaration of version ${spring.version} @ line 73, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: javax.servlet:jstl:jar -> duplicate declaration of version 1.2 @ line 177, column 21
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.codehaus.mojo:tomcat-maven-plugin @ line 317, column 21
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-compiler-plugin is missing. @ line 224, column 21
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-surefire-plugin is missing. @ line 310, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] agentspring-facade
+[INFO] agentspring-engine
+[INFO] agentspring-face
+[INFO] agentspring-example
+[INFO] agentspring-parent
+[INFO] emlab-generation
+[INFO] emlab-generation-parent
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/2.7/maven-deploy-plugin-2.7.pom
+4/6 KB   6/6 KB            Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/2.7/maven-deploy-plugin-2.7.pom (6 KB at 15.3 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/2.7/maven-deploy-plugin-2.7.jar
+4/27 KB   8/27 KB   12/27 KB   16/27 KB   20/27 KB   24/27 KB   27/27 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/2.7/maven-deploy-plugin-2.7.jar (27 KB at 655.1 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-site-plugin/3.3/maven-site-plugin-3.3.pom
+4/21 KB    8/21 KB   12/21 KB   16/21 KB   20/21 KB   21/21 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-site-plugin/3.3/maven-site-plugin-3.3.pom (21 KB at 781.7 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-site-plugin/3.3/maven-site-plugin-3.3.jar
+2/122 KB   6/122 KB   10/122 KB   14/122 KB   18/122 KB   22/122 KB   26/122 KB   30/122 KB   34/122 KB   38/122 KB   42/122 KB   46/122 KB   50/122 KB   54/122 KB   58/122 KB   62/122 KB   66/122 KB   70/122 KB   74/122 KB   78/122 KB   82/122 KB   86/122 KB   90/122 KB   94/122 KB   98/122 KB   102/122 KB   106/122 KB   110/122 KB   114/122 KB   118/122 KB   122/122 KB   122/122 KB                Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-site-plugin/3.3/maven-site-plugin-3.3.jar (122 KB at 1760.0 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.pom
+4/5 KB       5/5 KB            Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.pom (5 KB at 220.0 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/12/maven-plugins-12.pom
+4/12 KB   8/12 KB   12/12 KB   12/12 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/12/maven-plugins-12.pom (12 KB at 478.0 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/maven-parent/9/maven-parent-9.pom
+4/33 KB    8/33 KB   12/33 KB   16/33 KB   20/33 KB   24/33 KB   28/33 KB   32/33 KB   33/33 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/maven-parent/9/maven-parent-9.pom (33 KB at 1145.3 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.jar
+4/24 KB    8/24 KB   12/24 KB   16/24 KB   20/24 KB   24/24 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.jar (24 KB at 959.2 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.pom
+4/15 KB    8/15 KB   12/15 KB   15/15 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.pom (15 KB at 616.8 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.jar
+4/204 KB   8/204 KB   12/204 KB   16/204 KB   20/204 KB   24/204 KB   28/204 KB   32/204 KB   36/204 KB   40/204 KB   44/204 KB   48/204 KB   52/204 KB   56/204 KB   60/204 KB   64/204 KB   68/204 KB   72/204 KB   76/204 KB   80/204 KB   84/204 KB   88/204 KB   92/204 KB   96/204 KB   100/204 KB   104/204 KB   108/204 KB   112/204 KB   116/204 KB   120/204 KB   124/204 KB   128/204 KB   132/204 KB   136/204 KB   140/204 KB   144/204 KB   148/204 KB   152/204 KB   156/204 KB   160/204 KB   164/204 KB   168/204 KB   172/204 KB   176/204 KB   180/204 KB   184/204 KB   188/204 KB   192/204 KB   196/204 KB   200/204 KB   204/204 KB                Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.jar (204 KB at 2683.8 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-release-plugin/2.3.2/maven-release-plugin-2.3.2.pom
+2/10 KB      6/10 KB   10/10 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-release-plugin/2.3.2/maven-release-plugin-2.3.2.pom (10 KB at 395.3 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/release/maven-release/2.3.2/maven-release-2.3.2.pom
+4/9 KB     8/9 KB   9/9 KB            Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/release/maven-release/2.3.2/maven-release-2.3.2.pom (9 KB at 400.9 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-release-plugin/2.3.2/maven-release-plugin-2.3.2.jar
+4/44 KB   8/44 KB   12/44 KB   16/44 KB   20/44 KB   24/44 KB   25/44 KB   29/44 KB   33/44 KB   37/44 KB   41/44 KB   44/44 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-release-plugin/2.3.2/maven-release-plugin-2.3.2.jar (44 KB at 1444.2 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml
+4/13 KB    8/13 KB   12/13 KB   13/13 KB              Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml (13 KB at 557.7 KB/sec)
+4/20 KB    8/20 KB   12/20 KB   16/20 KB   20/20 KB   20/20 KB              Downloaded: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml (20 KB at 370.2 KB/sec)
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] agentspring-facade ................................. SKIPPED
+[INFO] agentspring-engine ................................. SKIPPED
+[INFO] agentspring-face ................................... SKIPPED
+[INFO] agentspring-example ................................ SKIPPED
+[INFO] agentspring-parent ................................. SKIPPED
+[INFO] emlab-generation ................................... SKIPPED
+[INFO] emlab-generation-parent ............................ SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.741 s
+[INFO] Finished at: 2016-02-25T11:21:51+01:00
+[INFO] Final Memory: 10M/114M
+[INFO] ------------------------------------------------------------------------
+[ERROR] No plugin found for prefix 'agentspring-engine' in the current project and in the plugin groups [org.apache.maven.plugins, org.codehaus.mojo] available from the repositories [local (/Users/apple/.m2/repository), central (https://repo.maven.apache.org/maven2)] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/NoPluginFoundForPrefixException

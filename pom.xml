@@ -24,6 +24,9 @@
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
+          <environmentVariables>
+              <DYLD_LIBRARY_PATH>${/Users/apple/Applications/IBM/ILOG/CPLEX_Studio1263/cplex/bin/x86-64_osx}${path.separator}{env.DYLD_LIBRARY_PATH}</DYLD_LIBRARY_PATH>
+          </environmentVariables>
         </configuration>
       </plugin>
     </plugins>
