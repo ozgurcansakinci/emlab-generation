@@ -49,6 +49,8 @@ public class YearlySegmentClearingPointMarketInformation {// extends
     private double[] marketSupply;
     private double[] marketDemand;
     private double[] valueOfLostLoad;
+    private double[] storageChargingInMW;
+    private double[] storageDischargingInMW;
 
     private double CO2Price;
 
@@ -194,6 +196,22 @@ public class YearlySegmentClearingPointMarketInformation {// extends
 
     public void setYearlyInterconnectorFlow(HourlyCSVTimeSeries yearlyInterconnectorFlow) {
         this.yearlyInterconnectorFlow = yearlyInterconnectorFlow;
+    }
+
+    public double[] getStorageChargingInMW() {
+        return storageChargingInMW;
+    }
+
+    public void setStorageChargingInMW(double[] storageChargingInMW) {
+        this.storageChargingInMW = storageChargingInMW;
+    }
+
+    public double[] getStorageDischargingInMW() {
+        return storageDischargingInMW;
+    }
+
+    public void setStorageDischargingInMW(double[] storageDischargingInMW) {
+        this.storageDischargingInMW = storageDischargingInMW;
     }
 
 }
