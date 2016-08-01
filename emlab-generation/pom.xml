@@ -205,15 +205,8 @@
           </dependency>
         </dependencies>
       </plugin>
-      
-      
-     
- 
-    
-
-      
       <plugin>
-<!--         Execute the main class -->
+        <!-- Execute the main class -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.1</version>
@@ -225,11 +218,9 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>agentspring.HPCService</mainClass>      
+          <mainClass>agentspring.HPCService</mainClass>
         </configuration>
       </plugin>
-      
-      
       
 <!-- 	  If enabled, creates binary distributions of the project (war,jar,targz), with HPCService as main class       -->
       <plugin>
@@ -286,37 +277,9 @@
     
     </plugins>
   </build>
-  
 
-<!--   <profiles> -->
-<!--     <profile> -->
-<!--       <id>service</id> -->
-<!--       <activation><activeByDefault>true</activeByDefault></activation> -->
-  
-<!-- <build> -->
-<!--   <plugins> -->
-<!--     <plugin> -->
-<!--         <groupId>org.codehaus.mojo</groupId> -->
-<!--         <artifactId>exec-maven-plugin</artifactId> -->
-<!--             <version>1.1</version> -->
-<!--         <configuration> -->
-<!--             <executable>java</executable> -->
-<!--             <mainClass>agentspring.Service</mainClass> -->
-<!--             <arguments> -->
-<!--                 <argument>-Djava.library.path=opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux</argument> -->
-<!--                  <argument>-classpath</argument> -->
-<!--                  <classpath /> -->
-<!--             </arguments> -->
-<!--         </configuration> -->
-<!--             <executions><execution><goals><goal>exec</goal></goals></execution></executions> -->
-<!--     </plugin> -->
-<!--   </plugins> -->
-<!-- </build> -->
-<!--     </profile> -->
-  
-   
   <profiles>
-<!--      GUI profile -->
+    <!-- GUI profile -->
     <profile>
       <id>service</id>
       <activation><activeByDefault>true</activeByDefault></activation>
@@ -326,38 +289,14 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.1</version>
-            
-            <configuration>
-            <executable>java</executable>
-            <mainClass>agentspring.Service</mainClass>
-            <systemProperties>
-            <systemProperty>            
-            <key>java.security.policy</key>
-            <value>service.policy</value>
-            </systemProperty>
-            </systemProperties>
-<!--                 <arguments> -->
-<!--                     <argLine>-Djava.library.path=${basedir}/opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux</argLine> -->
-<!--                     <java.library.path>/opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux</java.library.path> -->
-<!--                 </arguments> -->
-            </configuration>
-            
             <executions><execution><goals><goal>exec</goal></goals></execution></executions>
+            <configuration><mainClass>agentspring.Service</mainClass>
+              <systemProperties><systemProperty><key>java.security.policy</key><value>service.policy</value></systemProperty></systemProperties></configuration>
           </plugin>
-          
-<!--           <plugin> -->
-<!-- 		<groupId>cplex</groupId> -->
-<!-- 		<artifactId>my-plugin</artifactId> -->
-<!-- 		<configuration> -->
-<!-- 		<workingDirectory>target</workingDirectory> -->
-<!-- 		<argline>-Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux</argline> -->
-<!-- 		</configuration> -->
-<!-- 	</plugin> -->
-          
         </plugins>
       </build>
     </profile>
-
+    
     <!-- Headless profile -->
     <profile>
       <id>hpc</id>
