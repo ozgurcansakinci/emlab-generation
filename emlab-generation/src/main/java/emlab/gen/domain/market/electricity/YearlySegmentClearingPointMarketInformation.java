@@ -51,6 +51,8 @@ public class YearlySegmentClearingPointMarketInformation {// extends
     private double[] valueOfLostLoad;
     private double[] storageChargingInMW;
     private double[] storageDischargingInMW;
+    private double[] stateOfChargeInMWh;
+    private double[] elasticDemand;
 
     private double CO2Price;
 
@@ -214,4 +216,19 @@ public class YearlySegmentClearingPointMarketInformation {// extends
         this.storageDischargingInMW = storageDischargingInMW;
     }
 
+    public double[] getStateOfChargeInMWh() {
+        return stateOfChargeInMWh;
+    }
+
+    public void setStateOfChargeInMWh(double[] stateOfChargeInMWh) {
+        this.stateOfChargeInMWh = stateOfChargeInMWh;
+    }
+
+    public double[] getElasticDemand() {
+        return elasticDemand;
+    }
+
+    public void setElasticDemand(double[] elasticDemand) {
+        this.elasticDemand = elasticDemand;
+    }
 }

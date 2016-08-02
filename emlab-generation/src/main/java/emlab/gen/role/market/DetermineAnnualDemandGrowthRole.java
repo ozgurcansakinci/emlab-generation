@@ -17,7 +17,6 @@ package emlab.gen.role.market;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
 import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import cern.colt.matrix.DoubleMatrix1D;
@@ -79,9 +78,9 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
                     .setHourlyArray(hourlyArray.toArray(), 0);
             if (market.isDailyDemandResponseImplemented()) {
                 DoubleMatrix1D dailyArray = new DenseDoubleMatrix1D(
-                        market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment().getDailyArray(0));
-                dailyArray.assign(
-                        market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment().getDailyArray(0));
+                        market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment().getDailyArray(0));
+                // dailyArray.assign(
+                // market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment().getDailyArray(0));
                 DoubleMatrix1D dailyGrowth = dailyArray.copy();
                 dailyGrowth.assign(growthRate);
                 dailyArray.assign(dailyGrowth, Functions.mult);
