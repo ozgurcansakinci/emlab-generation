@@ -31,11 +31,11 @@ public interface CashFlowRepository extends GraphRepository<CashFlow> {
     @Query(value = "g.v(plant).in.filter{it.__type__=='emlab.gen.domain.contract.CashFlow' && it.time==tick}", type = QueryType.Gremlin)
     Iterable<CashFlow> findAllCashFlowsForPowerPlantForTime(@Param("plant") PowerPlant plant, @Param("tick") long tick);
 
-    @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.contract.CashFlow']].filter{((it.time == tick) && (it.type == 13) && (it.to == producer))}", type = QueryType.Gremlin)
+    @Query(value = "g.v(producer).in('TO_AGENT').filter{((it.time == tick) && (it.type == 13))}", type = QueryType.Gremlin)
     CashFlow findAllCashFlowsForStorageRevenueForTime(@Param("producer") EnergyProducer producer,
             @Param("tick") long tick);
 
-    @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.contract.CashFlow']].filter{((it.time == tick) && (it.type == 14) && (it.from == producer))}", type = QueryType.Gremlin)
+    @Query(value = "g.v(producer).in('FROM_AGENT').filter{((it.time == tick) && (it.type == 14))}", type = QueryType.Gremlin)
     CashFlow findAllCashFlowsForStorageOMCostsForTime(@Param("producer") EnergyProducer producer,
             @Param("tick") long tick);
 }

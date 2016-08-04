@@ -63,11 +63,14 @@ public class PayStorageUnitsRole extends AbstractEnergyProducerRole implements R
         double omCost = storageTech.getFixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh()
                 .getValue(getCurrentTick()) * storageTech.getCurrentMaxStorageCapacity();
         double money = calculateYearlyStorageRevenue(info) - calculateYearlyStorageExpenses(info);
-        CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(operatingMarket, producer, money,
-                CashFlow.STORAGE, getCurrentTick(), null);
+        if (money != 0) {
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(operatingMarket, producer, money,
+                    CashFlow.STORAGE, getCurrentTick(), null);
+            logger.info("Cash flow created for storage: {}", cf);
+        }
         CashFlow cf_om = reps.nonTransactionalCreateRepository.createCashFlow(producer, maintainer, omCost,
                 CashFlow.STORAGE_OM, getCurrentTick(), null);
-        logger.info("Cash flow created for storage: {}", cf);
+
         logger.warn("money={}", money);
         logger.info("Cash flow created for storage O&M cost: {}", cf_om);
         logger.warn("O&M cost={}", omCost);
