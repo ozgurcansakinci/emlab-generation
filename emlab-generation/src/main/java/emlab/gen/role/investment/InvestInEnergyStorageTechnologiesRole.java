@@ -16,13 +16,12 @@
 package emlab.gen.role.investment;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import agentspring.role.Role;
+import agentspring.role.RoleComponent;
 import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.contract.CashFlow;
 import emlab.gen.domain.technology.EnergyStorageTechnology;
@@ -47,8 +46,7 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  *         PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
  * @author JCRichstein
  */
-@Configurable
-@NodeEntity
+@RoleComponent
 public class InvestInEnergyStorageTechnologiesRole extends AbstractEnergyProducerRole implements Role<EnergyProducer> {
     @Transient
     @Autowired
@@ -64,7 +62,6 @@ public class InvestInEnergyStorageTechnologiesRole extends AbstractEnergyProduce
 
         EnergyStorageTechnology storageTech = reps.energyProducerRepository
                 .findStorageTechnologyForEnergyProducer(agent);
-
         CashFlow revenue = reps.cashFlowRepository.findAllCashFlowsForStorageRevenueForTime(agent, getCurrentTick());
         CashFlow omCosts = reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(agent, getCurrentTick());
 
