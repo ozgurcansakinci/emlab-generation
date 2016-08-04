@@ -25,8 +25,7 @@ import emlab.gen.domain.agent.DecarbonizationAgent;
  * @author JCRichstein
  *
  */
-public interface DecarbonizationAgentRepository extends
-GraphRepository<DecarbonizationAgent> {
+public interface DecarbonizationAgentRepository extends GraphRepository<DecarbonizationAgent> {
 
     @Query(value = "agents = g.idx('__types__')[[className:'emlab.gen.domain.agent.DecarbonizationAgent']];"
             + "co2Allowances=0;"

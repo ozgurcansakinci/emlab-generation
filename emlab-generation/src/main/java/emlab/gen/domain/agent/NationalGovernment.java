@@ -29,26 +29,27 @@ public class NationalGovernment extends DecarbonizationAgent implements Agent {
     @RelatedTo(type = "GOVERNED_ZONE", elementClass = Zone.class, direction = Direction.OUTGOING)
     private Zone governedZone;
 
-	@RelatedTo(type = "MINCO2PRICE_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
-	private TimeSeriesImpl minNationalCo2PriceTrend;
+    @RelatedTo(type = "MINCO2PRICE_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
+    private TimeSeriesImpl minNationalCo2PriceTrend;
 
-	public TimeSeriesImpl getMinNationalCo2PriceTrend() {
+    public TimeSeriesImpl getMinNationalCo2PriceTrend() {
         return minNationalCo2PriceTrend;
     }
 
-	public void setMinNationalCo2PriceTrend(TimeSeriesImpl minNationalCo2PriceTrend) {
+    public void setMinNationalCo2PriceTrend(TimeSeriesImpl minNationalCo2PriceTrend) {
         this.minNationalCo2PriceTrend = minNationalCo2PriceTrend;
     }
 
     public Zone getGovernedZone() {
-		return governedZone;
-	}
+        return governedZone;
+    }
 
-	public void setGovernedZone(Zone governedZone) {
-		this.governedZone = governedZone;
-	}
+    public void setGovernedZone(Zone governedZone) {
+        this.governedZone = governedZone;
+    }
 
-	public double getPaymentEffectivePriceDifferenceBetweenNationalMinPriceAndGivenMarketPrice(double marketPrice, long tick) {
+    public double getPaymentEffectivePriceDifferenceBetweenNationalMinPriceAndGivenMarketPrice(double marketPrice,
+            long tick) {
         if (minNationalCo2PriceTrend.getValue(tick) > marketPrice) {
             return (minNationalCo2PriceTrend.getValue(tick) - marketPrice);
         } else {

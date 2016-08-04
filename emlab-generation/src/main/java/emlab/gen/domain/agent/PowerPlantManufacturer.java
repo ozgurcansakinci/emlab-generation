@@ -15,7 +15,6 @@
  ******************************************************************************/
 package emlab.gen.domain.agent;
 
-
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
 import agentspring.agent.Agent;

@@ -26,8 +26,8 @@ import emlab.gen.domain.technology.Substance;
  *
  */
 public interface SubstanceRepository extends GraphRepository<Substance> {
-	
-	 @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.CommodityMarket']].out('SUBSTANCE_MARKET')", type=QueryType.Gremlin)
-	Iterable<Substance> findAllSubstancesTradedOnCommodityMarkets();
+
+    @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.CommodityMarket']].out('SUBSTANCE_MARKET')", type = QueryType.Gremlin)
+    Iterable<Substance> findAllSubstancesTradedOnCommodityMarkets();
 
 }

@@ -23,7 +23,6 @@ import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.trend.TimeSeriesImpl;
 
-
 /**
  * @author JCRichstein
  *
@@ -32,14 +31,15 @@ import emlab.gen.trend.TimeSeriesImpl;
 public class PowerGeneratingTechnologyTargetFulfillment {
 
     /**
-     * {@link powerGeneratingTechnology} defines the technology that the target applies to
+     * {@link powerGeneratingTechnology} defines the technology that the target
+     * applies to
      */
     @RelatedTo(type = "TARGETFULFILLMENT_TECHNOLOGY", elementClass = PowerGeneratingTechnology.class, direction = Direction.OUTGOING)
     PowerGeneratingTechnology powerGeneratingTechnology;
 
     /**
-     * {@link trend} contains the target installed capacity of the technology
-     * in MW.
+     * {@link trend} contains the target installed capacity of the technology in
+     * MW.
      */
     @RelatedTo(type = "TARGETFULFILLMENT_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     TimeSeriesImpl trend;
@@ -51,8 +51,7 @@ public class PowerGeneratingTechnologyTargetFulfillment {
         return powerGeneratingTechnology;
     }
 
-    public void setPowerGeneratingTechnology(
-            PowerGeneratingTechnology powerGeneratingTechnology) {
+    public void setPowerGeneratingTechnology(PowerGeneratingTechnology powerGeneratingTechnology) {
         this.powerGeneratingTechnology = powerGeneratingTechnology;
     }
 

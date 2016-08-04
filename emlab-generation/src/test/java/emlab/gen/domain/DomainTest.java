@@ -36,45 +36,44 @@ import static org.junit.Assert.*;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"/emlab-gen-test-context.xml"})
+@ContextConfiguration({ "/emlab-gen-test-context.xml" })
 @Transactional
 public class DomainTest {
 
-	@Autowired Neo4jOperations template;
+    @Autowired
+    Neo4jOperations template;
 
-	@Autowired
-	SegmentRepository segmentRepository;
-	
+    @Autowired
+    SegmentRepository segmentRepository;
+
     @Before
     @Transactional
     public void setUp() throws Exception {
-    	
-    	
 
     }
-    
-    @Test
-    public void createNodesWithTemplateSaveAndCheckNumber(){
-    	
-    	DecarbonizationAgent DecarbonizationAgent1 = new DecarbonizationAgent();
-    	
-    	template.save(DecarbonizationAgent1);
-    	
-    	assertEquals("Check if stuff are equal if template.createNodeAs: ", 1, template.count(DecarbonizationAgent.class));
-    	
-    }
-    
-    @Test
-    public void findsTheExpectedNumberofSegments(){
-    	
-    	Segment segment1 = new Segment();
-    	Segment segment2 = new Segment();
-    	template.save(segment1);
-    	template.save(segment2);
-    	assertEquals("Check if segments are equal if template.save: ", 2, template.count(Segment.class));
-    	assertEquals("Check if segments are equal with segmentRepository if template.createNodeAs: ", 2, segmentRepository.count());
-    }
-    
-    
 
-}	
+    @Test
+    public void createNodesWithTemplateSaveAndCheckNumber() {
+
+        DecarbonizationAgent DecarbonizationAgent1 = new DecarbonizationAgent();
+
+        template.save(DecarbonizationAgent1);
+
+        assertEquals("Check if stuff are equal if template.createNodeAs: ", 1,
+                template.count(DecarbonizationAgent.class));
+
+    }
+
+    @Test
+    public void findsTheExpectedNumberofSegments() {
+
+        Segment segment1 = new Segment();
+        Segment segment2 = new Segment();
+        template.save(segment1);
+        template.save(segment2);
+        assertEquals("Check if segments are equal if template.save: ", 2, template.count(Segment.class));
+        assertEquals("Check if segments are equal with segmentRepository if template.createNodeAs: ", 2,
+                segmentRepository.count());
+    }
+
+}

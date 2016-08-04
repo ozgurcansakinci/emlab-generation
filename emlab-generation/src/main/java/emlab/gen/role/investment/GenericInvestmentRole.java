@@ -29,15 +29,14 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  */
 @RoleComponent
 @NodeEntity
-public class GenericInvestmentRole<T extends EnergyProducer> extends AbstractEnergyProducerRole<T> implements Role<T>,
-		NodeBacked {
+public class GenericInvestmentRole<T extends EnergyProducer> extends AbstractEnergyProducerRole<T>
+        implements Role<T>, NodeBacked {
 
-	@Override
-	public void act(T agent) {
-		// logger.warn(agent.getName() + " does " +
-		// agent.getInvestmentRole().getClass().toString());
-			agent.getInvestmentRole().act(agent);
-	}
-
+    @Override
+    public void act(T agent) {
+        // logger.warn(agent.getName() + " does " +
+        // agent.getInvestmentRole().getClass().toString());
+        agent.getInvestmentRole().act(agent);
+    }
 
 }

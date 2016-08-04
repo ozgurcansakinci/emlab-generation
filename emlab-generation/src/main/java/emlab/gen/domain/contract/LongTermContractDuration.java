@@ -13,17 +13,17 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 @NodeEntity
 public class LongTermContractDuration {
 
-	private long duration;
+    private long duration;
 
-	public long getDuration() {
-		return duration;
-	}
+    public long getDuration() {
+        return duration;
+    }
 
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 
-	public String toString(){
-		return "duration: " + getDuration(); 
-	}
+    public String toString() {
+        return "duration: " + getDuration();
+    }
 }

@@ -29,8 +29,8 @@ public class CommoditySupplier extends DecarbonizationAgent implements Agent {
     @RelatedTo(type = "SUBSTANCE", elementClass = Substance.class, direction = Direction.OUTGOING)
     private Substance substance;
 
-	@RelatedTo(type = "TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
-	private TimeSeriesImpl priceOfCommodity;
+    @RelatedTo(type = "TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
+    private TimeSeriesImpl priceOfCommodity;
 
     public Substance getSubstance() {
         return substance;
@@ -40,11 +40,11 @@ public class CommoditySupplier extends DecarbonizationAgent implements Agent {
         this.substance = substance;
     }
 
-	public TimeSeriesImpl getPriceOfCommodity() {
+    public TimeSeriesImpl getPriceOfCommodity() {
         return priceOfCommodity;
     }
 
-	public void setPriceOfCommodity(TimeSeriesImpl priceOfCommodity) {
+    public void setPriceOfCommodity(TimeSeriesImpl priceOfCommodity) {
         this.priceOfCommodity = priceOfCommodity;
     }
 

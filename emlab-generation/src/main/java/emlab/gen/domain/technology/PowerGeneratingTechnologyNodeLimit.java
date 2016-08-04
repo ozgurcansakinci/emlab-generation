@@ -31,44 +31,44 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
  */
 @NodeEntity
 public class PowerGeneratingTechnologyNodeLimit {
-	
-	@RelatedTo(type = "NODEPGTLIMIT_PGT", elementClass = PowerGeneratingTechnology.class, direction = Direction.OUTGOING)
-	private PowerGeneratingTechnology powerGeneratingTechnology;
-	
-	@RelatedTo(type = "NODEPGTLIMIT_NODE", elementClass = PowerGridNode.class, direction = Direction.OUTGOING)
-	private PowerGridNode powerGridNode;
 
-	private double permanentUpperCapacityLimit;
+    @RelatedTo(type = "NODEPGTLIMIT_PGT", elementClass = PowerGeneratingTechnology.class, direction = Direction.OUTGOING)
+    private PowerGeneratingTechnology powerGeneratingTechnology;
 
-	public PowerGeneratingTechnology getPowerGeneratingTechnology() {
-		return powerGeneratingTechnology;
-	}
+    @RelatedTo(type = "NODEPGTLIMIT_NODE", elementClass = PowerGridNode.class, direction = Direction.OUTGOING)
+    private PowerGridNode powerGridNode;
 
-	public void setPowerGeneratingTechnology(PowerGeneratingTechnology powerGeneratingTechnology) {
-		this.powerGeneratingTechnology = powerGeneratingTechnology;
-	}
+    private double permanentUpperCapacityLimit;
 
-	public PowerGridNode getPowerGridNode() {
-		return powerGridNode;
-	}
+    public PowerGeneratingTechnology getPowerGeneratingTechnology() {
+        return powerGeneratingTechnology;
+    }
 
-	public void setPowerGridNode(PowerGridNode powerGridNode) {
-		this.powerGridNode = powerGridNode;
-	}
+    public void setPowerGeneratingTechnology(PowerGeneratingTechnology powerGeneratingTechnology) {
+        this.powerGeneratingTechnology = powerGeneratingTechnology;
+    }
 
-	public double getPermanentUpperCapacityLimit() {
-		return permanentUpperCapacityLimit;
-	}
+    public PowerGridNode getPowerGridNode() {
+        return powerGridNode;
+    }
 
-	public void setPermanentUpperCapacityLimit(double permanentUpperCapacityLimit) {
-		this.permanentUpperCapacityLimit = permanentUpperCapacityLimit;
-	}
+    public void setPowerGridNode(PowerGridNode powerGridNode) {
+        this.powerGridNode = powerGridNode;
+    }
 
-	/**
-	 * Function is time-dependent to enable flexible node limits.
-	 */
-	public double getUpperCapacityLimit(long time) {
-		return getPermanentUpperCapacityLimit();
-	}
+    public double getPermanentUpperCapacityLimit() {
+        return permanentUpperCapacityLimit;
+    }
+
+    public void setPermanentUpperCapacityLimit(double permanentUpperCapacityLimit) {
+        this.permanentUpperCapacityLimit = permanentUpperCapacityLimit;
+    }
+
+    /**
+     * Function is time-dependent to enable flexible node limits.
+     */
+    public double getUpperCapacityLimit(long time) {
+        return getPermanentUpperCapacityLimit();
+    }
 
 }

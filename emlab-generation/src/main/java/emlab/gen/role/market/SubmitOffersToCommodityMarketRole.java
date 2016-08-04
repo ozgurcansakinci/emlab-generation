@@ -31,12 +31,13 @@ import emlab.gen.repository.Reps;
  * {@link CommoditySupplier}s submit offers to the {@link CommodityMarket}s.
  * 
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
- *         Chmieliauskas</a> @author <a
- *         href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  * 
  */
 @RoleComponent
-public class SubmitOffersToCommodityMarketRole extends AbstractRole<CommoditySupplier> implements Role<CommoditySupplier> {
+public class SubmitOffersToCommodityMarketRole extends AbstractRole<CommoditySupplier>
+        implements Role<CommoditySupplier> {
 
     @Autowired
     private Reps reps;
@@ -50,7 +51,8 @@ public class SubmitOffersToCommodityMarketRole extends AbstractRole<CommoditySup
         double price = supplier.getPriceOfCommodity().getValue(getCurrentTick());
         double amount = supplier.getAmountOfCommodity();
 
-        Bid bid = reps.nonTransactionalCreateRepository.submitBidToMarket(market, supplier, getCurrentTick(), true, price, amount);
+        Bid bid = reps.nonTransactionalCreateRepository.submitBidToMarket(market, supplier, getCurrentTick(), true,
+                price, amount);
         logger.info("Submitted " + bid);
     }
 }

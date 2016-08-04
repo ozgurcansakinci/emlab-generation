@@ -33,7 +33,7 @@ public class Substance {
     private double quality;
     private double energyDensity;
     private double co2Density;
-	private String unit;
+    private String unit;
 
     public String getName() {
         return name;
@@ -66,16 +66,16 @@ public class Substance {
     public void setCo2Density(double co2Density) {
         this.co2Density = co2Density;
     }
-    
-	public String getUnit() {
-		return unit;
-	}
 
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
+    public String getUnit() {
+        return unit;
+    }
 
-	public String toString(){
-    	return this.getName();
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String toString() {
+        return this.getName();
     }
 }

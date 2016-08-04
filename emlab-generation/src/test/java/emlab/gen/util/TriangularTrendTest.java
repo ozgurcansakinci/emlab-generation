@@ -33,60 +33,58 @@ import emlab.gen.trend.TriangularTrend;
 @Transactional
 public class TriangularTrendTest {
 
-	Logger logger = Logger.getLogger(GeometricTrendRegressionTest.class);
+    Logger logger = Logger.getLogger(GeometricTrendRegressionTest.class);
 
-	@Autowired
-	Neo4jOperations template;
+    @Autowired
+    Neo4jOperations template;
 
-	@Test
-	public void testTriangularTrendGeneration() {
-		TriangularTrend tt = new TriangularTrend();
-		tt.setStart(1);
-		tt.setMax(1.03);
-		tt.setMin(1.01);
-		tt.setTop(1.02);
-		tt.persist();
-		double[][] triangularTrendAndForecast = new double[2][20];
-		for (int i = 0; i < 20; i++) {
-			triangularTrendAndForecast[0][i] = i;
-			triangularTrendAndForecast[1][i] = tt.getValue(i);
-		}
-		for (int i = 19; i >= 0; i--) {
-			assertEquals(triangularTrendAndForecast[1][i], tt.getValue(i), 0.0);
-		}
-	}
+    @Test
+    public void testTriangularTrendGeneration() {
+        TriangularTrend tt = new TriangularTrend();
+        tt.setStart(1);
+        tt.setMax(1.03);
+        tt.setMin(1.01);
+        tt.setTop(1.02);
+        tt.persist();
+        double[][] triangularTrendAndForecast = new double[2][20];
+        for (int i = 0; i < 20; i++) {
+            triangularTrendAndForecast[0][i] = i;
+            triangularTrendAndForecast[1][i] = tt.getValue(i);
+        }
+        for (int i = 19; i >= 0; i--) {
+            assertEquals(triangularTrendAndForecast[1][i], tt.getValue(i), 0.0);
+        }
+    }
 
-	@Test
-	public void compareTrendToGeometricForecasting() {
-		TriangularTrend tt = new TriangularTrend();
-		tt.setStart(1);
-		tt.setMax(1.00);
-		tt.setMin(1.00);
-		tt.setTop(1.00);
-		tt.persist();
-		double[][] triangularTrendAndForecast = new double[3][50];
-		for (int i = 0; i < 50; i++) {
-			triangularTrendAndForecast[0][i] = i;
-			triangularTrendAndForecast[1][i] = tt.getValue(i);
-		}
-		int futureHorizon = 7;
-		for (int futureTime = 2 + futureHorizon; futureTime < 50; futureTime++) {
-			GeometricTrendRegression gtr = new GeometricTrendRegression();
-			for (long time = futureTime - 5; time > futureTime - 10
-					&& time >= 0; time = time - 1) {
-				gtr.addData(time, tt.getValue(time));
-				// logger.warn(time + "\t" + tt.getValue(time));
-			}
-			triangularTrendAndForecast[2][futureTime] = gtr.predict(futureTime);
-		}
+    @Test
+    public void compareTrendToGeometricForecasting() {
+        TriangularTrend tt = new TriangularTrend();
+        tt.setStart(1);
+        tt.setMax(1.00);
+        tt.setMin(1.00);
+        tt.setTop(1.00);
+        tt.persist();
+        double[][] triangularTrendAndForecast = new double[3][50];
+        for (int i = 0; i < 50; i++) {
+            triangularTrendAndForecast[0][i] = i;
+            triangularTrendAndForecast[1][i] = tt.getValue(i);
+        }
+        int futureHorizon = 7;
+        for (int futureTime = 2 + futureHorizon; futureTime < 50; futureTime++) {
+            GeometricTrendRegression gtr = new GeometricTrendRegression();
+            for (long time = futureTime - 5; time > futureTime - 10 && time >= 0; time = time - 1) {
+                gtr.addData(time, tt.getValue(time));
+                // logger.warn(time + "\t" + tt.getValue(time));
+            }
+            triangularTrendAndForecast[2][futureTime] = gtr.predict(futureTime);
+        }
 
-		for (int i = 9; i < 50; i++) {
-			// logger.warn(triangularTrendAndForecast[0][i] + "\t" +
-			// (triangularTrendAndForecast[2][i]-triangularTrendAndForecast[1][i])/triangularTrendAndForecast[1][i]);
-			assertEquals(triangularTrendAndForecast[2][i]
-					- triangularTrendAndForecast[1][i], 0.0, 0.00);
-		}
+        for (int i = 9; i < 50; i++) {
+            // logger.warn(triangularTrendAndForecast[0][i] + "\t" +
+            // (triangularTrendAndForecast[2][i]-triangularTrendAndForecast[1][i])/triangularTrendAndForecast[1][i]);
+            assertEquals(triangularTrendAndForecast[2][i] - triangularTrendAndForecast[1][i], 0.0, 0.00);
+        }
 
-	}
+    }
 
 }

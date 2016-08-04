@@ -31,7 +31,7 @@ public class StepTrend extends TimeSeriesImpl implements Trend {
 
     private double minValue;
 
-    @SimulationParameter(label = "Start value", from = 200e6, to =300e6)
+    @SimulationParameter(label = "Start value", from = 200e6, to = 300e6)
     private double start;
 
     public double getDuration() {
@@ -58,7 +58,7 @@ public class StepTrend extends TimeSeriesImpl implements Trend {
         this.increment = increment;
     }
 
-	@Override
+    @Override
     public double getValue(long time) {
         return Math.max(minValue, getStart() + Math.floor(time / duration) * increment);
     }

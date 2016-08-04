@@ -42,7 +42,7 @@ public class TriangularTrend extends TimeSeriesImpl implements Trend {
     private String previousValues;
     private double start;
 
-	@Override
+    @Override
     @Transactional
     public double getValue(long time) {
 

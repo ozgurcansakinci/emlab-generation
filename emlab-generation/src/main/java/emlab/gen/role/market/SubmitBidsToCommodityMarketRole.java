@@ -57,7 +57,8 @@ public class SubmitBidsToCommodityMarketRole extends AbstractEnergyProducerRole 
 
         HashMap<Substance, Double> fuelAmounts = new HashMap<Substance, Double>();
 
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+                getCurrentTick())) {
 
             double totalSupply = plant.calculateElectricityOutputAtTime(getCurrentTick(), false);
 
@@ -79,8 +80,8 @@ public class SubmitBidsToCommodityMarketRole extends AbstractEnergyProducerRole 
             // substance (fuel)
             if (!fuelAmounts.get(substance).isNaN() && fuelAmounts.get(substance) > 0) {
                 Bid bid = reps.nonTransactionalCreateRepository.submitBidToMarket(
-                        reps.marketRepository.findFirstMarketBySubstance(substance), producer, getCurrentTick(), false, Double.MAX_VALUE,
-                        fuelAmounts.get(substance));
+                        reps.marketRepository.findFirstMarketBySubstance(substance), producer, getCurrentTick(), false,
+                        Double.MAX_VALUE, fuelAmounts.get(substance));
                 logger.info("Submited bid " + bid);
             }
         }

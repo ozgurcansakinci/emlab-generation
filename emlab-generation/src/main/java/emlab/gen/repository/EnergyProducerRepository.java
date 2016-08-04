@@ -27,13 +27,16 @@ import emlab.gen.domain.agent.EnergyProducer;
  * @author JCRichstein
  *
  */
-public interface EnergyProducerRepository extends
-GraphRepository<EnergyProducer> {
+public interface EnergyProducerRepository extends GraphRepository<EnergyProducer> {
 
     @Query(value = "result = g.idx('__types__')[[className:'emlab.gen.domain.agent.EnergyProducer']].propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.TargetInvestor').propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.StochasticTargetInvestor').toList();"
-            +
-            "if(result == null){return null;} else {Collections.shuffle(result); return result;}", type=QueryType.Gremlin)
+            + "if(result == null){return null;} else {Collections.shuffle(result); return result;}", type = QueryType.Gremlin)
     List<EnergyProducer> findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom();
+
+    ////////////
+    @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.agent.EnergyProducer']].in('STORAGE_OWNER').out('STORAGE_OWNER')", type = QueryType.Gremlin)
+    Iterable<EnergyProducer> findStorageUnitOwners();
+    ////////////
 
     @Query(value = "agents = g.idx('__types__')[[className:'emlab.gen.domain.agent.DecarbonizationAgent']];"
             + "co2Allowances=0;"

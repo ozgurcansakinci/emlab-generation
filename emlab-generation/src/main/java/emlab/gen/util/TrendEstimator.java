@@ -15,40 +15,37 @@
  ******************************************************************************/
 package emlab.gen.util;
 
-
 import org.apache.commons.math.stat.regression.SimpleRegression;
 
 public class TrendEstimator {
 
-	
-	public static double[] estimateLinearTrend(double[][] input, double[] predictionYears){
-		;
-		//Get logarithm of second trend
-		SimpleRegression sr = new SimpleRegression();
-		sr.addData(input);
-		double result[] = new double[predictionYears.length];
-		for(int i = 0 ; i<result.length; i++){
-			result[i]=sr.predict(predictionYears[i]);
-		}
-		return result;
-		
-	}
-	
-	
-	public static double[] estimateGeometricTrend(double[][] input, double[] predictionYears){
-		//Get logarithm of second trend
-		for(int i=0;i<input.length;i++){
-			input[i][1]=Math.log(input[i][1]);
-		}
-		//input[1]=log;
-		SimpleRegression sr = new SimpleRegression();
-		sr.addData(input);
-		double result[] = new double[predictionYears.length];
-		for(int i = 0 ; i<result.length; i++){
-			result[i]=Math.exp(sr.predict(predictionYears[i]));
-		}
-		return result;
-		
-	}
+    public static double[] estimateLinearTrend(double[][] input, double[] predictionYears) {
+        ;
+        // Get logarithm of second trend
+        SimpleRegression sr = new SimpleRegression();
+        sr.addData(input);
+        double result[] = new double[predictionYears.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = sr.predict(predictionYears[i]);
+        }
+        return result;
+
+    }
+
+    public static double[] estimateGeometricTrend(double[][] input, double[] predictionYears) {
+        // Get logarithm of second trend
+        for (int i = 0; i < input.length; i++) {
+            input[i][1] = Math.log(input[i][1]);
+        }
+        // input[1]=log;
+        SimpleRegression sr = new SimpleRegression();
+        sr.addData(input);
+        double result[] = new double[predictionYears.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Math.exp(sr.predict(predictionYears[i]));
+        }
+        return result;
+
+    }
 
 }

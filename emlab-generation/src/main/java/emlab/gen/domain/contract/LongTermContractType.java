@@ -19,26 +19,27 @@ import emlab.gen.domain.market.electricity.Segment;
 @NodeEntity
 public class LongTermContractType {
 
-	@RelatedTo(type = "LONGTERMCONTRACTTYPE_SEGMENTS", elementClass = Segment.class, direction = Direction.OUTGOING)
-	private Set<Segment> segments;
-	
-	private String label;
-	
-	public String getName() {
-		return label;
-	}
+    @RelatedTo(type = "LONGTERMCONTRACTTYPE_SEGMENTS", elementClass = Segment.class, direction = Direction.OUTGOING)
+    private Set<Segment> segments;
 
-	public void setName(String label) {
-		this.label = label;
-	}
+    private String label;
 
-	public Set<Segment> getSegments() {
-		return segments;
-	}
+    public String getName() {
+        return label;
+    }
 
-	public void setSegments(Set<Segment> segments) {
-		this.segments = segments;
-	}
+    public void setName(String label) {
+        this.label = label;
+    }
+
+    public Set<Segment> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(Set<Segment> segments) {
+        this.segments = segments;
+    }
+
     public String toString() {
         return "LTC type " + label;
     }

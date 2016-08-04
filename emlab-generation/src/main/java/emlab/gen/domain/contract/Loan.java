@@ -15,7 +15,6 @@
  ******************************************************************************/
 package emlab.gen.domain.contract;
 
-
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;

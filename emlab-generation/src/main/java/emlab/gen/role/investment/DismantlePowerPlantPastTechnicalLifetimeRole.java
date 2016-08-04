@@ -35,7 +35,8 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class DismantlePowerPlantPastTechnicalLifetimeRole extends AbstractRole<EnergyProducer> implements Role<EnergyProducer> {
+public class DismantlePowerPlantPastTechnicalLifetimeRole extends AbstractRole<EnergyProducer>
+        implements Role<EnergyProducer> {
 
     @Autowired
     Reps reps;
@@ -45,7 +46,8 @@ public class DismantlePowerPlantPastTechnicalLifetimeRole extends AbstractRole<E
         logger.info("Dismantling plants if passed technical lifetime");
 
         // dismantle plants when passed technical lifetime
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+                getCurrentTick())) {
 
             int prolongYearsOfDismantlng = producer.getDismantlingProlongingYearsAfterTechnicalLifetime();
             if (!plant.isWithinTechnicalLifetime(getCurrentTick() + prolongYearsOfDismantlng)) {

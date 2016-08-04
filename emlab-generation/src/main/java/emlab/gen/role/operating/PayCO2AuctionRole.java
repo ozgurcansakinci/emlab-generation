@@ -32,7 +32,9 @@ import emlab.gen.role.AbstractEnergyProducerRole;
 /**
  * {@link EnergyProducer}s pay CO2 taxes to the {@link Government}.
  * 
- * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a> @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  */
 @RoleComponent
 public class PayCO2AuctionRole extends AbstractEnergyProducerRole implements Role<EnergyProducer> {
@@ -51,15 +53,17 @@ public class PayCO2AuctionRole extends AbstractEnergyProducerRole implements Rol
 
         Government government = reps.genericRepository.findFirst(Government.class);
 
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+                getCurrentTick())) {
             double money = calculateCO2MarketCost(plant, false, getCurrentTick());
-            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money, CashFlow.CO2AUCTION,
-                    getCurrentTick(), plant);
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money,
+                    CashFlow.CO2AUCTION, getCurrentTick(), plant);
             logger.info("Cash flow created: {}", cf);
             double minCO2Money = calculatePaymentEffictiveCO2NationalMinimumPriceCost(plant, false, getCurrentTick());
-            NationalGovernment nationalGovernment = reps.nationalGovernmentRepository.findNationalGovernmentByPowerPlant(plant);
-            CashFlow cf2 = reps.nonTransactionalCreateRepository.createCashFlow(producer, nationalGovernment, minCO2Money,
-                    CashFlow.NATIONALMINCO2, getCurrentTick(), plant);
+            NationalGovernment nationalGovernment = reps.nationalGovernmentRepository
+                    .findNationalGovernmentByPowerPlant(plant);
+            CashFlow cf2 = reps.nonTransactionalCreateRepository.createCashFlow(producer, nationalGovernment,
+                    minCO2Money, CashFlow.NATIONALMINCO2, getCurrentTick(), plant);
             logger.info("Cash flow created: {}", cf2);
         }
 
@@ -74,10 +78,14 @@ public class PayCO2AuctionRole extends AbstractEnergyProducerRole implements Rol
             CashFlow cf2 = reps.nonTransactionalCreateRepository.createCashFlow(government, producer, -money,
                     CashFlow.CO2HEDGING, getCurrentTick(), null);
         }
-        // for (PowerPlantDispatchPlan plan : reps.powerPlantDispatchPlanRepository
-        // .findAllAcceptedPowerPlantDispatchPlansForEnergyProducerForTime(producer, getCurrentTick())) {
+        // for (PowerPlantDispatchPlan plan :
+        // reps.powerPlantDispatchPlanRepository
+        // .findAllAcceptedPowerPlantDispatchPlansForEnergyProducerForTime(producer,
+        // getCurrentTick())) {
         // double money = plan.getPrice() - plan.getBidWithoutCO2();
-        // CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money, CashFlow.CO2AUCTION,
+        // CashFlow cf =
+        // reps.nonTransactionalCreateRepository.createCashFlow(producer,
+        // government, money, CashFlow.CO2AUCTION,
         // getCurrentTick(), plan.getPowerPlant());
         // }
     }

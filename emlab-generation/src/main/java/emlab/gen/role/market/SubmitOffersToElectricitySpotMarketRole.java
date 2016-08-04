@@ -50,8 +50,8 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  *
  */
 @RoleComponent
-public class SubmitOffersToElectricitySpotMarketRole extends AbstractEnergyProducerRole<EnergyProducer> implements
-Role<EnergyProducer> {
+public class SubmitOffersToElectricitySpotMarketRole extends AbstractEnergyProducerRole<EnergyProducer>
+        implements Role<EnergyProducer> {
 
     @Autowired
     Reps reps;
@@ -80,7 +80,6 @@ Role<EnergyProducer> {
             }
         }
 
-
         long numberOfSegments = reps.segmentRepository.count();
         ElectricitySpotMarket market = null;
         if (producer != null)
@@ -88,9 +87,8 @@ Role<EnergyProducer> {
 
         Iterable<PowerPlant> powerPlants;
         if (producer != null) {
-            powerPlants = forecast ? reps.powerPlantRepository
-                    .findExpectedOperationalPowerPlantsInMarketByOwner(market, tick, producer) : reps.powerPlantRepository
-                    .findOperationalPowerPlantsByOwner(producer, tick);
+            powerPlants = forecast ? reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarketByOwner(market,
+                    tick, producer) : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, tick);
         } else {
             powerPlants = forecast ? reps.powerPlantRepository.findExpectedOperationalPowerPlants(tick)
                     : reps.powerPlantRepository.findOperationalPowerPlants(tick);
@@ -154,7 +152,8 @@ Role<EnergyProducer> {
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            logger.info("Submitting offers for {} with technology {}", plant.getName(), plant.getTechnology().getName());
+            logger.info("Submitting offers for {} with technology {}", plant.getName(),
+                    plant.getTechnology().getName());
 
             for (SegmentLoad segmentload : market.getLoadDurationCurve()) {
                 Segment segment = segmentload.getSegment();
@@ -225,8 +224,7 @@ Role<EnergyProducer> {
 
         Government government = reps.template.findAll(Government.class).iterator().next();
         for (PowerPlantDispatchPlan plan : reps.powerPlantDispatchPlanRepository
-                .findAllPowerPlantDispatchPlansForTime(
-                        clearingTick, forecast)) {
+                .findAllPowerPlantDispatchPlansForTime(clearingTick, forecast)) {
             j++;
 
             double effectiveCO2Price;
@@ -259,8 +257,8 @@ Role<EnergyProducer> {
 
             }
 
-            plan.setPrice(plan.getBidWithoutCO2()
-                    + (effectiveCO2Price * plan.getPowerPlant().calculateEmissionIntensity()));
+            plan.setPrice(
+                    plan.getBidWithoutCO2() + (effectiveCO2Price * plan.getPowerPlant().calculateEmissionIntensity()));
 
             plan.setStatus(Bid.SUBMITTED);
             plan.setAmount(capacity);
@@ -269,7 +267,7 @@ Role<EnergyProducer> {
 
         }
 
-        //logger.warn("Marginal cost of {} of {} plans changed", i, j);
+        // logger.warn("Marginal cost of {} of {} plans changed", i, j);
 
     }
 

@@ -28,12 +28,12 @@ import emlab.gen.domain.technology.PowerGeneratingTechnology;
  * @author JCRichstein
  *
  */
-public interface PowerGenerationTechnologyTargetRepository extends
-		GraphRepository<PowerGeneratingTechnologyTarget> {
-	
-	@Query(value="result = g.v(market).in('INVESTOR_MARKET').out('INVESTOR_TARGET').as('x').out('TARGET_TECHNOLOGY').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ; if(!result.hasNext()){return null;} else{return result.next();}", type=QueryType.Gremlin)
-	PowerGeneratingTechnologyTarget findOneByTechnologyAndMarket(@Param("tech") PowerGeneratingTechnology tech, @Param("market") ElectricitySpotMarket market);
+public interface PowerGenerationTechnologyTargetRepository extends GraphRepository<PowerGeneratingTechnologyTarget> {
 
-	@Query(value="result = g.v(market).in('INVESTOR_MARKET').out('INVESTOR_TARGET')", type=QueryType.Gremlin)
-	Iterable<PowerGeneratingTechnologyTarget> findAllByMarket(@Param("market") ElectricitySpotMarket market);
+    @Query(value = "result = g.v(market).in('INVESTOR_MARKET').out('INVESTOR_TARGET').as('x').out('TARGET_TECHNOLOGY').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ; if(!result.hasNext()){return null;} else{return result.next();}", type = QueryType.Gremlin)
+    PowerGeneratingTechnologyTarget findOneByTechnologyAndMarket(@Param("tech") PowerGeneratingTechnology tech,
+            @Param("market") ElectricitySpotMarket market);
+
+    @Query(value = "result = g.v(market).in('INVESTOR_MARKET').out('INVESTOR_TARGET')", type = QueryType.Gremlin)
+    Iterable<PowerGeneratingTechnologyTarget> findAllByMarket(@Param("market") ElectricitySpotMarket market);
 }

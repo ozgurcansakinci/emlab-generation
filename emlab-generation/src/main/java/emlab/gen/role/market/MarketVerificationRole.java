@@ -41,11 +41,11 @@ import emlab.gen.repository.Reps;
  * 
  */
 @RoleComponent
-public class MarketVerificationRole extends AbstractMarketRole<ElectricitySpotMarket> implements Role<ElectricitySpotMarket> {
+public class MarketVerificationRole extends AbstractMarketRole<ElectricitySpotMarket>
+        implements Role<ElectricitySpotMarket> {
 
     @Autowired
     private Reps reps;
-
 
     public void act(ElectricitySpotMarket aRandomMarketNotToBeUsed) {
 
@@ -64,5 +64,5 @@ public class MarketVerificationRole extends AbstractMarketRole<ElectricitySpotMa
     public Reps getReps() {
         return reps;
     }
-    
+
 }

@@ -42,8 +42,8 @@ public class SubstanceShareInFuelMix {
     public void setSubstance(Substance substance) {
         this.substance = substance;
     }
-    
-    public String toString(){
-    	return this.substance + ": "+ this.share;
+
+    public String toString() {
+        return this.substance + ": " + this.share;
     }
 }

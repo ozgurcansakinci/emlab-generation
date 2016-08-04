@@ -40,31 +40,31 @@ import emlab.gen.repository.PowerGeneratingTechnologyNodeLimitRepository;
 @Transactional
 public class PowerGeneratingTechnologyNodeLimitTest {
 
-	Logger logger = Logger.getLogger(PowerGeneratingTechnologyNodeLimitTest.class);
+    Logger logger = Logger.getLogger(PowerGeneratingTechnologyNodeLimitTest.class);
 
-	@Autowired
-	Neo4jOperations template;
+    @Autowired
+    Neo4jOperations template;
 
-	@Autowired
-	PowerGeneratingTechnologyNodeLimitRepository powerGeneratingTechnologyNodeLimitRepository;
+    @Autowired
+    PowerGeneratingTechnologyNodeLimitRepository powerGeneratingTechnologyNodeLimitRepository;
 
-	@Test
-	public void testPowerGeneratingTechnologyNodeLimitClassFunctionality() {
-		PowerGeneratingTechnology lignite = new PowerGeneratingTechnology();
-		lignite.persist();
-		PowerGridNode node = new PowerGridNode();
-		node.persist();
-		PowerGeneratingTechnologyNodeLimit ligniteNodeLimit = new PowerGeneratingTechnologyNodeLimit();
-		ligniteNodeLimit.setPermanentUpperCapacityLimit(0);
-		ligniteNodeLimit.setPowerGeneratingTechnology(lignite);
-		ligniteNodeLimit.setPowerGridNode(node);
-		ligniteNodeLimit.persist();
+    @Test
+    public void testPowerGeneratingTechnologyNodeLimitClassFunctionality() {
+        PowerGeneratingTechnology lignite = new PowerGeneratingTechnology();
+        lignite.persist();
+        PowerGridNode node = new PowerGridNode();
+        node.persist();
+        PowerGeneratingTechnologyNodeLimit ligniteNodeLimit = new PowerGeneratingTechnologyNodeLimit();
+        ligniteNodeLimit.setPermanentUpperCapacityLimit(0);
+        ligniteNodeLimit.setPowerGeneratingTechnology(lignite);
+        ligniteNodeLimit.setPowerGridNode(node);
+        ligniteNodeLimit.persist();
 
-		PowerGeneratingTechnologyNodeLimit pgtLimit2 = powerGeneratingTechnologyNodeLimitRepository.findOneByTechnologyAndNode(lignite,
- node);
-		
-		assertEquals(0, pgtLimit2.getPermanentUpperCapacityLimit(), 0);
+        PowerGeneratingTechnologyNodeLimit pgtLimit2 = powerGeneratingTechnologyNodeLimitRepository
+                .findOneByTechnologyAndNode(lignite, node);
 
-	}
+        assertEquals(0, pgtLimit2.getPermanentUpperCapacityLimit(), 0);
+
+    }
 
 }

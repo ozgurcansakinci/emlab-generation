@@ -43,20 +43,19 @@ import emlab.gen.domain.technology.Substance;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"/emlab-gen-test-context.xml"})
+@ContextConfiguration({ "/emlab-gen-test-context.xml" })
 @Transactional
 public class RepositoryTesting {
 
-
     Logger logger = Logger.getLogger(RepositoryTesting.class);
 
-
-    //------- clearingPointRepository ---------
-    @Autowired ClearingPointRepository clearingPointRepository;
+    // ------- clearingPointRepository ---------
+    @Autowired
+    ClearingPointRepository clearingPointRepository;
 
     @Test
-    public void testfindAllClearingPointsForSubstanceTradedOnCommodityMarkesAndTimeRange(){
-        double[][] input = {{0,1},{1,1.1},{2,1.21},{3,1.331},{4,1.4641}};
+    public void testfindAllClearingPointsForSubstanceTradedOnCommodityMarkesAndTimeRange() {
+        double[][] input = { { 0, 1 }, { 1, 1.1 }, { 2, 1.21 }, { 3, 1.331 }, { 4, 1.4641 } };
         Substance substance = new Substance();
         substance.persist();
         CommodityMarket market = new CommodityMarket();
@@ -73,24 +72,26 @@ public class RepositoryTesting {
             inputMap.put(new Integer((int) d[0]), d[1]);
         }
 
-        //Testing selection of only first one, starting with negative value
+        // Testing selection of only first one, starting with negative value
         Iterable<ClearingPoint> cps = clearingPointRepository
                 .findAllClearingPointsForSubstanceTradedOnCommodityMarkesAndTimeRange(substance, -2l, 0l, false);
         assertTrue(cps.iterator().next().getPrice() == 1);
 
         cps = clearingPointRepository.findAllClearingPointsForSubstanceTradedOnCommodityMarkesAndTimeRange(substance,
                 -2l, 4l, false);
-        for(ClearingPoint cp : cps){
+        for (ClearingPoint cp : cps) {
             assertTrue(cp.getPrice() == inputMap.get(new Integer((int) cp.getTime())));
-            //logger.warn(new Double(cp.getPrice()).toString() + "==" + inputMap.get(new Integer((int) cp.getTime())).toString());
+            // logger.warn(new Double(cp.getPrice()).toString() + "==" +
+            // inputMap.get(new Integer((int) cp.getTime())).toString());
         }
     }
 
-    //SubstanceRepository
-    @Autowired SubstanceRepository substanceRepository;
+    // SubstanceRepository
+    @Autowired
+    SubstanceRepository substanceRepository;
 
     @Test
-    public void testfindAllSubstancesTradedOnCommodityMarkets(){
+    public void testfindAllSubstancesTradedOnCommodityMarkets() {
         Substance coal = new Substance();
         coal.setName("Coal");
         coal.persist();
@@ -102,25 +103,25 @@ public class RepositoryTesting {
 
         Iterable<Substance> substancesInDB = substanceRepository.findAllSubstancesTradedOnCommodityMarkets();
         int count = 0;
-        for(Substance substance : substancesInDB){
+        for (Substance substance : substancesInDB) {
             count++;
             assertTrue(substance.getName().equals("Coal"));
         }
         assertTrue(count == 1);
     }
 
-    //PowerGenerationTechnologyTargetRepository
-    @Autowired PowerGenerationTechnologyTargetRepository powerGenerationTechnologyTargetRepository;
+    // PowerGenerationTechnologyTargetRepository
+    @Autowired
+    PowerGenerationTechnologyTargetRepository powerGenerationTechnologyTargetRepository;
 
     @Test
-    public void testfindAllPowerGenerationTechnologyTargetsByMarket(){
+    public void testfindAllPowerGenerationTechnologyTargetsByMarket() {
         PowerGeneratingTechnology wind = new PowerGeneratingTechnology();
         wind.persist();
         ElectricitySpotMarket marketA = new ElectricitySpotMarket();
         marketA.persist();
         ElectricitySpotMarket marketB = new ElectricitySpotMarket();
         marketB.persist();
-
 
         PowerGeneratingTechnologyTarget pgttWindA = new PowerGeneratingTechnologyTarget();
         pgttWindA.setPowerGeneratingTechnology(wind);
@@ -144,10 +145,9 @@ public class RepositoryTesting {
         rtiB.setPowerGenerationTechnologyTargets(powerGenerationTechnologyTargetsB);
         rtiB.persist();
 
-        assertTrue(pgttWindA.getNodeId()==powerGenerationTechnologyTargetRepository.findAllByMarket(marketA).iterator().next().getNodeId());
+        assertTrue(pgttWindA.getNodeId() == powerGenerationTechnologyTargetRepository.findAllByMarket(marketA)
+                .iterator().next().getNodeId());
 
     }
-
-
 
 }

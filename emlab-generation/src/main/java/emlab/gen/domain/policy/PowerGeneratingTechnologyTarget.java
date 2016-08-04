@@ -22,7 +22,6 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.trend.TimeSeriesImpl;
 
-
 /**
  * @author JCRichstein
  *
@@ -31,14 +30,15 @@ import emlab.gen.trend.TimeSeriesImpl;
 public class PowerGeneratingTechnologyTarget {
 
     /**
-     * {@link powerGeneratingTechnology} defines the technology that the target applies to
+     * {@link powerGeneratingTechnology} defines the technology that the target
+     * applies to
      */
-    @RelatedTo(type="TARGET_TECHNOLOGY", elementClass=PowerGeneratingTechnology.class, direction=Direction.OUTGOING)
+    @RelatedTo(type = "TARGET_TECHNOLOGY", elementClass = PowerGeneratingTechnology.class, direction = Direction.OUTGOING)
     PowerGeneratingTechnology powerGeneratingTechnology;
 
     /**
-     * {@link trend} contains the target installed capacity of the technology
-     * in MW.
+     * {@link trend} contains the target installed capacity of the technology in
+     * MW.
      */
     @RelatedTo(type = "TARGET_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     TimeSeriesImpl trend;
@@ -55,8 +55,7 @@ public class PowerGeneratingTechnologyTarget {
         return powerGeneratingTechnology;
     }
 
-    public void setPowerGeneratingTechnology(
-            PowerGeneratingTechnology powerGeneratingTechnology) {
+    public void setPowerGeneratingTechnology(PowerGeneratingTechnology powerGeneratingTechnology) {
         this.powerGeneratingTechnology = powerGeneratingTechnology;
     }
 

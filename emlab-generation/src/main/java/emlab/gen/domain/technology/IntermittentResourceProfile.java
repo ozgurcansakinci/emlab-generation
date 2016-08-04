@@ -11,20 +11,19 @@ public class IntermittentResourceProfile extends HourlyCSVTimeSeries {
 
     @RelatedTo(type = "INTERMITTENT_TECHNOLOGY", elementClass = PowerGeneratingTechnology.class, direction = Direction.OUTGOING)
     PowerGeneratingTechnology intermittentTechnology;
-    
-	@RelatedTo(type = "INTERMITTENT_PRODUCTION_NODE", elementClass = PowerGridNode.class, direction = Direction.INCOMING)
-	PowerGridNode intermittentProductionNode;
 
-	public PowerGridNode getIntermittentProductionNode() {
-		return intermittentProductionNode;
-	}
+    @RelatedTo(type = "INTERMITTENT_PRODUCTION_NODE", elementClass = PowerGridNode.class, direction = Direction.INCOMING)
+    PowerGridNode intermittentProductionNode;
 
-	public void setIntermittentProductionNode(
-	        PowerGridNode intermittentProductionNode) {
-		this.intermittentProductionNode = intermittentProductionNode;
-	}
+    public PowerGridNode getIntermittentProductionNode() {
+        return intermittentProductionNode;
+    }
 
-	public PowerGeneratingTechnology getIntermittentTechnology() {
+    public void setIntermittentProductionNode(PowerGridNode intermittentProductionNode) {
+        this.intermittentProductionNode = intermittentProductionNode;
+    }
+
+    public PowerGeneratingTechnology getIntermittentTechnology() {
         return intermittentTechnology;
     }
 

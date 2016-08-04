@@ -46,9 +46,9 @@ public class MarketStabilityReserveRole extends AbstractRole<Government> {
 
     @Transactional
     public void act(Government government) {
-        double allowancesInCirculation = government.isStabilityReserveHasOneYearDelayInsteadOfTwoYearDelay() ? reps.decarbonizationAgentRepository
-                .determineTotallyBankedCO2Certificates() : reps.decarbonizationAgentRepository
-                .determinePreviouslyBankedCO2Certificates();
+        double allowancesInCirculation = government.isStabilityReserveHasOneYearDelayInsteadOfTwoYearDelay()
+                ? reps.decarbonizationAgentRepository.determineTotallyBankedCO2Certificates()
+                : reps.decarbonizationAgentRepository.determinePreviouslyBankedCO2Certificates();
         double inflowToMarketReserve = calculateInflowToMarketReserveForTimeStep(getCurrentTick(),
                 allowancesInCirculation, government);
         government.setStabilityReserve(government.getStabilityReserve() + inflowToMarketReserve);
@@ -62,14 +62,12 @@ public class MarketStabilityReserveRole extends AbstractRole<Government> {
         if (allowancesInCirculation > government.getStabilityReserveUpperTriggerTrend().getValue(clearingTick)) {
             double allowancesToBeAddedToReserve = Math.max(
                     allowancesInCirculation
-                    * government.getStabilityReserveAddingPercentageTrend().getValue(clearingTick),
-                    government
-                    .getStabilityReserveAddingMinimumTrend().getValue(clearingTick));
+                            * government.getStabilityReserveAddingPercentageTrend().getValue(clearingTick),
+                    government.getStabilityReserveAddingMinimumTrend().getValue(clearingTick));
             return allowancesToBeAddedToReserve;
         } else if (allowancesInCirculation < government.getStabilityReserveLowerTriggerTrend().getValue(clearingTick)) {
             double allowancesToBeReleased = Math.min(government.getStabilityReserve(),
-                    government
-                    .getStabilityReserveReleaseQuantityTrend().getValue(clearingTick));
+                    government.getStabilityReserveReleaseQuantityTrend().getValue(clearingTick));
             return -allowancesToBeReleased;
         }
         return 0;

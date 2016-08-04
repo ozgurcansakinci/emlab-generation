@@ -82,7 +82,8 @@ public abstract class AbstractRepository<T extends NodeBacked> {
         return finder().count();
     }
 
-    public <E extends NodeBacked> Iterable<T> findAllByTraversal(E startNode, TraversalDescription traversalDescription) {
+    public <E extends NodeBacked> Iterable<T> findAllByTraversal(E startNode,
+            TraversalDescription traversalDescription) {
         return finder().findAllByTraversal(startNode, traversalDescription);
     }
 

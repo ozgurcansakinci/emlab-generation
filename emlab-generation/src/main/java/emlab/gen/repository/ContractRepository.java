@@ -50,7 +50,8 @@ public class ContractRepository extends AbstractRepository<Contract> {
     @Autowired
     Neo4jTemplate template;
 
-    public Iterable<LongTermContract> findLongTermContractsForEnergyProducerActiveAtTime(EnergyProducer energyProducer, long time) {
+    public Iterable<LongTermContract> findLongTermContractsForEnergyProducerActiveAtTime(EnergyProducer energyProducer,
+            long time) {
         Pipe<Vertex, Vertex> contractPipe = new LabeledEdgePipe("CONTRACT_FROM", LabeledEdgePipe.Step.IN_OUT);
         // filter by time
         Pipe<Vertex, Vertex> pipeline = new Pipeline<Vertex, Vertex>(contractPipe);
@@ -65,8 +66,8 @@ public class ContractRepository extends AbstractRepository<Contract> {
         return list;
     }
 
-    public Iterable<LongTermContract> findLongTermContractsForEnergyProducerForSegmentActiveAtTime(EnergyProducer energyProducer,
-            Segment segment, long time) {
+    public Iterable<LongTermContract> findLongTermContractsForEnergyProducerForSegmentActiveAtTime(
+            EnergyProducer energyProducer, Segment segment, long time) {
 
         Pipe<Vertex, Vertex> contractPipe = new LabeledEdgePipe("CONTRACT_FROM", LabeledEdgePipe.Step.IN_OUT);
 
@@ -86,7 +87,8 @@ public class ContractRepository extends AbstractRepository<Contract> {
         return list;
     }
 
-    public Iterable<Contract> findLongTermContractsForEnergyConsumerActiveAtTime(EnergyConsumer energyConsumer, long time) {
+    public Iterable<Contract> findLongTermContractsForEnergyConsumerActiveAtTime(EnergyConsumer energyConsumer,
+            long time) {
         Pipe<Vertex, Vertex> contractPipe = new LabeledEdgePipe("CONTRACT_TO", LabeledEdgePipe.Step.IN_OUT);
         // filter by time
         Pipe<Vertex, Vertex> pipeline = new Pipeline<Vertex, Vertex>(contractPipe);
@@ -101,8 +103,8 @@ public class ContractRepository extends AbstractRepository<Contract> {
         return list;
     }
 
-    public Iterable<LongTermContract> findLongTermContractsForEnergyConsumerForSegmentActiveAtTime(EnergyConsumer consumer,
-            Segment segment, long time) {
+    public Iterable<LongTermContract> findLongTermContractsForEnergyConsumerForSegmentActiveAtTime(
+            EnergyConsumer consumer, Segment segment, long time) {
 
         List<LongTermContract> list = new ArrayList<LongTermContract>();
         for (Contract contract : findLongTermContractsForEnergyConsumerActiveAtTime(consumer, time)) {
@@ -132,10 +134,11 @@ public class ContractRepository extends AbstractRepository<Contract> {
         return null;
     }
 
-    public Iterable<LongTermContract> findLongTermContractsForEnergyConsumerForSegmentForZoneActiveAtTime(EnergyConsumer consumer,
-            Segment segment, Zone zone, long currentTick) {
+    public Iterable<LongTermContract> findLongTermContractsForEnergyConsumerForSegmentForZoneActiveAtTime(
+            EnergyConsumer consumer, Segment segment, Zone zone, long currentTick) {
         List<LongTermContract> list = new ArrayList<LongTermContract>();
-        for (LongTermContract ltc : findLongTermContractsForEnergyConsumerForSegmentActiveAtTime(consumer, segment, currentTick)) {
+        for (LongTermContract ltc : findLongTermContractsForEnergyConsumerForSegmentActiveAtTime(consumer, segment,
+                currentTick)) {
             if (ltc.getZone().equals(zone)) {
                 list.add(ltc);
             }
@@ -149,10 +152,11 @@ public class ContractRepository extends AbstractRepository<Contract> {
      * @return
      */
     // TODO not transactional, so make it transactional when used.
-    public LongTermContract submitLongTermContractForElectricity(PowerPlant plant, DecarbonizationAgent seller, DecarbonizationAgent buyer,
-            Zone zone, double price, double capacity, LongTermContractType longTermContractType, long time,
-            LongTermContractDuration duration, boolean signed, Substance mainFuel, double fuelPassThroughFactor,
-            double co2PassThroughFactor, double fuelPriceStart, double co2PriceStart) {
+    public LongTermContract submitLongTermContractForElectricity(PowerPlant plant, DecarbonizationAgent seller,
+            DecarbonizationAgent buyer, Zone zone, double price, double capacity,
+            LongTermContractType longTermContractType, long time, LongTermContractDuration duration, boolean signed,
+            Substance mainFuel, double fuelPassThroughFactor, double co2PassThroughFactor, double fuelPriceStart,
+            double co2PriceStart) {
 
         LongTermContract contract = new LongTermContract().persist();
         contract.setUnderlyingPowerPlant(plant);
@@ -175,9 +179,10 @@ public class ContractRepository extends AbstractRepository<Contract> {
     }
 
     // TODO not transactional, so make it transactional when used.
-    public LongTermContractOffer submitLongTermContractOfferForElectricity(EnergyProducer seller, PowerPlant plant, Zone zone,
-            double price, double capacity, LongTermContractType longTermContractType, long time, LongTermContractDuration duration,
-            Substance mainFuel, double fuelPassThroughFactor, double co2PassThroughFactor, double fuelPriceStart, double co2PriceStart) {
+    public LongTermContractOffer submitLongTermContractOfferForElectricity(EnergyProducer seller, PowerPlant plant,
+            Zone zone, double price, double capacity, LongTermContractType longTermContractType, long time,
+            LongTermContractDuration duration, Substance mainFuel, double fuelPassThroughFactor,
+            double co2PassThroughFactor, double fuelPriceStart, double co2PriceStart) {
 
         LongTermContractOffer offer = new LongTermContractOffer().persist();
         offer.setSeller(seller);

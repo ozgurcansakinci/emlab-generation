@@ -44,13 +44,14 @@ import emlab.gen.trend.TimeSeriesImpl;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"/emlab-gen-test-context.xml"})
+@ContextConfiguration({ "/emlab-gen-test-context.xml" })
 @Transactional
 public class PowerPlantCSVFactoryTest {
 
     Logger logger = Logger.getLogger(PowerPlantCSVFactoryTest.class);
 
-    @Autowired Neo4jOperations template;
+    @Autowired
+    Neo4jOperations template;
 
     @Autowired
     Reps reps;
@@ -58,8 +59,6 @@ public class PowerPlantCSVFactoryTest {
     @Before
     @Transactional
     public void setUp() throws Exception {
-
-
 
     }
 
@@ -109,10 +108,9 @@ public class PowerPlantCSVFactoryTest {
         coalPGT.setEfficiencyTimeSeries(efficiencyTimeSeries);
         TimeSeriesImpl fixedOMTimeSeries = new TimeSeriesImpl();
         double[] fixedOMTimeArr = { 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30,
-                0.30,
                 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30,
                 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30,
-                0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 };
+                0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30 };
         fixedOMTimeSeries.setTimeSeries(fixedOMTimeArr);
         fixedOMTimeSeries.setStartingYear(-30);
         fixedOMTimeSeries.persist();
@@ -132,7 +130,7 @@ public class PowerPlantCSVFactoryTest {
         PowerPlantCSVFactory ppCsvFactory = new PowerPlantCSVFactory();
         ppCsvFactory.setCsvFile("/data/jUnitpowerPlantList.csv");
         EnergyProducer[] energyProducers = { aon, swe };
-        PowerGeneratingTechnology[] technologies = {coalPGT, gasPGT };
+        PowerGeneratingTechnology[] technologies = { coalPGT, gasPGT };
         PowerGridNode[] nodes = { nodeDE, nodeNL };
         ppCsvFactory.setProducers(new ArrayList<EnergyProducer>(java.util.Arrays.asList(energyProducers)));
         ppCsvFactory.setPowerGridNodes(new ArrayList<PowerGridNode>(java.util.Arrays.asList(nodes)));
@@ -146,13 +144,14 @@ public class PowerPlantCSVFactoryTest {
         }
         logger.warn("All PowerPlants:");
         Iterable<PowerPlant> powerPlants = reps.powerPlantRepository.findAll();
-        for(PowerPlant plant :powerPlants){
-            logger.warn(plant.getName() + ", Owner: " + plant.getOwner().getName() + ",Tech: "
-                    + plant.getTechnology().getName() + ", Location: " + plant.getLocation().getName()
-                    + ", contructionStarted: "
- + plant.getConstructionStartTime() + ", Age: "
-                    + -(plant.getConstructionStartTime() + plant.getActualLeadtime() + plant.getActualPermittime())
-                    + ", Cap: " + plant.getActualNominalCapacity() + ", Eff: " + plant.getActualEfficiency());
+        for (PowerPlant plant : powerPlants) {
+            logger.warn(
+                    plant.getName() + ", Owner: " + plant.getOwner().getName() + ",Tech: "
+                            + plant.getTechnology().getName() + ", Location: " + plant.getLocation().getName()
+                            + ", contructionStarted: " + plant.getConstructionStartTime() + ", Age: "
+                            + -(plant.getConstructionStartTime() + plant.getActualLeadtime()
+                                    + plant.getActualPermittime())
+                            + ", Cap: " + plant.getActualNominalCapacity() + ", Eff: " + plant.getActualEfficiency());
             String name = plant.getName();
             if (name.equals("Coal1")) {
                 assertEquals("Correct tech", "coalPGT", plant.getTechnology().getName());
@@ -188,8 +187,8 @@ public class PowerPlantCSVFactoryTest {
                         -(plant.getConstructionStartTime() + plant.getActualLeadtime() + plant.getActualPermittime()));
                 assertEquals("Correct capacity: ", 300, plant.getActualNominalCapacity(), 0.01);
                 assertEquals("Correct efficiency: ", 0.3, plant.getActualEfficiency(), 0.01);
-                assertTrue("Correct owner", (plant.getOwner().getName().equals("aon") || plant.getOwner().getName()
-                        .equals("swe")));
+                assertTrue("Correct owner",
+                        (plant.getOwner().getName().equals("aon") || plant.getOwner().getName().equals("swe")));
             }
 
         }

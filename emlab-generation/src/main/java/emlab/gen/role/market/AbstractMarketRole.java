@@ -53,7 +53,8 @@ public abstract class AbstractMarketRole<T extends DecarbonizationMarket> extend
         logger.info("total demand {} for price {}", totalDemandForPrice, totalSupplyPrice);
 
         double minimumSupplyPrice = calculateMinimumSupplyPriceForMarketForTime(market, time);
-        double demandAtMinimumSupplyPrice = calculateTotalDemandForMarketForTimeForPrice(market, time, totalSupplyPrice);
+        double demandAtMinimumSupplyPrice = calculateTotalDemandForMarketForTimeForPrice(market, time,
+                totalSupplyPrice);
 
         if (demandAtMinimumSupplyPrice <= 0) {
             clearedPrice = minimumSupplyPrice;
@@ -64,8 +65,8 @@ public abstract class AbstractMarketRole<T extends DecarbonizationMarket> extend
             if (market.isAuction()) {
                 clearedPrice = calculateTotalDemandForMarketForTimeForPrice(market, time, 0d);
             } else {
-                clearedPrice = market instanceof ElectricitySpotMarket ? ((ElectricitySpotMarket) market).getValueOfLostLoad()
-                        : totalSupplyPrice;
+                clearedPrice = market instanceof ElectricitySpotMarket
+                        ? ((ElectricitySpotMarket) market).getValueOfLostLoad() : totalSupplyPrice;
             }
         } else { // Supply exceeds demand
             double totalOfferAmount = 0d;
@@ -125,37 +126,40 @@ public abstract class AbstractMarketRole<T extends DecarbonizationMarket> extend
         double previousPrice = Double.NEGATIVE_INFINITY;
         double accpetedSamePriceVolume = 0d;
 
-        Iterable<Bid> bids = isSupply ? reps.bidRepository.findOffersForMarketForTimeBelowPrice(market, time, clearedPrice) : market
-                .isAuction() ? reps.bidRepository.findDemandBidsForMarketForTime(market, time) : reps.bidRepository
-                        .findDemandBidsForMarketForTimeAbovePrice(market, time, clearedPrice);
+        Iterable<Bid> bids = isSupply
+                ? reps.bidRepository.findOffersForMarketForTimeBelowPrice(market, time, clearedPrice)
+                : market.isAuction() ? reps.bidRepository.findDemandBidsForMarketForTime(market, time)
+                        : reps.bidRepository.findDemandBidsForMarketForTimeAbovePrice(market, time, clearedPrice);
 
-                for (Bid bid : bids) {
-                    double amount = bid.getAmount();
-                    totalBidVolume += amount;
-                    accpetedSamePriceVolume = bid.getPrice() == previousPrice ? accpetedSamePriceVolume + amount : amount;
-                    if (totalBidVolume < clearedVolume) {
-                        bid.setStatus(Bid.ACCEPTED);
-                        bid.setAcceptedAmount(bid.getAmount());
-                    } else {
-                        double lastAvailableBidSize = clearedVolume - (totalBidVolume - accpetedSamePriceVolume);
-                        double samePriceVolume = calculateBidsForMarketForTimeForPrice(market, time, bid.getPrice(), isSupply);
-                        double adjustRatio = lastAvailableBidSize / samePriceVolume;
-                        for (Bid partBid : isSupply ? reps.bidRepository.findOffersForMarketForTimeForPrice(market, time, bid.getPrice())
-                                : reps.bidRepository.findDemandBidsForMarketForTimeForPrice(market, time, bid.getPrice())) {
-                            partBid.setStatus(Bid.PARTLY_ACCEPTED);
-                            partBid.setAcceptedAmount(partBid.getAmount() * adjustRatio);
-                        }
-                        break;
-                    }
-                    previousPrice = bid.getPrice();
+        for (Bid bid : bids) {
+            double amount = bid.getAmount();
+            totalBidVolume += amount;
+            accpetedSamePriceVolume = bid.getPrice() == previousPrice ? accpetedSamePriceVolume + amount : amount;
+            if (totalBidVolume < clearedVolume) {
+                bid.setStatus(Bid.ACCEPTED);
+                bid.setAcceptedAmount(bid.getAmount());
+            } else {
+                double lastAvailableBidSize = clearedVolume - (totalBidVolume - accpetedSamePriceVolume);
+                double samePriceVolume = calculateBidsForMarketForTimeForPrice(market, time, bid.getPrice(), isSupply);
+                double adjustRatio = lastAvailableBidSize / samePriceVolume;
+                for (Bid partBid : isSupply
+                        ? reps.bidRepository.findOffersForMarketForTimeForPrice(market, time, bid.getPrice())
+                        : reps.bidRepository.findDemandBidsForMarketForTimeForPrice(market, time, bid.getPrice())) {
+                    partBid.setStatus(Bid.PARTLY_ACCEPTED);
+                    partBid.setAcceptedAmount(partBid.getAmount() * adjustRatio);
                 }
-                return previousPrice;
+                break;
+            }
+            previousPrice = bid.getPrice();
+        }
+        return previousPrice;
     }
 
-    private double calculateBidsForMarketForTimeForPrice(DecarbonizationMarket market, long time, double price, boolean isSupply) {
+    private double calculateBidsForMarketForTimeForPrice(DecarbonizationMarket market, long time, double price,
+            boolean isSupply) {
         try {
-            return isSupply ? reps.bidRepository.calculateOffersForMarketForTimeForPrice(market, time, price) : reps.bidRepository
-                    .calculateDemandBidsForMarketForTimeForPrice(market, time, price);
+            return isSupply ? reps.bidRepository.calculateOffersForMarketForTimeForPrice(market, time, price)
+                    : reps.bidRepository.calculateDemandBidsForMarketForTimeForPrice(market, time, price);
         } catch (NullPointerException npe) {
         }
         return 0d;
@@ -163,8 +167,8 @@ public abstract class AbstractMarketRole<T extends DecarbonizationMarket> extend
 
     private double calculateTotalDemandForMarketForTimeForPrice(DecarbonizationMarket market, long time, double price) {
         try {
-            return market.isAuction() ? reps.bidRepository.calculateTotalDemandForMarketForTime(market, time) : reps.bidRepository
-                    .calculateTotalDemandForMarketForTimeForPrice(market, time, price);
+            return market.isAuction() ? reps.bidRepository.calculateTotalDemandForMarketForTime(market, time)
+                    : reps.bidRepository.calculateTotalDemandForMarketForTimeForPrice(market, time, price);
         } catch (NullPointerException npe) {
         }
         return 0d;

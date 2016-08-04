@@ -8,30 +8,29 @@ package emlab.gen.trend;
  * 
  */
 public class TimeSeriesPropReader extends TimeSeriesImpl {
-	
-	private String timeSeriesStr;
-		
-//	public void setTimeSeriesStr(String timeSeriesStr) {
-//		this.timeSeriesStr = timeSeriesStr;
-//	}
 
+    private String timeSeriesStr;
 
-	public String getTimeSeriesStr() {
-		return timeSeriesStr;
-	}
-	
-	public void setTimeSeriesStr(String timeSeriesStr) {
-		// this.timeSeriesStr = timeSeriesStr;
-        //we are going to read the values as a string array and set out integer array inside this setter
+    // public void setTimeSeriesStr(String timeSeriesStr) {
+    // this.timeSeriesStr = timeSeriesStr;
+    // }
+
+    public String getTimeSeriesStr() {
+        return timeSeriesStr;
+    }
+
+    public void setTimeSeriesStr(String timeSeriesStr) {
+        // this.timeSeriesStr = timeSeriesStr;
+        // we are going to read the values as a string array and set out integer
+        // array inside this setter
         String[] timeSeriesStrArray = timeSeriesStr.split(",");
-		int i=0;
+        int i = 0;
         double[] timeSeries = new double[timeSeriesStrArray.length];
-        for(String s: timeSeriesStrArray){
-        	timeSeries[i] = Double.parseDouble(s);
+        for (String s : timeSeriesStrArray) {
+            timeSeries[i] = Double.parseDouble(s);
             i++;
         }
         setTimeSeries(timeSeries);
     }
-
 
 }

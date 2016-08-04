@@ -67,6 +67,7 @@ import emlab.gen.role.operating.PayCO2TaxAnnualRole;
 import emlab.gen.role.operating.PayCO2TaxRole;
 import emlab.gen.role.operating.PayForLoansRole;
 import emlab.gen.role.operating.PayOperatingAndMaintainanceCostsRole;
+import emlab.gen.role.operating.PayStorageUnitsRole;
 
 /**
  * Main model role.
@@ -123,6 +124,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private PayForLoansRole payForLoansRole;
     @Autowired
     private PayOperatingAndMaintainanceCostsRole payOperatingAndMaintainanceCostsRole;
+    @Autowired
+    private PayStorageUnitsRole payStorageUnitsRole;
     @Autowired
     private StrategicReserveOperatorRole strategicReserveOperatorRole;
     @Autowired
@@ -432,6 +435,12 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
                 payCO2AuctionRole.act(producer);
                 // producer.act(payCO2AuctionRole);
             }
+
+        }
+        // payments for storage
+        logger.warn(" Paying for storage units");
+        for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
+            payStorageUnitsRole.act(producer);
         }
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
@@ -501,12 +510,23 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             }
             resetWillingnessToInvest();
         }
-        logger.warn("\t subsidized investment.");
+        logger.warn("\t Subsidized investment.");
         if (getCurrentTick() >= 0) {
             for (TargetInvestor targetInvestor : template.findAll(TargetInvestor.class)) {
                 genericInvestmentRole.act(targetInvestor);
             }
         }
+
+        logger.warn("\t Investment on storage.");
+        if (getCurrentTick() >= 0) {
+            for (EnergyProducer producer : reps.energyProducerRepository
+                    .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom()) {
+                if (producer.getInvestorMarket().isStorageImplemented()) {
+                    // Storage investment
+                }
+            }
+        }
+
         timerInvest.stop();
         logger.warn("        took: {} seconds.", timerInvest.seconds());
 

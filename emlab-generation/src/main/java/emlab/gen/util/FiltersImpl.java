@@ -98,16 +98,16 @@ public class FiltersImpl implements Filters {
         DecarbonizationMarket market = (DecarbonizationMarket) entity;
 
         // Emiliano stuff:
-        Double average = calculateAverageMarketPriceBasedOnClearingPoints(reps.clearingPointRepositoryOld
-                .findClearingPointsForMarketAndTime(market, tick, false));
+        Double average = calculateAverageMarketPriceBasedOnClearingPoints(
+                reps.clearingPointRepositoryOld.findClearingPointsForMarketAndTime(market, tick, false));
         Substance substance = market.getSubstance();
 
         if (average != null) {
             return average;
         }
 
-        average = calculateAverageMarketPriceBasedOnClearingPoints(reps.clearingPointRepositoryOld.findClearingPointsForMarketAndTime(
-                market, tick - 1, false));
+        average = calculateAverageMarketPriceBasedOnClearingPoints(
+                reps.clearingPointRepositoryOld.findClearingPointsForMarketAndTime(market, tick - 1, false));
         if (average != null) {
             return average;
         }

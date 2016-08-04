@@ -26,9 +26,9 @@ import emlab.gen.domain.technology.PowerGridNode;
 
 public interface PowerGridNodeRepository extends GraphRepository<PowerGridNode> {
 
-	@Query("START zone=node({zone}) match (zone)<-[:REGION]-(powergridnode) WHERE powergridnode.__type__ = 'emlab.gen.domain.technology.PowerGridNode' RETURN powergridnode")
-	Iterable<PowerGridNode> findAllPowerGridNodesByZone(@Param("zone") Zone zone);
-	
-	@Query(value="g.v(market).out('ZONE').in('REGION').next()", type=QueryType.Gremlin)
-	PowerGridNode findFirstPowerGridNodeByElectricitySpotMarket(@Param("market") ElectricitySpotMarket esm);
+    @Query("START zone=node({zone}) match (zone)<-[:REGION]-(powergridnode) WHERE powergridnode.__type__ = 'emlab.gen.domain.technology.PowerGridNode' RETURN powergridnode")
+    Iterable<PowerGridNode> findAllPowerGridNodesByZone(@Param("zone") Zone zone);
+
+    @Query(value = "g.v(market).out('ZONE').in('REGION').next()", type = QueryType.Gremlin)
+    PowerGridNode findFirstPowerGridNodeByElectricitySpotMarket(@Param("market") ElectricitySpotMarket esm);
 }

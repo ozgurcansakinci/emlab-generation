@@ -26,6 +26,7 @@ import emlab.gen.domain.technology.PowerPlant;
 
 /**
  * Repository for NationalGovernments
+ * 
  * @author JCRichstein
  *
  */

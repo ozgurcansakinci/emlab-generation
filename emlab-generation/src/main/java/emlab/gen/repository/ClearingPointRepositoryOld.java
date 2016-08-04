@@ -63,7 +63,6 @@ public class ClearingPointRepositoryOld extends AbstractRepository<ClearingPoint
         return findAllByPipe(segment, clearingPoint);
     }
 
-
     public ClearingPoint findClearingPointForMarketAndTime(DecarbonizationMarket market, long time, boolean forecast) {
 
         Iterator<ClearingPoint> i = findClearingPointsForMarketAndTime(market, time, forecast).iterator();
@@ -72,7 +71,6 @@ public class ClearingPointRepositoryOld extends AbstractRepository<ClearingPoint
         }
         return null;
     }
-
 
     public Iterable<ClearingPoint> findClearingPointsForMarketAndTime(DecarbonizationMarket market, long time,
             boolean forecast) {
@@ -111,8 +109,8 @@ public class ClearingPointRepositoryOld extends AbstractRepository<ClearingPoint
             boolean forecast) {
         SegmentClearingPoint point = null;
         // TODO make this a pipe
-        List<SegmentClearingPoint> points = Utils.asCastedList(findClearingPointsForMarketAndTime(abstractMarket, time,
-                forecast));
+        List<SegmentClearingPoint> points = Utils
+                .asCastedList(findClearingPointsForMarketAndTime(abstractMarket, time, forecast));
         for (SegmentClearingPoint onepoint : points) {
             if (onepoint.getSegment().equals(segment)) {
                 point = onepoint;

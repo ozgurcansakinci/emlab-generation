@@ -16,16 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TimeSeriesCSVReaderTest {
 
-	Logger logger = Logger.getLogger(TimeSeriesCSVReaderTest.class);
+    Logger logger = Logger.getLogger(TimeSeriesCSVReaderTest.class);
 
-	@Test
-	public void testReadingOfValues() {
-		TimeSeriesCSVReader tscr = new TimeSeriesCSVReader();
-		tscr.setDelimiter(",");
-		tscr.setVariableName("gasPrice");
-		tscr.setFilename("/data/exampleMultipleTimeSeries.csv");
-		logger.warn(tscr.getValue(0));
+    @Test
+    public void testReadingOfValues() {
+        TimeSeriesCSVReader tscr = new TimeSeriesCSVReader();
+        tscr.setDelimiter(",");
+        tscr.setVariableName("gasPrice");
+        tscr.setFilename("/data/exampleMultipleTimeSeries.csv");
+        logger.warn(tscr.getValue(0));
 
-	}
+    }
 
 }

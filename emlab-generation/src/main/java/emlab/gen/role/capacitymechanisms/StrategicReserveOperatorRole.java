@@ -25,8 +25,8 @@ import emlab.gen.repository.ZoneRepository;
  * 
  */
 @RoleComponent
-public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveOperator> implements
-        Role<StrategicReserveOperator> {
+public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveOperator>
+        implements Role<StrategicReserveOperator> {
 
     @Autowired
     Reps reps;
@@ -71,8 +71,8 @@ public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveO
         long segmentCounter = 0;
         // Set volume to be contracted
 
-        strategicReserveOperator.setReserveVolume(peakLoadforMarket
-                * strategicReserveOperator.getReserveVolumePercentSR());
+        strategicReserveOperator
+                .setReserveVolume(peakLoadforMarket * strategicReserveOperator.getReserveVolumePercentSR());
         // logger.warn(strategicReserveOperator.setReserveVolume(peakLoadforMarket*strategicReserveOperator.getReserveVolumePercent()));
 
         // Find peak supply in the market
@@ -154,7 +154,8 @@ public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveO
                         } else if (isORMarketCleared == false) {
                             // logger.warn("volume of current PPDP " +
                             // currentPPDP.getAmount());
-                            if (volumetobeContracted - (sumofContractedBids + currentPPDP.getAmount()) >= clearingEpsilon) {
+                            if (volumetobeContracted
+                                    - (sumofContractedBids + currentPPDP.getAmount()) >= clearingEpsilon) {
 
                                 // check if already not contracted
                                 // if(currentPPDP.getSRstatus()!=PowerPlantDispatchPlan.NOT_CONTRACTED){
@@ -176,8 +177,8 @@ public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveO
                                 // contracted capacity
 
                                 double Loan = 0;
-                                if ((currentPPDP.getPowerPlant().getLoan().getTotalNumberOfPayments() - currentPPDP
-                                        .getPowerPlant().getLoan().getNumberOfPaymentsDone()) > 0d) {
+                                if ((currentPPDP.getPowerPlant().getLoan().getTotalNumberOfPayments()
+                                        - currentPPDP.getPowerPlant().getLoan().getNumberOfPaymentsDone()) > 0d) {
                                     Loan = (currentPPDP.getPowerPlant().getLoan().getAmountPerPayment());
                                 }
 
@@ -211,7 +212,8 @@ public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveO
                                 // }
                             }
 
-                            else if (volumetobeContracted - (sumofContractedBids + currentPPDP.getAmount()) < clearingEpsilon) {
+                            else if (volumetobeContracted
+                                    - (sumofContractedBids + currentPPDP.getAmount()) < clearingEpsilon) {
 
                                 // if(currentPPDP.getSRstatus()!=PowerPlantDispatchPlan.NOT_CONTRACTED){
 
@@ -230,8 +232,8 @@ public class StrategicReserveOperatorRole extends AbstractRole<StrategicReserveO
                                 // Pays O&M costs and outstanding loans to the
                                 // generated for the contracted capacity
                                 double Loan = 0;
-                                if ((currentPPDP.getPowerPlant().getLoan().getTotalNumberOfPayments() - currentPPDP
-                                        .getPowerPlant().getLoan().getNumberOfPaymentsDone()) > 0d) {
+                                if ((currentPPDP.getPowerPlant().getLoan().getTotalNumberOfPayments()
+                                        - currentPPDP.getPowerPlant().getLoan().getNumberOfPaymentsDone()) > 0d) {
                                     Loan = (currentPPDP.getPowerPlant().getLoan().getAmountPerPayment());
                                 }
 

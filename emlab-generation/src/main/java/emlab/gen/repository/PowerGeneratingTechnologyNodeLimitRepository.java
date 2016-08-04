@@ -31,17 +31,17 @@ import emlab.gen.domain.technology.PowerGridNode;
  *
  */
 @Repository
-public interface PowerGeneratingTechnologyNodeLimitRepository extends
-		GraphRepository<PowerGeneratingTechnologyNodeLimit> {
-	
-	@Query(value = "result = g.v(market).out('ZONE').in('REGION').in('NODEPGTLIMIT_NODE').as('x').out('NODEPGTLIMIT_PGT').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ;"
-			+ "if(!result.hasNext()){return null;} else{return result.next();}", type = QueryType.Gremlin)
-	PowerGeneratingTechnologyNodeLimit findOneByTechnologyAndMarket(@Param("tech") PowerGeneratingTechnology tech,
-			@Param("market") ElectricitySpotMarket market);
-	
-	@Query(value = "result = g.v(node).in('NODEPGTLIMIT_NODE').as('x').out('NODEPGTLIMIT_PGT').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ;"
-			+ "if(!result.hasNext()){return null;} else{return result.next();}", type = QueryType.Gremlin)
-	PowerGeneratingTechnologyNodeLimit findOneByTechnologyAndNode(@Param("tech") PowerGeneratingTechnology tech,
-			@Param("node") PowerGridNode node);
+public interface PowerGeneratingTechnologyNodeLimitRepository
+        extends GraphRepository<PowerGeneratingTechnologyNodeLimit> {
+
+    @Query(value = "result = g.v(market).out('ZONE').in('REGION').in('NODEPGTLIMIT_NODE').as('x').out('NODEPGTLIMIT_PGT').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ;"
+            + "if(!result.hasNext()){return null;} else{return result.next();}", type = QueryType.Gremlin)
+    PowerGeneratingTechnologyNodeLimit findOneByTechnologyAndMarket(@Param("tech") PowerGeneratingTechnology tech,
+            @Param("market") ElectricitySpotMarket market);
+
+    @Query(value = "result = g.v(node).in('NODEPGTLIMIT_NODE').as('x').out('NODEPGTLIMIT_PGT').idFilter(tech, FilterPipe.Filter.EQUAL).back('x'); ;"
+            + "if(!result.hasNext()){return null;} else{return result.next();}", type = QueryType.Gremlin)
+    PowerGeneratingTechnologyNodeLimit findOneByTechnologyAndNode(@Param("tech") PowerGeneratingTechnology tech,
+            @Param("node") PowerGridNode node);
 
 }

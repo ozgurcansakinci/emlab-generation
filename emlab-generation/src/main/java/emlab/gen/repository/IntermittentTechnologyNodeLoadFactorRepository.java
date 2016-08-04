@@ -28,8 +28,8 @@ import emlab.gen.domain.technology.PowerPlant;
  * @author jrichstein
  *
  */
-public interface IntermittentTechnologyNodeLoadFactorRepository extends
-GraphRepository<IntermittentTechnologyNodeLoadFactor> {
+public interface IntermittentTechnologyNodeLoadFactorRepository
+        extends GraphRepository<IntermittentTechnologyNodeLoadFactor> {
     //
     // @Query(value = "nodeName=g.v(plant).out('LOCATION').name;"
     // +

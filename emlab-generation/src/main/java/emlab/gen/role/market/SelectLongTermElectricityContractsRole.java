@@ -47,13 +47,13 @@ import emlab.gen.util.MapValueComparator;
  * One {@link Bid} per {@link PowerPlant}.
  * 
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
- *         Chmieliauskas</a> @author <a
- *         href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  * 
  */
 @RoleComponent
-public class SelectLongTermElectricityContractsRole extends
-AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
+public class SelectLongTermElectricityContractsRole extends AbstractRole<EnergyConsumer>
+        implements Role<EnergyConsumer> {
 
     @Autowired
     Reps reps;
@@ -70,8 +70,7 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
         // Make an overview of the capacity of existing contracts per ltc type.
         // Store that in a nested info class.
         for (Zone zone : reps.genericRepository.findAll(Zone.class)) {
-            ExistingContractsInformation info = new ExistingContractsInformation(
-                    zone, consumer);
+            ExistingContractsInformation info = new ExistingContractsInformation(zone, consumer);
             existingContractsInformations.put(zone, info);
             info.updateExisingContractsInformation();
         }
@@ -83,14 +82,14 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
         // Adjust the price based on duration of the offer
         for (LongTermContractOffer offer : findLongTermContractOffersActiveAtTime()) {
             double duration = offer.getDuration().getDuration();
-            double thisPrice = offer.getPrice() * (1 + ((duration-1)*consumer.getContractDurationPreferenceFactor()));
+            double thisPrice = offer.getPrice()
+                    * (1 + ((duration - 1) * consumer.getContractDurationPreferenceFactor()));
             offersUnsorted.put(offer, thisPrice);
         }
 
         @SuppressWarnings("unused")
         MapValueComparator comp = new MapValueComparator(offersUnsorted);
-        Map<LongTermContractOffer, Double> offersRanked = new TreeMap<LongTermContractOffer, Double>(
-                comp);
+        Map<LongTermContractOffer, Double> offersRanked = new TreeMap<LongTermContractOffer, Double>(comp);
         offersRanked.putAll(offersUnsorted);
 
         for (LongTermContractOffer offer : offersRanked.keySet()) {
@@ -101,33 +100,25 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
 
             // if a similar offer has been accepted (same power plant)
             // we have to ignore this offer
-            if (reps.contractRepository
-                    .findLongTermContractForPowerPlantActiveAtTime(
-                            offer.getUnderlyingPowerPlant(), getCurrentTick()) != null) {
+            if (reps.contractRepository.findLongTermContractForPowerPlantActiveAtTime(offer.getUnderlyingPowerPlant(),
+                    getCurrentTick()) != null) {
                 stillvalid = false;
             } else {
                 // check whether there is load to meet this type.
-                double volumeInContractTypePossible = consumer
-                        .getLtcMaximumCoverageFraction()
-                        * determineVolumeForContractType(
-                                offer.getLongTermContractType(),
-                                offer.getZone());
+                double volumeInContractTypePossible = consumer.getLtcMaximumCoverageFraction()
+                        * determineVolumeForContractType(offer.getLongTermContractType(), offer.getZone());
                 // check what the capacity is of existing contracts for this ltc
                 // type.
                 double volumeInCurrentContracts = existingContractsInformations
-                        .get(offer.getZone()).capacityContractedInZonesForLTCType
-                        .get(offer.getLongTermContractType());
+                        .get(offer.getZone()).capacityContractedInZonesForLTCType.get(offer.getLongTermContractType());
                 if (volumeInCurrentContracts + offer.getCapacity() > volumeInContractTypePossible) {
-                    logger.info("Contract impossible for {}", offer
-                            .getLongTermContractType().getName());
+                    logger.info("Contract impossible for {}", offer.getLongTermContractType().getName());
                     stillvalid = false;
                 } else {
-                    logger.info("Contract possible for {}", offer
-                            .getLongTermContractType().getName());
+                    logger.info("Contract possible for {}", offer.getLongTermContractType().getName());
                 }
-                logger.info(
-                        "Volume in current contracts: {}, while possible for load: {}",
-                        volumeInCurrentContracts, volumeInContractTypePossible);
+                logger.info("Volume in current contracts: {}, while possible for load: {}", volumeInCurrentContracts,
+                        volumeInContractTypePossible);
             }
 
             if (stillvalid) {
@@ -140,44 +131,29 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
                     hours += s.getLengthInHours();
 
                     SegmentClearingPoint point = (SegmentClearingPoint) reps.clearingPointRepositoryOld
-                            .findClearingPointForSegmentAndTime(s,
- getCurrentTick() - 1, false);
-                    weightedElectricitySpotPrices += point.getPrice()
-                            * s.getLengthInHours();
-                    logger.info("Found a clearing point {} for segment {}",
-                            point, s);
+                            .findClearingPointForSegmentAndTime(s, getCurrentTick() - 1, false);
+                    weightedElectricitySpotPrices += point.getPrice() * s.getLengthInHours();
+                    logger.info("Found a clearing point {} for segment {}", point, s);
                 }
 
-                double averageElectricityPrice = weightedElectricitySpotPrices
-                        / hours;
+                double averageElectricityPrice = weightedElectricitySpotPrices / hours;
 
                 double price = offersUnsorted.get(offer);
-                if (price < (averageElectricityPrice*consumer.getContractWillingnessToPayFactor())) {
-                    reps.contractRepository.submitLongTermContractForElectricity(
-                            offer.getUnderlyingPowerPlant(), offer
-                            .getUnderlyingPowerPlant().getOwner(),
-                            consumer, offer.getUnderlyingPowerPlant()
-                            .getLocation().getZone(), offer.getPrice(),
-                            offer.getUnderlyingPowerPlant()
-                            .getAvailableCapacity(getCurrentTick()),
-                            offer.getLongTermContractType(), getCurrentTick(),
-                            offer.getDuration(), true, offer.getMainFuel(),
-                            offer.getFuelPassThroughFactor(), offer
-                            .getCo2PassThroughFactor(), offer
-                            .getFuelPriceStart(), offer
-                            .getCo2PriceStart());
-                    logger.info(
-                            "Accepted LTC offer type {}, duration {}, submitted contract",
-                            offer.getLongTermContractType(),
-                            offer.getDuration());
-                    logger.warn(
-                            "Accepted LTC for powerplant {}, price {} euro/MWh",
-                            offer.getUnderlyingPowerPlant(), offer.getPrice());
+                if (price < (averageElectricityPrice * consumer.getContractWillingnessToPayFactor())) {
+                    reps.contractRepository.submitLongTermContractForElectricity(offer.getUnderlyingPowerPlant(),
+                            offer.getUnderlyingPowerPlant().getOwner(), consumer,
+                            offer.getUnderlyingPowerPlant().getLocation().getZone(), offer.getPrice(),
+                            offer.getUnderlyingPowerPlant().getAvailableCapacity(getCurrentTick()),
+                            offer.getLongTermContractType(), getCurrentTick(), offer.getDuration(), true,
+                            offer.getMainFuel(), offer.getFuelPassThroughFactor(), offer.getCo2PassThroughFactor(),
+                            offer.getFuelPriceStart(), offer.getCo2PriceStart());
+                    logger.info("Accepted LTC offer type {}, duration {}, submitted contract",
+                            offer.getLongTermContractType(), offer.getDuration());
+                    logger.warn("Accepted LTC for powerplant {}, price {} euro/MWh", offer.getUnderlyingPowerPlant(),
+                            offer.getPrice());
 
                     // Update the info on existing contracts for this zone
-                    existingContractsInformations.get(
-                            offer.getUnderlyingPowerPlant().getLocation()
-                            .getZone())
+                    existingContractsInformations.get(offer.getUnderlyingPowerPlant().getLocation().getZone())
                             .updateExisingContractsInformation();
 
                 }
@@ -186,32 +162,28 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
         }
     }
 
-    public double determineVolumeForContractType(LongTermContractType type,
-            Zone zone) {
+    public double determineVolumeForContractType(LongTermContractType type, Zone zone) {
 
         // calculate minimum load of the segments in this contract type
         double minimumLoadInSegmentsOfContractType = Double.MAX_VALUE;
         for (Segment segment : type.getSegments()) {
-            double loadOfSegment = reps.marketRepository
-                    .findSegmentLoadForElectricitySpotMarketForZone(zone,
-                            segment).getBaseLoad()
-                            * reps.marketRepository.findElectricitySpotMarketForZone(zone)
-                            .getDemandGrowthTrend().getValue(getCurrentTick());
+            double loadOfSegment = reps.marketRepository.findSegmentLoadForElectricitySpotMarketForZone(zone, segment)
+                    .getBaseLoad()
+                    * reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
+                            .getValue(getCurrentTick());
             if (loadOfSegment < minimumLoadInSegmentsOfContractType) {
                 minimumLoadInSegmentsOfContractType = loadOfSegment;
             }
         }
-        logger.info(
-                "For ltc type {}, the lowest load of the segments covered is {}",
-                type, minimumLoadInSegmentsOfContractType);
+        logger.info("For ltc type {}, the lowest load of the segments covered is {}", type,
+                minimumLoadInSegmentsOfContractType);
         return minimumLoadInSegmentsOfContractType;
     }
 
     public Iterable<LongTermContractOffer> findLongTermContractOffersActiveAtTime() {
 
         List<LongTermContractOffer> list = new ArrayList<LongTermContractOffer>();
-        for (LongTermContractOffer ltcOffer : reps.genericRepository
-                .findAll(LongTermContractOffer.class)) {
+        for (LongTermContractOffer ltcOffer : reps.genericRepository.findAll(LongTermContractOffer.class)) {
             // If active
             if (ltcOffer.getStart() == getCurrentTick()) {
                 list.add(ltcOffer);
@@ -239,12 +211,10 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
 
         public void updateExisingContractsInformation() {
 
-            for (LongTermContractType type : reps.genericRepository
-                    .findAll(LongTermContractType.class)) {
-                capacityContractedInZonesForLTCType
-                .put(type,
-                        findCapacityOfLongTermContractsForEnergyConsumerAlreadyActiveAtTimeForSegmentsForZone(
-                                consumer, type));
+            for (LongTermContractType type : reps.genericRepository.findAll(LongTermContractType.class)) {
+                capacityContractedInZonesForLTCType.put(type,
+                        findCapacityOfLongTermContractsForEnergyConsumerAlreadyActiveAtTimeForSegmentsForZone(consumer,
+                                type));
             }
         }
 
@@ -255,13 +225,11 @@ AbstractRole<EnergyConsumer> implements Role<EnergyConsumer> {
             for (Segment segment : type.getSegments()) {
                 double thisCapacity = 0d;
                 for (Contract c : reps.contractRepository
-                        .findLongTermContractsForEnergyConsumerForSegmentForZoneActiveAtTime(
-                                consumer, segment, zone, getCurrentTick())) {
+                        .findLongTermContractsForEnergyConsumerForSegmentForZoneActiveAtTime(consumer, segment, zone,
+                                getCurrentTick())) {
                     LongTermContract ltc = (LongTermContract) c;
                     thisCapacity += ltc.getCapacity();
-                    logger.info(
-                            "Found existing contract {} active in segment {}",
-                            ltc, segment);
+                    logger.info("Found existing contract {} active in segment {}", ltc, segment);
                 }
                 // More contracts for this segment? Keep track of the largest
                 // contracted capacity of each of the valid segments

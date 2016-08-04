@@ -134,15 +134,11 @@ public class StrategicReserveRoleTest {
 
         PowerGeneratingTechnology coal1 = new PowerGeneratingTechnology();
 
-
         PowerGeneratingTechnology coal2 = new PowerGeneratingTechnology();
-
 
         PowerGeneratingTechnology gas1 = new PowerGeneratingTechnology();
 
-
         PowerGeneratingTechnology gas2 = new PowerGeneratingTechnology();
-
 
         coal1.persist();
         coal2.persist();
@@ -249,7 +245,6 @@ public class StrategicReserveRoleTest {
         pp4.persist();
         pp5.persist();
         pp6.persist();
-
 
         // for Zone 1 Segment 1
         PowerPlantDispatchPlan p1 = new PowerPlantDispatchPlan();
@@ -471,7 +466,6 @@ public class StrategicReserveRoleTest {
 
         acceptedPowerPlantDispatchRoleinSR.act(strategicReserveOperator1);
         // acceptedPowerPlantDispatchRoleinSR.act(strategicReserveOperator11);
-
 
         System.out.print("New Bidding Prices P1 " + p1.getPrice());
         System.out.print("New Bidding Prices P11 " + p11.getPrice());

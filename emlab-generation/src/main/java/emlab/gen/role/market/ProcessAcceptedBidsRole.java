@@ -34,16 +34,20 @@ import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.repository.Reps;
 
 /**
- * Creates and clears the {@link ElectricitySpotMarket} for one {@link Zone}. {@link EnergyConsumer} submit bids to purchase electricity; {@link EnergyProducer} submit ask offers to sell power. The
- * market is divided into {@link Segment}s and cleared for each segment.
+ * Creates and clears the {@link ElectricitySpotMarket} for one {@link Zone}.
+ * {@link EnergyConsumer} submit bids to purchase electricity;
+ * {@link EnergyProducer} submit ask offers to sell power. The market is divided
+ * into {@link Segment}s and cleared for each segment.
  * 
  * @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  * 
- * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a>
+ * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
+ *         Chmieliauskas</a>
  * 
  */
 @RoleComponent
-public class ProcessAcceptedBidsRole extends AbstractMarketRole<DecarbonizationMarket> implements Role<DecarbonizationMarket> {
+public class ProcessAcceptedBidsRole extends AbstractMarketRole<DecarbonizationMarket>
+        implements Role<DecarbonizationMarket> {
 
     @Autowired
     private Reps reps;
@@ -70,8 +74,10 @@ public class ProcessAcceptedBidsRole extends AbstractMarketRole<DecarbonizationM
         }
 
         // clear the market for each segment of the load duration curve
-        Iterable<Bid> acceptedSupplyBids = reps.bidRepository.findAllAcceptedOffersForMarketForTime(market, getCurrentTick());
-        Iterable<Bid> acceptedDemandBids = reps.bidRepository.findAllAcceptedDemandBidsForMarketForTime(market, getCurrentTick());
+        Iterable<Bid> acceptedSupplyBids = reps.bidRepository.findAllAcceptedOffersForMarketForTime(market,
+                getCurrentTick());
+        Iterable<Bid> acceptedDemandBids = reps.bidRepository.findAllAcceptedDemandBidsForMarketForTime(market,
+                getCurrentTick());
 
         // Assuming only one price on this market for this time step and
         // iteration.

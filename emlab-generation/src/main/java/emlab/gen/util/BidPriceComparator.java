@@ -19,7 +19,6 @@ import java.util.Comparator;
 
 import emlab.gen.domain.market.Bid;
 
-
 public class BidPriceComparator implements Comparator<Bid> {
 
     public int compare(Bid bidone, Bid bidtwo) {

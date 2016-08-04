@@ -31,8 +31,8 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  * {@link EnergyProducer}s pay CO2 taxes to the {@link Government}.
  * 
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
- *         Chmieliauskas</a> @author <a
- *         href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  */
 @RoleComponent
 public class PayCO2TaxRole extends AbstractEnergyProducerRole implements Role<EnergyProducer> {
@@ -51,9 +51,11 @@ public class PayCO2TaxRole extends AbstractEnergyProducerRole implements Role<En
 
         Government government = reps.genericRepository.findFirst(Government.class);
 
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+                getCurrentTick())) {
             double money = calculateCO2Tax(plant, false, getCurrentTick());
-            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money, CashFlow.CO2TAX, getCurrentTick(), plant);
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money,
+                    CashFlow.CO2TAX, getCurrentTick(), plant);
             logger.info("Cash flow created: {}", cf);
         }
     }

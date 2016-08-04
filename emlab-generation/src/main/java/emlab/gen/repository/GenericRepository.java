@@ -95,7 +95,8 @@ public class GenericRepository {
         return finder(clazz).findAllByTraversal(startNode, traversalDescription);
     }
 
-    public <T extends NodeBacked, E extends NodeBacked> Iterable<T> findAllByPipe(Class<T> clazz, E startNode, Pipe<Vertex, Vertex> pipe) {
+    public <T extends NodeBacked, E extends NodeBacked> Iterable<T> findAllByPipe(Class<T> clazz, E startNode,
+            Pipe<Vertex, Vertex> pipe) {
         Vertex startVertex = getVertex(startNode);
         Pipe<Vertex, T> typed = new MappingPipe<T>(clazz);
         Pipe<Vertex, T> emit = new Pipeline<Vertex, T>(pipe, typed);

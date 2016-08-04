@@ -72,11 +72,10 @@ public class ClearCapacityMarketRole extends AbstractRole<Regulator> implements 
 
             if (currentCDP.getPrice() <= regulator.getCapacityMarketPriceCap()) {
 
-                demand = regulator.getDemandTarget()
-                        * (1 - regulator.getReserveDemandLowerMargin())
+                demand = regulator.getDemandTarget() * (1 - regulator.getReserveDemandLowerMargin())
                         + ((regulator.getCapacityMarketPriceCap() - currentCDP.getPrice())
-                                * (regulator.getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin()) * regulator
-                                    .getDemandTarget()) / regulator.getCapacityMarketPriceCap();
+                                * (regulator.getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin())
+                                * regulator.getDemandTarget()) / regulator.getCapacityMarketPriceCap();
 
                 // logger.warn("Price of this cdp is " + currentCDP.getPrice());
                 // logger.warn("Demand at this cdp is " + demand);
@@ -140,9 +139,10 @@ public class ClearCapacityMarketRole extends AbstractRole<Regulator> implements 
 
         } else {
             acceptedPrice = regulator.getCapacityMarketPriceCap()
-                    * (1 + ((regulator.getDemandTarget() * (1 - regulator.getReserveDemandLowerMargin()) - sumofSupplyBidsAccepted) / ((regulator
-                            .getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin()) * regulator
-                            .getDemandTarget())));
+                    * (1 + ((regulator.getDemandTarget() * (1 - regulator.getReserveDemandLowerMargin())
+                            - sumofSupplyBidsAccepted)
+                            / ((regulator.getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin())
+                                    * regulator.getDemandTarget())));
             clearingPoint.setPrice(max(regulator.getCapacityMarketPriceCap(), acceptedPrice));
             clearingPoint.setVolume(sumofSupplyBidsAccepted);
             clearingPoint.setTime(getCurrentTick());
@@ -159,11 +159,10 @@ public class ClearCapacityMarketRole extends AbstractRole<Regulator> implements 
 
         // VERIFICATION
         double q2 = clearingPoint.getVolume();
-        double q1 = regulator.getDemandTarget()
-                * (1 - regulator.getReserveDemandLowerMargin())
+        double q1 = regulator.getDemandTarget() * (1 - regulator.getReserveDemandLowerMargin())
                 + ((regulator.getCapacityMarketPriceCap() - clearingPoint.getPrice())
-                        * (regulator.getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin()) * regulator
-                            .getDemandTarget()) / regulator.getCapacityMarketPriceCap();
+                        * (regulator.getReserveDemandUpperMargin() + regulator.getReserveDemandLowerMargin())
+                        * regulator.getDemandTarget()) / regulator.getCapacityMarketPriceCap();
         if (q1 == q2) {
             logger.warn("matches");
         } else {

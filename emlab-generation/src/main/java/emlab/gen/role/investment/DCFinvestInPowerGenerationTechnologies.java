@@ -35,8 +35,7 @@ import emlab.gen.repository.Reps;
 @Configurable
 @NodeEntity
 public class DCFinvestInPowerGenerationTechnologies<T extends EnergyProducer> extends GenericInvestmentRole<T>
-implements Role<T>,
-NodeBacked {
+        implements Role<T>, NodeBacked {
 
     @Transient
     @Autowired
@@ -57,12 +56,13 @@ NodeBacked {
         agent.setWillingToInvest(false);
     }
 
-    SimpleRegression calculateRegressionBasedOnTimeStepsAndSubstance(long startTime, long endTime, Substance substance) {
+    SimpleRegression calculateRegressionBasedOnTimeStepsAndSubstance(long startTime, long endTime,
+            Substance substance) {
 
         SimpleRegression sr = new SimpleRegression();
 
-        Iterable<ClearingPoint> clearingPoints = reps.clearingPointRepository.findAllClearingPointsForSubstanceAndTimeRange(substance,
- startTime, endTime, false);
+        Iterable<ClearingPoint> clearingPoints = reps.clearingPointRepository
+                .findAllClearingPointsForSubstanceAndTimeRange(substance, startTime, endTime, false);
 
         for (ClearingPoint cp : clearingPoints) {
             sr.addData(cp.getTime(), cp.getPrice());

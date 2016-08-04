@@ -26,10 +26,13 @@ import emlab.gen.domain.market.CommodityMarket;
 import emlab.gen.repository.Reps;
 
 /**
- * Creates and clears the {@link CommodityMarket}. {@link EnergyProducer} submit bids to purchase commodities; {@link CommoditySupplier} submits ask offers to sell commodities rights
+ * Creates and clears the {@link CommodityMarket}. {@link EnergyProducer} submit
+ * bids to purchase commodities; {@link CommoditySupplier} submits ask offers to
+ * sell commodities rights
  * 
  * @author <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
- * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas Chmieliauskas</a>
+ * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
+ *         Chmieliauskas</a>
  * 
  */
 @RoleComponent
@@ -43,14 +46,20 @@ public class ClearCommodityMarketRole extends AbstractMarketRole<CommodityMarket
         logger.info("Clearing the commodity market for {}", market.getSubstance());
 
         // clear the market
-        // Iterable<Bid> demandBids = reps.bidRepository.findDemandBidsForMarketForTime(market, getCurrentTick());
-        // Iterable<Bid> supplyBids = reps.bidRepository.findOffersForMarketForTime(market, getCurrentTick());
+        // Iterable<Bid> demandBids =
+        // reps.bidRepository.findDemandBidsForMarketForTime(market,
+        // getCurrentTick());
+        // Iterable<Bid> supplyBids =
+        // reps.bidRepository.findOffersForMarketForTime(market,
+        // getCurrentTick());
 
-        // ClearingPoint clearingPoint = calculateClearingPoint(market, supplyBids, demandBids, getCurrentTick());
+        // ClearingPoint clearingPoint = calculateClearingPoint(market,
+        // supplyBids, demandBids, getCurrentTick());
         ClearingPoint clearingPoint = calculateClearingPoint(market, getCurrentTick());
 
         if (clearingPoint != null) {
-            // clearingPoint.updateAbstractMarket(market); // TODO why is this line here, is this needed, it is already done before right?
+            // clearingPoint.updateAbstractMarket(market); // TODO why is this
+            // line here, is this needed, it is already done before right?
             logger.info("Clearing: price " + clearingPoint.getPrice() + " / volume " + clearingPoint.getVolume());
         } else {
             logger.warn("{} did not clear!", market);

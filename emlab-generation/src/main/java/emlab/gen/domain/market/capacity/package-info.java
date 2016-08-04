@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 /**
- * @author Kaveri
- *This package contains all the classes necessary for the implementation of a simple capacity market
- * */
+ * @author Kaveri This package contains all the classes necessary for the
+ *         implementation of a simple capacity market
+ */
 package emlab.gen.domain.market.capacity;

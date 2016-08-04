@@ -51,7 +51,8 @@ public interface BidRepository extends GraphRepository<Bid> {
      * @return the found bids
      */
     // @Query(value =
-    // "g.v(market).in('BIDDINGMARKET').filter{it.time == time}.filter{it.supplyBid == false}",
+    // "g.v(market).in('BIDDINGMARKET').filter{it.time ==
+    // time}.filter{it.supplyBid == false}",
     // type = QueryType.Gremlin)
     // public Iterable<Bid> findDemandBidsForMarketForTime(@Param("market")
     // DecarbonizationMarket market, @Param("time") long time);
@@ -60,7 +61,8 @@ public interface BidRepository extends GraphRepository<Bid> {
     Iterable<Bid> findAllBidsForForTime(@Param("time") long time);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=false) RETURN bid ORDER BY bid.price desc")
-    Iterable<Bid> findDemandBidsForMarketForTime(@Param("market") DecarbonizationMarket market, @Param("time") long time);
+    Iterable<Bid> findDemandBidsForMarketForTime(@Param("market") DecarbonizationMarket market,
+            @Param("time") long time);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=false) and (bid.status>=2) RETURN bid")
     Iterable<Bid> findAllAcceptedDemandBidsForMarketForTime(@Param("market") DecarbonizationMarket market,
@@ -75,7 +77,8 @@ public interface BidRepository extends GraphRepository<Bid> {
      * @return
      */
     // @Query(value =
-    // "g.v(market).in('BIDDINGMARKET').filter{it.time == time}.filter{it.supplyBid == true}",
+    // "g.v(market).in('BIDDINGMARKET').filter{it.time ==
+    // time}.filter{it.supplyBid == true}",
     // type = QueryType.Gremlin)
     // public Iterable<Bid> findOffersForMarketForTime(@Param("market")
     // DecarbonizationMarket market, @Param("time") long time);
@@ -135,14 +138,16 @@ public interface BidRepository extends GraphRepository<Bid> {
             @Param("time") long time, @Param("price") double price);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=false) RETURN sum(bid.amount)")
-    double calculateTotalDemandForMarketForTime(@Param("market") DecarbonizationMarket market, @Param("time") long time);
+    double calculateTotalDemandForMarketForTime(@Param("market") DecarbonizationMarket market,
+            @Param("time") long time);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=false) and (bid.price >= {price}) RETURN sum(bid.amount)")
     double calculateTotalDemandForMarketForTimeForPrice(@Param("market") DecarbonizationMarket market,
             @Param("time") long time, @Param("price") double price);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=true) RETURN sum(bid.amount)")
-    double calculateTotalSupplyForMarketForTime(@Param("market") DecarbonizationMarket market, @Param("time") long time);
+    double calculateTotalSupplyForMarketForTime(@Param("market") DecarbonizationMarket market,
+            @Param("time") long time);
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(bid) WHERE (bid.time = {time}) and (bid.supplyBid=true) RETURN max(bid.price)")
     double calculateTotalSupplyPriceForMarketForTime(@Param("market") DecarbonizationMarket market,

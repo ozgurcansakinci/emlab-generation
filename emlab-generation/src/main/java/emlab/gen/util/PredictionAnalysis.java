@@ -60,7 +60,8 @@ public class PredictionAnalysis {
         String[] gasMedium = new String[200];
         StringBuffer bufCoal = new StringBuffer();
         StringBuffer bufGas = new StringBuffer();
-        bufCoal.append("stochId,year,real,prediction-6-8,prediction-4-6,prediction-4-8,prediction-6-6,prediction-5-7\n");
+        bufCoal.append(
+                "stochId,year,real,prediction-6-8,prediction-4-6,prediction-4-8,prediction-6-6,prediction-5-7\n");
         bufGas.append("stochId,year,real,prediction-6-8,prediction-4-6,prediction-4-8,prediction-6-6,prediction-5-7\n");
 
         for (int j = 1; j <= 120; j++) {
