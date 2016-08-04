@@ -20,8 +20,10 @@ import java.util.List;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.annotation.QueryType;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
 
 import emlab.gen.domain.agent.EnergyProducer;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 
 /**
  * @author JCRichstein
@@ -32,6 +34,9 @@ public interface EnergyProducerRepository extends GraphRepository<EnergyProducer
     @Query(value = "result = g.idx('__types__')[[className:'emlab.gen.domain.agent.EnergyProducer']].propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.TargetInvestor').propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.StochasticTargetInvestor').toList();"
             + "if(result == null){return null;} else {Collections.shuffle(result); return result;}", type = QueryType.Gremlin)
     List<EnergyProducer> findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom();
+
+    @Query(value = "g.v(owner).in('STORAGE_OWNER')", type = QueryType.Gremlin)
+    EnergyStorageTechnology findStorageTechnologyForEnergyProducer(@Param("owner") EnergyProducer owner);
 
     ////////////
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.agent.EnergyProducer']].in('STORAGE_OWNER').out('STORAGE_OWNER')", type = QueryType.Gremlin)

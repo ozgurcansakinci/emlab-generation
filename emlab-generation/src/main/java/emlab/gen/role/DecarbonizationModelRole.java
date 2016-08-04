@@ -43,6 +43,7 @@ import emlab.gen.role.co2policy.RenewableAdaptiveCO2CapRole;
 import emlab.gen.role.investment.DismantlePowerPlantOperationalLossRole;
 import emlab.gen.role.investment.DismantlePowerPlantPastTechnicalLifetimeRole;
 import emlab.gen.role.investment.GenericInvestmentRole;
+import emlab.gen.role.investment.InvestInEnergyStorageTechnologiesRole;
 import emlab.gen.role.market.ClearCommodityMarketRole;
 import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
@@ -146,6 +147,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private ExportLimiterRole exportLimiterRole;
     @Autowired
     private DetermineAnnualResidualLoadCurvesForTwoCountriesRole determineAnnualResidualLoadCurve;
+    @Autowired
+    private InvestInEnergyStorageTechnologiesRole investInEnergyStorageTechnologiesRole;
 
     @Autowired
     Reps reps;
@@ -519,10 +522,10 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         logger.warn("\t Investment on storage.");
         if (getCurrentTick() >= 0) {
-            for (EnergyProducer producer : reps.energyProducerRepository
-                    .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom()) {
+            for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
                 if (producer.getInvestorMarket().isStorageImplemented()) {
                     // Storage investment
+                    investInEnergyStorageTechnologiesRole.act(producer);
                 }
             }
         }
