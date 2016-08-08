@@ -159,6 +159,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             ////////////////////////////////////////////////////////////////////////////////////////////////
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
             DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
+            DoubleMatrix1D valueOfLostLoad = new DenseDoubleMatrix1D(info.getValueOfLostLoad());
             double growthRate = reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
                     .getValue(clearingTick);
             DoubleMatrix1D growthFactors = hourlyArray.copy();
@@ -167,6 +168,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
+
+            m.viewColumn(RLOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
 
             // }
 
@@ -432,6 +435,17 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
         // 8. Store the segment duration and the average load in that segment
         // per country.
 
+        Iterable<Segment> segments = reps.segmentRepository.findAll();
+        for (Segment segment : segments) {
+            // System.out.println(segment.toString());
+            // segment.setLengthInHours(segmentRloadBins[segment.getSegmentID()
+            // - 1].size());
+            segment.setLengthInHoursGLDCForInvestmentRole(segmentRloadBins[segment.getSegmentID() - 1].size());
+            // logger.warn("Segment " + segment.getSegmentID() + ": " +
+            // segment.getLengthInHoursGLDCForInvestmentRole()
+            // + "hours");
+        }
+
         Iterable<SegmentLoad> segmentLoads = reps.segmentLoadRepository.findAll();
         for (SegmentLoad segmentLoad : segmentLoads) {
             Segment segment = segmentLoad.getSegment();
@@ -450,21 +464,17 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // segmentLoad
             // .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID()
             // - 1].mean());
-            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getBaseLoad() + "MW" + "Segment Price "
-                    + priceClearingPoint.getPrice() + segmentLoad.getElectricitySpotMarket().toString());
-        }
 
-        Iterable<Segment> segments = reps.segmentRepository.findAll();
-        for (Segment segment : segments) {
-            // System.out.println(segment.toString());
-            // segment.setLengthInHours(segmentRloadBins[segment.getSegmentID()
-            // - 1].size());
-            segment.setLengthInHoursGLDCForInvestmentRole(segmentRloadBins[segment.getSegmentID() - 1].size());
             // logger.warn("Segment " + segment.getSegmentID() + ": " +
-            // segment.getLengthInHoursGLDCForInvestmentRole()
-            // + "hours");
-        }
+            // segmentLoad.getBaseLoad() + "MW" + "Segment Price "
+            // + priceClearingPoint.getPrice() +
+            // segmentLoad.getElectricitySpotMarket().toString());
 
+            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--"
+                    + " Segment Price " + priceClearingPoint.getPrice() + " Eur/MWh--" + "Hours in Seg: "
+                    + segment.getLengthInHoursGLDCForInvestmentRole() + " "
+                    + segmentLoad.getElectricitySpotMarket().toString());
+        }
     }
 
     public Reps getReps() {
