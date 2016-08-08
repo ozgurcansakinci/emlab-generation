@@ -40,6 +40,8 @@ public class DailyCSVTimeSeries implements DailyTimeSeries {
 
     private boolean timeSeriesAreInDifferentColumns;
 
+    private double lenghtInDays;
+
     private double[] dailyArray;
 
     @Transactional
@@ -165,6 +167,14 @@ public class DailyCSVTimeSeries implements DailyTimeSeries {
     @Override
     public void setDailyArray(double[] dailyArray, long time) {
         this.dailyArray = dailyArray;
+    }
+
+    public double getLenghtInDays() {
+        return lenghtInDays;
+    }
+
+    public void setLenghtInDays(double lenghtInDays) {
+        this.lenghtInDays = lenghtInDays;
     }
 
     private double[] parseString(String[] vals) throws Exception {

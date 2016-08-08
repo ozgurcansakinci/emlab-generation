@@ -156,7 +156,6 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     Neo4jTemplate template;
 
-    // public ArrayList<Plant> pl = new ArrayList<Plant>();
     /**
      * Main model script. Executes other roles in the right sequence.
      */
@@ -210,7 +209,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         Timer timerMarket = new Timer();
         timerMarket.start();
 
-        logger.warn("  0b. Dismantling");
+        logger.warn("  0. Dismantling");
         timerMarket.reset();
         timerMarket.start();
         for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarketsAsList()) {
@@ -441,7 +440,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         }
         // payments for storage
-        logger.warn(" Paying for storage units");
+        logger.warn("\t Paying for storage units");
         for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
             payStorageUnitsRole.act(producer);
         }

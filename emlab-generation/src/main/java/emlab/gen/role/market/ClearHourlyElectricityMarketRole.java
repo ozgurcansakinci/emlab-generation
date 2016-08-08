@@ -87,6 +87,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // int numberOfPowerPlants = 0;
             for (Zone zone : zoneList) {
                 market1 = reps.marketRepository.findElectricitySpotMarketForZone(zone);
+                // market1.getYearlySegmentLoad().get
                 // List<PowerGridNode> nodeList = Utils
                 // .asList(reps.powerGridNodeRepository.findAllPowerGridNodesByZone(zone));
                 // zoneToNodeList.put(zone, nodeList);
@@ -94,13 +95,15 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             YearlySegment yearlySegment = reps.marketRepository
                     .findYearlySegmentForElectricitySpotMarketForTime(market1);
             int timeSteps = (int) yearlySegment.getYearlySegmentLengthInHours();
+            // This variable can be used to initialize demand response CPLEX
+            // variables.
+            // TODO:Should we get one such number of days per model, or can
+            // every market have a diff. one?
+            int numberOfDays = (int) market1.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
+                    .getLenghtInDays();
             double numberofMarkets = reps.marketRepository.countAllElectricitySpotMarkets();
             int numberOfElectricitySpotMarkets = (int) numberofMarkets;
             int numberOfPowerPlants = reps.powerPlantRepository.findNumberOfOperationalPowerPlants(getCurrentTick());
-
-            // The i th row contains the array of variable generation capacity
-            // of plant i
-            IloNumVar[][] generationCapacityofPlantsMatrix = new IloNumVar[numberOfPowerPlants][timeSteps];
 
             // Only works when there is one interconnector
             // TODO:think about the multi node implementation
@@ -116,6 +119,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             // Initializing the CPLEX matrices, they will be created in the
             // upcoming for loops
+
+            // The i th row contains the array of variable generation capacity
+            // of plant i
+            IloNumVar[][] generationCapacityofPlantsMatrix = new IloNumVar[numberOfPowerPlants][timeSteps];
             IloNumVar[] crossBorderGenerationAandB = new IloNumVar[timeSteps];
             IloLinearNumExpr[][] generationEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
             IloLinearNumExpr[][] demandEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
@@ -290,11 +297,14 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 break;
             case 3:
                 // TODO:Work this out!
-                for (int i = 0; i < timeSteps; i++) {
-                    constraints[0][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][i],
-                            cplex.sum(demandEquationsForAllMarkets[0][i], crossBorderGenerationAandB[i]));
-                    constraints[1][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[1][i],
-                            cplex.diff(demandEquationsForAllMarkets[1][i], crossBorderGenerationAandB[i]));
+                for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                    if (market.isStorageImplemented()) {
+
+                    }
+                    if (market.isDailyDemandResponseImplemented()) {
+
+                    }
+
                 }
                 break;
             }
@@ -305,10 +315,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             System.out.println("CO2 Cap is " + co2Cap);
             // Disable CPLEX outputs, so that it runs faster
             cplex.setParam(IloCplex.IntParam.Simplex.Display, 0);
-
-            // List<PpdpAnnual> ppdpAnnualList1 = Utils
-            // .asList(reps.ppdpAnnualRepository.findAllSubmittedPpdpAnnualForGivenTime(getCurrentTick()));
-            // System.out.println(ppdpAnnualList1.size());
 
             if (cplex.solve()) {
                 // Indexes to be used when saving outcomes
@@ -406,7 +412,11 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     FileWriter FW1 = new FileWriter("/Users/apple/Desktop/emlabGen/Emission.csv");
                     FW1.write("Carbon Emissions" + " " + "," + "Generation in A" + "," + "Generation in B" + " " + ","
                             + "Demand in A" + " " + "," + "Demand in B" + " " + "," + "Cross Border Generation" + " "
-                            + "," + "Amount of LL in A" + " " + "," + "Amount of LL in B" + " " + "," + "\n");
+                            + "," + "Amount of LL in A" + " " + "," + "Amount of LL in B" + " " + ","
+                            + "State of charge in storage in A" + " " + "," + "Storage Charging in A" + " " + ","
+                            + "Storage Discharging in A" + " " + "," + "Elastic Demand in A" + " " + ","
+                            + "State of charge in storage in B" + " " + "," + "Storage Charging in B" + " " + ","
+                            + "Storage Discharging in B" + " " + "," + "Elastic Demand in B" + " " + "," + "," + "\n");
                     for (int i = 0; i < timeSteps; ++i) {
                         FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i]) + " " + ","
                                 + cplex.getValue(generationEquationsForAllMarkets[0][i]) + " " + ","
@@ -424,9 +434,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                 + cplex.getValue(storageChargingInMW[1][i]) + " " + ","
                                 + cplex.getValue(storageDischargingInMW[1][i]) + " " + ","
                                 + cplex.getValue(elasticDemandForAllMarkets[1][i]) + "\n");
-                        // FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i])
-                        // + " " + ","
-                        // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
 
                     }
                     FW1.flush();

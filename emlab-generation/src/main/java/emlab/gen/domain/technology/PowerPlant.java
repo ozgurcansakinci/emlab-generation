@@ -88,40 +88,6 @@ public class PowerPlant {
     private double expectedEndOfLife;
     private double actualNominalCapacity;
     private boolean historicalCvarDummyPlant;
-
-    // private HourlyCSVTimeSeries actualHourlyNominalCapacity;
-    //
-    // public HourlyCSVTimeSeries getActualHourlyNominalCapacity() {
-    // return actualHourlyNominalCapacity;
-    // }
-    //
-    // public void setActualHourlyNominalCapacity(HourlyCSVTimeSeries
-    // actualHourlyNominalCapacity) {
-    // this.actualHourlyNominalCapacity = actualHourlyNominalCapacity;
-    // // this.persist();// TODO: ask about this update of the database
-    // }
-
-    // public HourlyCSVTimeSeries getHourlyAvailableCapacity() {
-    // if (this.technology.getName().equals("Wind") ||
-    // this.technology.getName().equals("WindOffshore")) {
-    // this.actualHourlyNominalCapacity.setHourlyArray(location.getWindSpeed().getHourlyArray(0),
-    // 0);
-    // this.actualHourlyNominalCapacity.scalarMultiply(this.actualNominalCapacity);
-    // return this.actualHourlyNominalCapacity;
-    // } else if (this.technology.getName().equals("Photovoltaic")) {
-    // this.actualHourlyNominalCapacity.setHourlyArray(location.getSolarIrradiance().getHourlyArray(0),
-    // 0);
-    // this.actualHourlyNominalCapacity.scalarMultiply(this.actualNominalCapacity);
-    // return this.actualHourlyNominalCapacity;
-    // } else {
-    // // double [] capacity = new
-    // // double[this.actualHourlyNominalCapacity.getHourlyArray(0).length];
-    // Arrays.fill(this.actualHourlyNominalCapacity.getHourlyArray(0),
-    // this.actualNominalCapacity);
-    // return this.actualHourlyNominalCapacity;
-    // }
-    // }
-
     public double ageFraction;
     public double profitability;
 

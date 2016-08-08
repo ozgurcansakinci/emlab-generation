@@ -159,6 +159,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             ////////////////////////////////////////////////////////////////////////////////////////////////
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
             DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
+            DoubleMatrix1D valueOfLostLoad = new DenseDoubleMatrix1D(info.getValueOfLostLoad());
             double growthRate = reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
                     .getValue(clearingTick);
             DoubleMatrix1D growthFactors = hourlyArray.copy();
@@ -167,7 +168,10 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
-
+            ////// Not sure about the following statements, test it!! Removing
+            ////// value of lost load from generation
+            m.viewColumn(RLOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
+            /////////////////////////////////////////////////
             // }
 
         }
@@ -203,7 +207,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
                 m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyRESGenerationPerZone, Functions.minus);
 
                 // TODO: We have to subtract VOLL (volume) from the residual
-                // generation as well.....
+                // generation as well..... comment on 05.08.16: Done in the for
+                // loop above...
 
             }
 
