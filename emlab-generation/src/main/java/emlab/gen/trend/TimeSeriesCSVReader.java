@@ -29,15 +29,15 @@ public class TimeSeriesCSVReader extends TimeSeriesImpl {
 
     private String filename;
 
-	private String delimiter;
+    private String delimiter;
 
-	private String variableName;
+    private String variableName;
 
     private void readSingleColumn() {
 
-		logger.warn("Trying to read single column CSV file: " + filename);
+        logger.warn("Trying to read single column CSV file: " + filename);
 
-		String data = new String();
+        String data = new String();
 
         // Save the data in a long String
         try {
@@ -46,19 +46,19 @@ public class TimeSeriesCSVReader extends TimeSeriesImpl {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
             String line;
-			int lineCounter = 0;
+            int lineCounter = 0;
             while ((line = bufferedReader.readLine()) != null) {
                 data = data.concat(line + ",");
-				lineCounter++;
+                lineCounter++;
             }
             bufferedReader.close();
-			double[] timeSeries = new double[lineCounter];
-			int i = 0;
-			for (String s : data.split("[,]")) {
-				timeSeries[i] = Double.parseDouble(s);
-				i++;
-			}
-			setTimeSeries(timeSeries);
+            double[] timeSeries = new double[lineCounter];
+            int i = 0;
+            for (String s : data.split("[,]")) {
+                timeSeries[i] = Double.parseDouble(s);
+                i++;
+            }
+            setTimeSeries(timeSeries);
 
         } catch (Exception e) {
             logger.error("Couldn't read CSV file: " + filename);
@@ -67,52 +67,52 @@ public class TimeSeriesCSVReader extends TimeSeriesImpl {
         this.persist();
     }
 
-	@Transactional
-	private void readVariableFromCSV() {
-		logger.warn("Trying to read variable " + variableName + " from CSV file: " + filename + " with delimiter "
-				+ delimiter);
+    @Transactional
+    private void readVariableFromCSV() {
+        logger.warn("Trying to read variable " + variableName + " from CSV file: " + filename + " with delimiter "
+                + delimiter);
 
-		// Save the data in a long String
-		try {
+        // Save the data in a long String
+        try {
 
-			InputStreamReader inputStreamReader = new InputStreamReader(this.getClass().getResourceAsStream(filename));
-			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            InputStreamReader inputStreamReader = new InputStreamReader(this.getClass().getResourceAsStream(filename));
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-			String line;
-			String[] lineContentSplit = null;
-			while ((line = bufferedReader.readLine()) != null) {
-				if (line.startsWith(variableName)) {
-					lineContentSplit = line.split(delimiter);
-					break;
-				}
-			}
-			bufferedReader.close();
-			double[] timeSeries = new double[lineContentSplit.length - 1];
-			int i = 0;
-			for (String s : lineContentSplit) {
-				if (i > 0)
-					timeSeries[i - 1] = Double.parseDouble(s);
-				i++;
-			}
-			setTimeSeries(timeSeries);
-			this.persist();
+            String line;
+            String[] lineContentSplit = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.startsWith(variableName)) {
+                    lineContentSplit = line.split(delimiter);
+                    break;
+                }
+            }
+            bufferedReader.close();
+            double[] timeSeries = new double[lineContentSplit.length - 1];
+            int i = 0;
+            for (String s : lineContentSplit) {
+                if (i > 0)
+                    timeSeries[i - 1] = Double.parseDouble(s);
+                i++;
+            }
+            setTimeSeries(timeSeries);
+            this.persist();
 
-		} catch (Exception e) {
-			logger.error("Couldn't read CSV file: " + filename);
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            logger.error("Couldn't read CSV file: " + filename);
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	@Override
-	public double getValue(long time) {
-		if (getTimeSeries() == null)
-			if (variableName != null)
-				readVariableFromCSV();
-			else
-				readSingleColumn();
-		return super.getValue(time);
-	}
+    @Override
+    public double getValue(long time) {
+        if (getTimeSeries() == null)
+            if (variableName != null)
+                readVariableFromCSV();
+            else
+                readSingleColumn();
+        return super.getValue(time);
+    }
 
     public String getFilename() {
         return filename;
@@ -122,20 +122,20 @@ public class TimeSeriesCSVReader extends TimeSeriesImpl {
         this.filename = filename;
     }
 
-	public String getDelimiter() {
-		return delimiter;
-	}
+    public String getDelimiter() {
+        return delimiter;
+    }
 
-	public void setDelimiter(String delimiter) {
-		this.delimiter = delimiter;
-	}
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
 
-	public String getVariableName() {
-		return variableName;
-	}
+    public String getVariableName() {
+        return variableName;
+    }
 
-	public void setVariableName(String variable) {
-		this.variableName = variable;
-	}
+    public void setVariableName(String variable) {
+        this.variableName = variable;
+    }
 
 }

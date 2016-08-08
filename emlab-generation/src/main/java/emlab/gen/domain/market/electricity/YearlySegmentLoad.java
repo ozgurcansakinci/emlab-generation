@@ -19,7 +19,6 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import emlab.gen.trend.DailyCSVTimeSeries;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 
 @NodeEntity
@@ -31,21 +30,34 @@ public class YearlySegmentLoad {
     @RelatedTo(type = "ELECTRICITYSPOTMARKET_LOAD", elementClass = ElectricitySpotMarket.class, direction = Direction.INCOMING)
     private ElectricitySpotMarket electricitySpotMarket;
 
-    // private double baseLoad;
-
-    // private double currentLoad;
-
     @RelatedTo(type = "HOURLY_BASE_DEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private HourlyCSVTimeSeries hourlyInElasticBaseDemandForYearlySegment;
 
-    @RelatedTo(type = "DAILY_BASE_DEMAND_SEGMENT", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private DailyCSVTimeSeries dailyElasticBaseDemandForYearlySegment;
+    @RelatedTo(type = "DAILY_BASE_DEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private HourlyCSVTimeSeries dailyElasticBaseDemandForYearlySegment;
 
     @RelatedTo(type = "HOURLYDEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
     private HourlyCSVTimeSeries hourlyInElasticCurrentDemandForYearlySegment;
 
-    @RelatedTo(type = "DAILYDEMAND_SEGMENT", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private DailyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment;
+    @RelatedTo(type = "DAILYDEMAND_SEGMENT", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
+    private HourlyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment;
+
+    public HourlyCSVTimeSeries getDailyElasticBaseDemandForYearlySegment() {
+        return dailyElasticBaseDemandForYearlySegment;
+    }
+
+    public void setDailyElasticBaseDemandForYearlySegment(HourlyCSVTimeSeries dailyElasticBaseDemandForYearlySegment) {
+        this.dailyElasticBaseDemandForYearlySegment = dailyElasticBaseDemandForYearlySegment;
+    }
+
+    public HourlyCSVTimeSeries getDailyElasticCurrentDemandForYearlySegment() {
+        return dailyElasticCurrentDemandForYearlySegment;
+    }
+
+    public void setDailyElasticCurrentDemandForYearlySegment(
+            HourlyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment) {
+        this.dailyElasticCurrentDemandForYearlySegment = dailyElasticCurrentDemandForYearlySegment;
+    }
 
     public HourlyCSVTimeSeries getHourlyInElasticBaseDemandForYearlySegment() {
         return hourlyInElasticBaseDemandForYearlySegment;
@@ -56,14 +68,6 @@ public class YearlySegmentLoad {
         this.hourlyInElasticBaseDemandForYearlySegment = hourlyInElasticBaseDemandForYearlySegment;
     }
 
-    public DailyCSVTimeSeries getDailyElasticBaseDemandForYearlySegment() {
-        return dailyElasticBaseDemandForYearlySegment;
-    }
-
-    public void setDailyElasticBaseDemandForYearlySegment(DailyCSVTimeSeries dailyElasticBaseDemandForYearlySegment) {
-        this.dailyElasticBaseDemandForYearlySegment = dailyElasticBaseDemandForYearlySegment;
-    }
-
     public HourlyCSVTimeSeries getHourlyInElasticCurrentDemandForYearlySegment() {
         return hourlyInElasticCurrentDemandForYearlySegment;
     }
@@ -71,15 +75,6 @@ public class YearlySegmentLoad {
     public void setHourlyInElasticCurrentDemandForYearlySegment(
             HourlyCSVTimeSeries hourlyInElasticCurrentDemandForYearlySegment) {
         this.hourlyInElasticCurrentDemandForYearlySegment = hourlyInElasticCurrentDemandForYearlySegment;
-    }
-
-    public DailyCSVTimeSeries getDailyElasticCurrentDemandForYearlySegment() {
-        return dailyElasticCurrentDemandForYearlySegment;
-    }
-
-    public void setDailyElasticCurrentDemandForYearlySegment(
-            DailyCSVTimeSeries dailyElasticCurrentDemandForYearlySegment) {
-        this.dailyElasticCurrentDemandForYearlySegment = dailyElasticCurrentDemandForYearlySegment;
     }
 
     public YearlySegment getYearlySegment() {

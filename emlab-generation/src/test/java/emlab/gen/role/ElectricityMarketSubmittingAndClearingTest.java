@@ -97,11 +97,7 @@ public class ElectricityMarketSubmittingAndClearingTest {
         co2TaxTrend.setIncrement(0);
         gov.setCo2TaxTrend(co2TaxTrend);
 
-
-
         CO2Auction co2Auction = new CO2Auction().persist();
-
-
 
         Zone zone1 = new Zone();
         Zone zone2 = new Zone();
@@ -212,7 +208,7 @@ public class ElectricityMarketSubmittingAndClearingTest {
         gas.setName("Gas");
         gas.setEnergyDensity(1000);
 
-        CommodityMarket coalMarket =  new CommodityMarket().persist();
+        CommodityMarket coalMarket = new CommodityMarket().persist();
         CommodityMarket gasMarket = new CommodityMarket().persist();
 
         coalMarket.setSubstance(coal);
@@ -232,7 +228,6 @@ public class ElectricityMarketSubmittingAndClearingTest {
         HashSet<Substance> fuelMixGas = new HashSet<Substance>();
         fuelMixGas.add(gas);
 
-
         PowerGeneratingTechnology coalTech = new PowerGeneratingTechnology();
         coalTech.setFuels(fuelMixCoal);
         coalTech.setPeakSegmentDependentAvailability(1);
@@ -242,7 +237,6 @@ public class ElectricityMarketSubmittingAndClearingTest {
         gasTech.setFuels(fuelMixGas);
         gasTech.setPeakSegmentDependentAvailability(1);
         gasTech.setBaseSegmentDependentAvailability(1);
-
 
         coalTech.persist();
         gasTech.persist();
@@ -402,13 +396,11 @@ public class ElectricityMarketSubmittingAndClearingTest {
 
         DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
 
-
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             determineFuelMixRole.act(producer);
             submitOffersToElectricitySpotMarketRole.act(producer);
             producer.act(determineFuelMixRole);
         }
-
 
         // submitOffersToElectricitySpotMarketRole.createOffersForElectricitySpotMarket(null,
         // getCurrentTick() + 3, true,
@@ -424,10 +416,9 @@ public class ElectricityMarketSubmittingAndClearingTest {
         // " accepted: " + ppdp.getAcceptedAmount());
         // }
 
-
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
-        .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
-                getCurrentTick(), null, null, 0);
+                .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model, false,
+                        getCurrentTick(), null, null, 0);
 
         // ppdps = reps.powerPlantDispatchPlanRepository.findAll();
         // for (PowerPlantDispatchPlan ppdp : ppdps) {
@@ -441,12 +432,12 @@ public class ElectricityMarketSubmittingAndClearingTest {
         // logger.warn(scp.toString());
         // }
 
-        //Check that
+        // Check that
         for (PowerPlant plant : reps.powerPlantRepository.findAll()) {
-            for(Segment s : reps.segmentRepository.findAll()){
+            for (Segment s : reps.segmentRepository.findAll()) {
                 PowerPlantDispatchPlan plan = reps.powerPlantDispatchPlanRepository
                         .findOnePowerPlantDispatchPlanForPowerPlantForSegmentForTime(plant, s, 0, false);
-                if(plan.getPowerPlant().getName().equals("CoalInM1")){
+                if (plan.getPowerPlant().getName().equals("CoalInM1")) {
                     assertEquals("CoalInM1 right price", 24, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM1 right amount", 500, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -457,7 +448,7 @@ public class ElectricityMarketSubmittingAndClearingTest {
                         assertEquals("CoalInM1 right accepted amount in S2", 500, plan.getAcceptedAmount(), 0.001);
                     }
                     break;
-                } else if(plan.getPowerPlant().getName().equals("CoalInM2")){
+                } else if (plan.getPowerPlant().getName().equals("CoalInM2")) {
                     assertEquals("CoalInM2 right price", 27, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM2 right amount", 400, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -495,9 +486,9 @@ public class ElectricityMarketSubmittingAndClearingTest {
 
         }
 
-        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAll()){
-            if(scp.getAbstractMarket().getName().equals("Market1")){
-                switch(scp.getSegment().getSegmentID()){
+        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAll()) {
+            if (scp.getAbstractMarket().getName().equals("Market1")) {
+                switch (scp.getSegment().getSegmentID()) {
                 case 1:
                     assertEquals("Clearing Point Market 1, segment1 price", 36, scp.getPrice(), 0.001);
                     assertEquals("Clearing Point Market 1, segment1 volume", 7900, scp.getVolume(), 0.001);
@@ -507,7 +498,7 @@ public class ElectricityMarketSubmittingAndClearingTest {
                     assertEquals("Clearing Point Market 1, segment2 volume", 10000.2, scp.getVolume(), 0.001);
                     break;
                 }
-            } else if(scp.getAbstractMarket().getName().equals("Market2")){
+            } else if (scp.getAbstractMarket().getName().equals("Market2")) {
                 switch (scp.getSegment().getSegmentID()) {
                 case 1:
                     assertEquals("Clearing Point Market 2, segment1 price", 40, scp.getPrice(), 0.001);
@@ -521,7 +512,6 @@ public class ElectricityMarketSubmittingAndClearingTest {
             }
         }
 
-
     }
 
     @Test
@@ -530,9 +520,8 @@ public class ElectricityMarketSubmittingAndClearingTest {
         DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
         model.setCentralForecastingYear(3);
 
-
         clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
-        .makeCentralElectricityMarketForecastForTimeStep(getCurrentTick() + model.getCentralForecastingYear());
+                .makeCentralElectricityMarketForecastForTimeStep(getCurrentTick() + model.getCentralForecastingYear());
 
         Iterable<PowerPlantDispatchPlan> ppdps = reps.powerPlantDispatchPlanRepository.findAll();
         for (PowerPlantDispatchPlan ppdp : ppdps) {
@@ -543,7 +532,7 @@ public class ElectricityMarketSubmittingAndClearingTest {
             for (Segment s : reps.segmentRepository.findAll()) {
                 PowerPlantDispatchPlan plan = reps.powerPlantDispatchPlanRepository
                         .findOnePowerPlantDispatchPlanForPowerPlantForSegmentForTime(plant, s, 3, true);
-                if(plant.getName().equals("CoalInM1")) {
+                if (plant.getName().equals("CoalInM1")) {
                     assertEquals("CoalInM1 right price", 24, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM1 right amount", 500, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -552,8 +541,9 @@ public class ElectricityMarketSubmittingAndClearingTest {
                         break;
                     case 2:
                         assertEquals("CoalInM1 right accepted amount in S2", 500, plan.getAcceptedAmount(), 0.001);
-                    };
-                } else if(plant.getName().equals("CoalInM2")){
+                    }
+                    ;
+                } else if (plant.getName().equals("CoalInM2")) {
                     assertEquals("CoalInM2 right price", 27, plan.getBidWithoutCO2(), 0.001);
                     assertEquals("CoalInM2 right amount", 400, plan.getAmount(), 0.001);
                     switch (s.getSegmentID()) {
@@ -562,8 +552,8 @@ public class ElectricityMarketSubmittingAndClearingTest {
                         break;
                     case 2:
                         assertEquals("CoalInM2 right accepted amount in S2", 399.99, plan.getAcceptedAmount(), 0.001);
-                    }}
-                else if(plant.getName().equals("GasInM1")){
+                    }
+                } else if (plant.getName().equals("GasInM1")) {
                     assertEquals("There shouldn't be a PPDP, since plant expected to be dismantled", null, plan);
                     break;
                 } else if (plant.getName().equals("GasInM2")) {
@@ -581,8 +571,8 @@ public class ElectricityMarketSubmittingAndClearingTest {
             }
         }
 
-        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAllSegmentClearingPointsForTime(
-                getCurrentTick() + 3, true)) {
+        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository
+                .findAllSegmentClearingPointsForTime(getCurrentTick() + 3, true)) {
             if (scp.getAbstractMarket().getName().equals("Market1")) {
                 switch (scp.getSegment().getSegmentID()) {
                 case 1:

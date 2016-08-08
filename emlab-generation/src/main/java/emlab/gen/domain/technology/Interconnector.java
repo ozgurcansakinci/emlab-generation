@@ -23,7 +23,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.transaction.annotation.Transactional;
 
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
-import emlab.gen.trend.HourlyCSVTimeSeries;
+import emlab.gen.domain.market.electricity.YearlySegment;
 //import emlab.gen.trend.HourlyVariableTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
 
@@ -40,23 +40,15 @@ public class Interconnector {
     @RelatedTo(type = "INTERCONNECTOR_CAPACITY_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl interconnectorCapacityTrend;
 
-    //////////////////////////////////////////////
+    @RelatedTo(type = "YEARLYSEGMENT_INTERCONNECTOR", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
+    private YearlySegment yearlySegment;
 
-    private double maxInterconnectorCapacity;
+    public YearlySegment getYearlySegment() {
+        return yearlySegment;
+    }
 
-    // private double minInterconnectorCapacity;
-    //
-    // public double getMinInterconnectorCapacity() {
-    // return minInterconnectorCapacity;
-    // }
-    //
-    // public void setMinInterconnectorCapacity(double
-    // minInterconnectorCapacity) {
-    // this.minInterconnectorCapacity = minInterconnectorCapacity;
-    // }
-
-    public double getMaxInterconnectorCapacity() {
-        return maxInterconnectorCapacity;
+    public void setYearlySegment(YearlySegment yearlySegment) {
+        this.yearlySegment = yearlySegment;
     }
 
     public Set<ElectricitySpotMarket> getSpotMarketConnections() {
@@ -66,36 +58,6 @@ public class Interconnector {
     public void setSpotMarketConnections(Set<ElectricitySpotMarket> spotMarketConnections) {
         this.spotMarketConnections = spotMarketConnections;
     }
-
-    public void setMaxInterconnectorCapacity(double maxInterconnectorCapacity) {
-        this.maxInterconnectorCapacity = maxInterconnectorCapacity;
-    }
-
-    /////////////////////////////////////////////////////////
-
-    private HourlyCSVTimeSeries interconnectorFlowFromAtoB;
-
-    private HourlyCSVTimeSeries interconnectorFlowFromBtoA;
-
-    /////////////////////////////////////////////////////////
-
-    public HourlyCSVTimeSeries getInterconnectorFlowFromAtoB() {
-        return interconnectorFlowFromAtoB;
-    }
-
-    public void setInterconnectorFlowFromAtoB(HourlyCSVTimeSeries interconnectorFlowFromAtoB) {
-        this.interconnectorFlowFromAtoB = interconnectorFlowFromAtoB;
-    }
-
-    public HourlyCSVTimeSeries getInterconnectorFlowFromBtoA() {
-        return interconnectorFlowFromBtoA;
-    }
-
-    public void setInterconnectorFlowFromBtoA(HourlyCSVTimeSeries interconnectorFlowFromBtoA) {
-        this.interconnectorFlowFromBtoA = interconnectorFlowFromBtoA;
-    }
-
-    /////////////////////////////////////////////////////////
 
     public Set<PowerGridNode> getConnections() {
         return connections;

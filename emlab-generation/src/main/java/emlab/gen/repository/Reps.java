@@ -69,6 +69,9 @@ public class Reps {
     public YearlySegmentClearingPointMarketInformationRepository yearlySegmentClearingPointMarketInformationRepository;
 
     @Autowired
+    public YearlySegmentClearingPointInterconnectorInformationRepository yearlySegmentClearingPointInterconnectorInformationRepository;
+
+    @Autowired
     public NationalGovernmentRepository nationalGovernmentRepository;
 
     @Autowired
@@ -130,5 +133,8 @@ public class Reps {
 
     @Autowired
     public CapacityDispatchPlanRepository capacityDispatchPlanRepository;
+
+    @Autowired
+    public EnergyStorageTechnologyRepository energyStorageTechnologyRepository;
 
 }

@@ -15,7 +15,6 @@
  ******************************************************************************/
 package emlab.gen.repository;
 
-
 import org.springframework.stereotype.Repository;
 
 import emlab.gen.domain.agent.DecarbonizationAgent;
@@ -26,55 +25,60 @@ import emlab.gen.domain.technology.PowerPlant;
 
 /**
  * Repository for cash flows
+ * 
  * @author ejlchappin
  *
  */
 @Repository
 public class NonTransactionalCreateRepository extends AbstractRepository<CashFlow> {
 
-	/**
-	 * Creates cash flow.
-	 * Note: this is not transactional, so when called, it should be transactional there!
-	 * @param from 
-	 * @param to
-	 * @param amount the money transfered
-	 * @param type what the cashflow is about
-	 * @param time the time
-	 * @param plant the power plant related to this cash flow
-	 * @return the cash flow
-	 */
-	public CashFlow createCashFlow(DecarbonizationAgent from,
-			DecarbonizationAgent to, double amount, int type, long time,
-			PowerPlant plant) {
-		CashFlow cashFlow = new CashFlow().persist();
-		cashFlow.setFrom(from);
-		cashFlow.setTo(to);
-		cashFlow.setMoney(amount);
-		cashFlow.setType(type);
-		cashFlow.setTime(time);
-		cashFlow.setRegardingPowerPlant(plant);
-		from.setCash(from.getCash() - amount);
-		if (to != null) {
-			to.setCash(to.getCash() + amount);
-		}
+    /**
+     * Creates cash flow. Note: this is not transactional, so when called, it
+     * should be transactional there!
+     * 
+     * @param from
+     * @param to
+     * @param amount
+     *            the money transfered
+     * @param type
+     *            what the cashflow is about
+     * @param time
+     *            the time
+     * @param plant
+     *            the power plant related to this cash flow
+     * @return the cash flow
+     */
+    public CashFlow createCashFlow(DecarbonizationAgent from, DecarbonizationAgent to, double amount, int type,
+            long time, PowerPlant plant) {
+        CashFlow cashFlow = new CashFlow().persist();
+        cashFlow.setFrom(from);
+        cashFlow.setTo(to);
+        cashFlow.setMoney(amount);
+        cashFlow.setType(type);
+        cashFlow.setTime(time);
+        cashFlow.setRegardingPowerPlant(plant);
+        from.setCash(from.getCash() - amount);
+        if (to != null) {
+            to.setCash(to.getCash() + amount);
+        }
 
-		return cashFlow;
-	}
-	
+        return cashFlow;
+    }
 
     /**
-     * Submit bids to a market. 
-     * Note: this is not transactional, so when called, it should be transactional there!
+     * Submit bids to a market. Note: this is not transactional, so when called,
+     * it should be transactional there!
+     * 
      * @param market
-     * @param agent 
+     * @param agent
      * @param time
      * @param isSupply
      * @param price
      * @param amount
      * @return the submitted bid
      */
-    public Bid submitBidToMarket(DecarbonizationMarket market, DecarbonizationAgent agent, long time, boolean isSupply, double price,
-            double amount) {
+    public Bid submitBidToMarket(DecarbonizationMarket market, DecarbonizationAgent agent, long time, boolean isSupply,
+            double price, double amount) {
 
         Bid bid = new Bid().persist();
         bid.setBiddingMarket(market);

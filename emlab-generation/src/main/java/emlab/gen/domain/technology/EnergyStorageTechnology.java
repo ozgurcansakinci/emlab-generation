@@ -20,6 +20,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import emlab.gen.domain.agent.EnergyProducer;
+import emlab.gen.domain.contract.Loan;
 import emlab.gen.trend.TimeSeriesImpl;
 
 @NodeEntity
@@ -44,6 +45,9 @@ public class EnergyStorageTechnology {
     @RelatedTo(type = "OUTFLOW_EFFICIENCYTS", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl efficiencyOutFlowTimeSeries;
 
+    @RelatedTo(type = "STORAGE_LOAN", elementClass = Loan.class, direction = Direction.OUTGOING)
+    private Loan loan;
+
     private double baseMaxStorageCapacity;
 
     private double currentMaxStorageCapacity;
@@ -55,6 +59,26 @@ public class EnergyStorageTechnology {
     private double baseMaxStorageDischargingRate;
 
     private double currentMaxStorageDischargingRate;
+
+    private double initialStateOfChargeInStorage;
+
+    public double getInitialStateOfChargeInStorage() {
+        return initialStateOfChargeInStorage;
+    }
+
+    public void setInitialStateOfChargeInStorage(double initialStateOfChargeInStorage) {
+        this.initialStateOfChargeInStorage = initialStateOfChargeInStorage;
+    }
+
+    public double getFinalStateOfChargeInStorage() {
+        return finalStateOfChargeInStorage;
+    }
+
+    public void setFinalStateOfChargeInStorage(double finalStateOfChargeInStorage) {
+        this.finalStateOfChargeInStorage = finalStateOfChargeInStorage;
+    }
+
+    private double finalStateOfChargeInStorage;
 
     public String getName() {
         return name;
@@ -152,6 +176,14 @@ public class EnergyStorageTechnology {
 
     public void setCurrentMaxStorageDischargingRate(double currentMaxStorageDischargingRate) {
         this.currentMaxStorageDischargingRate = currentMaxStorageDischargingRate;
+    }
+
+    public Loan getLoan() {
+        return loan;
+    }
+
+    public void setLoan(Loan loan) {
+        this.loan = loan;
     }
 
 }

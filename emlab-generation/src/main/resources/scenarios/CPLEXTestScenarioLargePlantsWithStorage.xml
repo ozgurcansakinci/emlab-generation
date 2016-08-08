@@ -156,10 +156,29 @@
 	</bean>
 
 	<!-- Yearly segment for the annual optimization -->
+	
 	<bean id="yearlySegment" class="emlab.gen.domain.market.electricity.YearlySegment"
 		p:yearlySegmentLengthInHours="8760" p:yearlySegmentID="1" />
+		
+	<!-- Inelastic hourly demand for ESM for NL and DE -->
+	
 	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter="," />
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" 
+		p:lengthInHours="${lengthInHours}" p:delimiter="," />
+		
+	<bean id="InElasticDemandDE" class="emlab.gen.trend.HourlyCSVTimeSeries" 
+		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:timeSeriesAreInDifferentColumns="true" 
+		p:lengthInHours="${lengthInHours}" p:delimiter="," />
+		
+	<!-- Elastic daily demand for ESM for NL and DE -->
+	
+	<bean id="elasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
+		p:filename="/data/NodeDemandDailySeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" 
+		p:delimiter="," p:lengthInHours="365" p:elasticDemandShift="24"/>
+		
+	<bean id="elasticDemandDE" class="emlab.gen.trend.HourlyCSVTimeSeries" 
+		p:filename="/data/NodeDemandDailySeriesData.csv" p:variableName="de" p:timeSeriesAreInDifferentColumns="true" 
+		p:delimiter="," p:lengthInHours="365" p:elasticDemandShift="24"/>
 		
 		
 	<!-- Segments of load duration curves -->
@@ -206,12 +225,14 @@
 		
 	<bean id="yearlySegmentLoadNL" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">	
 		<property name="hourlyInElasticBaseDemandForYearlySegment" ref="InElasticDemandNL" />
+		<property name="dailyElasticBaseDemandForYearlySegment" ref="elasticDemandNL" />
 		<property name="yearlySegment" ref="yearlySegment" />
 		<property name="electricitySpotMarket" ref="beneluxElectricitySpotMarket" />
 	</bean>
 	
 	<bean id="yearlySegmentLoadDE" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">
 		<property name="hourlyInElasticBaseDemandForYearlySegment" ref="InElasticDemandDE" />
+		<property name="dailyElasticBaseDemandForYearlySegment" ref="elasticDemandDE" />
 		<property name="yearlySegment" ref="yearlySegment" />
 		<property name="electricitySpotMarket" ref="germanElectricitySpotMarket" />
 	</bean>
@@ -219,8 +240,9 @@
 	<!-- Markets -->
 	<!-- Electricity Spot -->
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
-		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="false"
-		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5">
+		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
+		p:storageImplemented="true">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
@@ -250,8 +272,7 @@
 				<ref bean="segment20nl" />
 			</set>
 		</property>
-		<property name="hourlyInElasticDemandForESMarket" ref="InElasticDemandNL" />
-
+<!-- 		<property name="hourlyInElasticDemandForESMarket" ref="InElasticDemandNL" /> -->
 	</bean>
 	
 
@@ -337,8 +358,9 @@
 	</bean>
 
 	<bean id="germanElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
-		p:name="Country B electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="false"
-		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5">
+		p:name="Country B electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
+		p:storageImplemented="true">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendDE" />
 		<property name="zone" ref="de" />
@@ -368,11 +390,8 @@
 				<ref bean="segment20de" />
 			</set>
 		</property>
-		<property name="hourlyInElasticDemandForESMarket" ref="InElasticDemandDE" />
+<!-- 		<property name="hourlyInElasticDemandForESMarket" ref="InElasticDemandDE" /> -->
 	</bean>
-	
-	<bean id="InElasticDemandDE" class="emlab.gen.trend.HourlyCSVTimeSeries" 
-		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter="," />
 
 	<bean id="segment1de" class="emlab.gen.domain.market.electricity.SegmentLoad"
 		p:baseLoad="${segment1de}">
@@ -501,7 +520,7 @@
 <!-- 	<bean id="lignitePrice" class="emlab.gen.trend.TriangularTrend" -->
 <!-- 		p:start="50.14" p:min="0.99" p:max="1.01" p:top="1.00"/> -->
 		
-		<bean id="coalPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
+	<bean id="coalPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
 		p:filename="/data/Kaveri/coalPrice.csv" p:startingYear="0"
 		p:delimiter="," p:variableName="coalPrice-1" />
 	<bean id="gasPrice" class="emlab.gen.trend.TimeSeriesCSVReader"
@@ -707,6 +726,45 @@
 		<property name="regulator" ref="regulatorB"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="de" />
+	</bean>
+	
+	
+	<bean id="capitalCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/CapitalCosts.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="CapitalCost-1" />
+		
+	<bean id="operationsCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/OandMCosts.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="OandMCost-1" />
+		
+	<bean id="inflowEfficiency" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/IFEff.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="IFEff-1" />
+		
+	<bean id="outflowEfficiency" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/OFEff.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="OFEff-1" />
+		
+	<!-- Storage Energy technologies -->
+	
+	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology"
+		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
+		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
+		<property name="ownerStorageUnit" ref="energyProducerA"/>
+		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
+		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
+		<property name="efficiencyInFlowTimeSeries" ref="inflowEfficiency" />
+		<property name="efficiencyOutFlowTimeSeries" ref="outflowEfficiency" />
+	</bean>
+	
+	<bean id="storageUnitForDE" class="emlab.gen.domain.technology.EnergyStorageTechnology"
+		p:name="Storage Unit for DE ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
+		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
+		<property name="ownerStorageUnit" ref="energyProducerF"/>
+		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
+		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
+		<property name="efficiencyInFlowTimeSeries" ref="inflowEfficiency" />
+		<property name="efficiencyOutFlowTimeSeries" ref="outflowEfficiency" />
 	</bean>
 
 	<!-- Renewable Targets CWE -->

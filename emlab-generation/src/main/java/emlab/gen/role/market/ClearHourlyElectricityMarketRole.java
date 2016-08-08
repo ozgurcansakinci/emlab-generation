@@ -32,6 +32,7 @@ import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.YearlySegment;
 import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInformation;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.domain.technology.Interconnector;
 import emlab.gen.repository.Reps;
 import emlab.gen.util.Utils;
@@ -57,44 +58,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
     Neo4jTemplate template;
 
     // merging prad's branch to get the dismantle role
-
-    ///////////////////////////////////////// parameters for country A
-
-    double maxEnergycontentStorageA = 1000;
-    double minEnergycontentStorageA = 0;
-    double initialChargeInStorageA = 250;
-    double maxStorageFlowInA = 1;
-    double minStorageFlowInA = 0;
-    double maxStorageFlowOutA = 1;
-    double minStorageFlowOutA = 0;
-    double nA = 0.90; // Storage efficiency
-    double nInvA = 1 / nA; // Inverse efficiency
-
-    double dailyMinConsumptionA = 0;
-    double dailyMaxConsumptionA = Double.MAX_VALUE;
-
-    //////////////////////////////////////////////////////////////////
-
-    ///////////////////////////////////////// parameters for country B
-
-    double maxEnergycontentStorageB = 1000;
-    double minEnergycontentStorageB = 0;
-    double initialChargeInStorageB = 500;
-    double maxStorageFlowInB = 1;
-    double minStorageFlowInB = 0;
-    double maxStorageFlowOutB = 1;
-    double minStorageFlowOutB = 0;
-    double nB = 0.90; // Storage efficiency
-    double nInvB = 1 / nB; // Inverse efficiency
-
-    double dailyMinConsumptionB = 0;
-    double dailyMaxConsumptionB = Double.MAX_VALUE;
-
-    //////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////
-
-    ///////////////////////////////////////////////////////////////////
 
     @Transactional
     @Override
@@ -131,6 +94,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             YearlySegment yearlySegment = reps.marketRepository
                     .findYearlySegmentForElectricitySpotMarketForTime(market1);
             int timeSteps = (int) yearlySegment.getYearlySegmentLengthInHours();
+
             // for (Zone zone : zoneList) {
             //
             // for (PowerGridNode node : zoneToNodeList.get(zone)) {
@@ -181,6 +145,14 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // powerPlantList =
             // reps.powerPlantRepository.findOperationalPowerPlants(getCurrentTick());
 
+            double PTDFBtoAB = -0.6666666666666666;
+            double PTDFBtoAC = -0.3333333333333333;
+            double PTDFBtoBC = 0.3333333333333333;
+
+            double PTDFCtoAB = -0.3333333333333333;
+            double PTDFCtoAC = -0.6666666666666666;
+            double PTDFCtoBC = -0.3333333333333333;
+
             double numberofMarkets = reps.marketRepository.countAllElectricitySpotMarkets();
 
             int numberOfElectricitySpotMarkets = (int) numberofMarkets;
@@ -195,6 +167,12 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             // Only works when there is one interconnector
             // TODO:think about the multi node implementation
+
+            double numberofICs = reps.interconnectorRepository.countAllInterconnectors();
+
+            System.out.println("Number of interconnectors are: " + numberofICs);
+
+            int numberofInterconnectors = (int) numberofICs;
 
             double maxMarketCrossBorderFlowAandB = reps.template.findAll(Interconnector.class).iterator().next()
                     .getCapacity(getCurrentTick());
@@ -235,7 +213,12 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // System.out.println(market.getName());
             }
 
+            // Interconnectors Data Structure
+
             IloNumVar[] crossBorderGenerationAandB = new IloNumVar[timeSteps];
+
+            IloNumVar[][] crossBorderFlowVariablesForAllInterconnectors = new IloNumVar[numberofInterconnectors][timeSteps];
+
             // for (int i = 0; i < timeSteps; i++) {
             // crossBorderGenerationAandB[i] =
             // cplex.numVar(minMarketCrossBorderFlowAandB,
@@ -250,65 +233,150 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             IloNumVar[][] inelasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
 
+            // Demand response data structure
+            IloNumVar[][] elasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
+            IloLinearNumExpr[][] accumulativeElasticDemandPerDayForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][365];
+
+            // TODO:Get the number 365 from the file
+
             IloNumVar[][] valueOfLostLoadInMWH = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
+            // Storage data structures
+
+            IloNumVar[][] storageChargingInMW = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
+            IloNumVar[][] storageDischargingInMW = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
+            IloNumVar[][] stateOfChargeInMWh = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
+
+            IloLinearNumExpr[][] storageContentExpressionsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
 
             IloLinearNumExpr objective = cplex.linearNumExpr();
 
-            // double[] marginalCostOfPowerPlantsForCurrentTick = new
-            // double[numberOfPowerPlants];
-
-            // double[] emissionsIntensityOfPowerPlantsForCurrentTick = new
-            // double[numberOfPowerPlants];
-
             int marketIndex = 0;
             int plantIndex = 0;
-            int Index = 0;
 
             for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
-                // ESMtoPPList.get(market)
+
+                EnergyStorageTechnology storageTechnologyInMarket;
+                if (market.isStorageImplemented()) {
+                    storageTechnologyInMarket = reps.energyStorageTechnologyRepository
+                            .findEnergyStorageTechnologyByMarket(market);
+
+                } else {
+                    storageTechnologyInMarket = null;
+                }
+
                 for (int i = 0; i < timeSteps; i++) {
+                    if (market.isStorageImplemented()) {
+                        if (i == 0) {
+                            stateOfChargeInMWh[marketIndex][i] = cplex.numVar(
+                                    storageTechnologyInMarket.getInitialStateOfChargeInStorage(),
+                                    storageTechnologyInMarket.getInitialStateOfChargeInStorage());
+                            storageDischargingInMW[marketIndex][i] = cplex.numVar(0, 0);
+                            storageChargingInMW[marketIndex][i] = cplex.numVar(0, 0);
+                        } else {
+                            stateOfChargeInMWh[marketIndex][i] = cplex.numVar(0,
+                                    storageTechnologyInMarket.getCurrentMaxStorageCapacity());
+
+                            storageDischargingInMW[marketIndex][i] = cplex.numVar(0,
+                                    storageTechnologyInMarket.getCurrentMaxStorageDischargingRate());
+
+                            storageChargingInMW[marketIndex][i] = cplex.numVar(0,
+                                    storageTechnologyInMarket.getCurrentMaxStorageChargingRate());
+                            storageContentExpressionsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
+                        }
+
+                        if (i != 0) {
+
+                            storageContentExpressionsForAllMarkets[marketIndex][i].addTerm(1,
+                                    stateOfChargeInMWh[marketIndex][i - 1]);
+
+                            storageContentExpressionsForAllMarkets[marketIndex][i].addTerm(storageTechnologyInMarket
+                                    .getEfficiencyInFlowTimeSeries().getValue(getCurrentTick()),
+                                    storageChargingInMW[marketIndex][i]);
+
+                            storageContentExpressionsForAllMarkets[marketIndex][i]
+                                    .addTerm(
+                                            -storageTechnologyInMarket.getEfficiencyOutFlowTimeSeries()
+                                                    .getValue(getCurrentTick()),
+                                            storageDischargingInMW[marketIndex][i]);
+                        } else {
+
+                        }
+                    }
 
                     generationEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
 
                     crossBorderGenerationAandB[i] = cplex.numVar(minMarketCrossBorderFlowAandB,
                             maxMarketCrossBorderFlowAandB);
+
                     // inelasticDemandForAllMarkets[marketIndex][i] =
                     // cplex.numVar(
                     // market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i],
                     // market.getHourlyInElasticDemandForESMarket().getHourlyArray(0)[i]);
+
                     inelasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(
                             market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment()
                                     .getHourlyArray(0)[i],
                             market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment()
                                     .getHourlyArray(0)[i]);
-
                     valueOfLostLoadInMWH[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);
-
                     demandEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
-
                     demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
                             inelasticDemandForAllMarkets[marketIndex][i]);
 
+                    if (market.isDailyDemandResponseImplemented()) {
+                        elasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);
+                        demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                                elasticDemandForAllMarkets[marketIndex][i]);
+                    }
+
                     generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);
 
+                    if (market.isStorageImplemented()) {
+                        generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                                storageDischargingInMW[marketIndex][i]);
+                        demandEquationsForAllMarkets[marketIndex][i].addTerm(1, storageChargingInMW[marketIndex][i]);
+                    }
+
                     objective.addTerm(market.getValueOfLostLoad(), valueOfLostLoadInMWH[marketIndex][i]);
+
+                    if (market.isDailyDemandResponseImplemented()) {
+
+                        int demandShiftFactor = (int) market.getYearlySegmentLoad()
+                                .getDailyElasticBaseDemandForYearlySegment().getElasticDemandShift();
+
+                        if ((i + 1) % demandShiftFactor == 0 && i != 0) {
+                            accumulativeElasticDemandPerDayForAllMarkets[marketIndex][((i + 1) / demandShiftFactor)
+                                    - 1] = cplex.linearNumExpr();
+                            for (int j = 0; j < demandShiftFactor; j++)
+                                accumulativeElasticDemandPerDayForAllMarkets[marketIndex][((i + 1) / demandShiftFactor)
+                                        - 1].addTerm(1,
+                                                elasticDemandForAllMarkets[marketIndex][i - (demandShiftFactor - 1)
+                                                        + j]);
+                        }
+                    }
 
                     if (marketIndex == 0)
                         carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();
                 }
+
                 for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
 
                     // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
                     // ppdp.getPrice();
 
-                    System.out.println(
-                            "Plant: " + ppdp.getPowerPlant().toString() + " Bids at Price: " + ppdp.getPrice());
+                    // System.out.println(
+                    // "Plant: " + ppdp.getPowerPlant().toString() + " Bids at
+                    // Price: " + ppdp.getPrice());
+                    //
 
                     // emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex]
                     // = ppdp.getPowerPlant().calculateEmissionIntensity();
 
                     for (int i = 0; i < timeSteps; i++) {
-
                         generationCapacityofPlantsMatrix[plantIndex][i] = cplex.numVar(0,
                                 ppdp.getAvailableHourlyAmount().getHourlyArray(0)[i]);
 
@@ -324,64 +392,172 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     }
                     plantIndex++;
                 }
-                // for (PowerPlant plant : ESMtoPPList.get(market)) {
-                // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
-                // reps.powerPlantRepository
-                // .findMarginalCostOfOperationalPlant(plant, (int)
-                // getCurrentTick());
-                //
-                // for (int i = 0; i < timeSteps; i++) {
-                // generationCapacityofPlantsMatrix[plantIndex][i] =
-                // cplex.numVar(0,
-                // plant.getActualHourlyNominalCapacity().getHourlyArray(0)[i]);
-                //
-                // generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
-                // generationCapacityofPlantsMatrix[plantIndex][i]);
-                //
-                // objective.addTerm(marginalCostOfPowerPlantsForCurrentTick[plantIndex],
-                // generationCapacityofPlantsMatrix[plantIndex][i]);
-                // }
-                // plantIndex++;
-                // }
                 marketIndex++;
             }
-
-            // for (int i = 0; i < timeSteps; i++) {
-            // crossBorderGenerationAandB
-            // generationEquationsForAllMarkets[0][i].addTerm(1,
-            // crossBorderGenerationBtoA[i]);
-            // demandEquationsForAllMarkets[0][i].addTerm(1,
-            // crossBorderGenerationAtoB[i]);
-            //
-            // generationEquationsForAllMarkets[1][i].addTerm(1,
-            // crossBorderGenerationAtoB[i]);
-            // demandEquationsForAllMarkets[1][i].addTerm(1,
-            // crossBorderGenerationBtoA[i]);
-            // }
-            // System.out.println(Arrays.toString(marginalCostOfPowerPlantsForCurrentTick));
             cplex.addMinimize(objective);
-            // List<IloRange> constraints = new ArrayList<IloRange>();
-            // for (int j = 0; j < numberOfElectricitySpotMarkets; j++) {
-            // for (int i = 0; i < timeSteps; i++) {
-            // cplex.addEq(generationEquationsForAllMarkets[j][i],
-            // demandEquationsForAllMarkets[j][i]);
-            // }
-            // }
-            IloRange[][] constraints = new IloRange[numberOfElectricitySpotMarkets][timeSteps];
 
-            // TODO: Right now, the for loop below is only working for 2 markets
-            // for (int j = 0; j < numberOfElectricitySpotMarkets; j++) {
-            for (int i = 0; i < timeSteps; i++) {
-                // cplex.addEq(generationEquationsForAllMarkets[j][i],
-                // demandEquationsForAllMarkets[j][i]);
-                constraints[0][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][i],
-                        cplex.sum(demandEquationsForAllMarkets[0][i], crossBorderGenerationAandB[i]));
-                constraints[1][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[1][i],
-                        cplex.diff(demandEquationsForAllMarkets[1][i], crossBorderGenerationAandB[i]));
+            IloRange[][] constraints = new IloRange[numberOfElectricitySpotMarkets][timeSteps];
+            // Creating constraints
+
+            switch (numberOfElectricitySpotMarkets) {
+            case 1:
+                for (int i = 0; i < timeSteps; i++) {
+                    constraints[0][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][i],
+                            demandEquationsForAllMarkets[0][i]);
+                }
+                // marketIndex = 0;
+                for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+
+                    if (market.isStorageImplemented()) {
+
+                        EnergyStorageTechnology storageTechnologyInMarket = reps.energyStorageTechnologyRepository
+                                .findEnergyStorageTechnologyByMarket(market);
+
+                        for (int i = 1; i < timeSteps; i++) {
+
+                            cplex.addLe(storageDischargingInMW[marketIndex][i],
+                                    cplex.prod(storageTechnologyInMarket.getEfficiencyOutFlowTimeSeries()
+                                            .getValue(getCurrentTick()), stateOfChargeInMWh[marketIndex][i]));
+
+                            cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][i],
+                                    stateOfChargeInMWh[marketIndex][i]);
+                        }
+                        cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][timeSteps - 1],
+                                storageTechnologyInMarket.getFinalStateOfChargeInStorage());
+
+                    }
+                    if (market.isDailyDemandResponseImplemented()) {
+
+                        for (int i = 0; i < market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
+                                .getLengthInHours(); i++) {
+
+                            cplex.addEq(accumulativeElasticDemandPerDayForAllMarkets[marketIndex][i],
+                                    market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
+                                            .getHourlyArray(0)[i]);
+                        }
+                    }
+                    // marketIndex++;
+                }
+                break;
+            case 2:
+                for (int j = 0; j < timeSteps; j++) {
+
+                    constraints[0][j] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][j],
+                            cplex.sum(demandEquationsForAllMarkets[0][j], crossBorderGenerationAandB[j]));
+
+                    constraints[1][j] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[1][j],
+                            cplex.diff(demandEquationsForAllMarkets[1][j], crossBorderGenerationAandB[j]));
+
+                }
+                marketIndex = 0;
+                for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+
+                    if (market.isStorageImplemented()) {
+
+                        EnergyStorageTechnology storageTechnologyInMarket = reps.energyStorageTechnologyRepository
+                                .findEnergyStorageTechnologyByMarket(market);
+
+                        for (int i = 1; i < timeSteps; i++) {
+
+                            cplex.addLe(storageDischargingInMW[marketIndex][i],
+                                    cplex.prod(storageTechnologyInMarket.getEfficiencyOutFlowTimeSeries()
+                                            .getValue(getCurrentTick()), stateOfChargeInMWh[marketIndex][i]));
+
+                            cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][i],
+                                    stateOfChargeInMWh[marketIndex][i]);
+                        }
+                        cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][timeSteps - 1],
+                                storageTechnologyInMarket.getFinalStateOfChargeInStorage());
+
+                    }
+                    if (market.isDailyDemandResponseImplemented()) {
+
+                        for (int i = 0; i < market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
+                                .getLengthInHours(); i++) {
+
+                            cplex.addEq(accumulativeElasticDemandPerDayForAllMarkets[marketIndex][i],
+                                    market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
+                                            .getHourlyArray(0)[i]);
+                        }
+                    }
+                    marketIndex++;
+                }
+                break;
+            case 3:
+
+                for (int j = 0; j < timeSteps; j++) {
+
+                    constraints[0][j] = (IloRange) cplex.addEq(
+                            cplex.sum(generationEquationsForAllMarkets[0][j], generationEquationsForAllMarkets[1][j],
+                                    generationEquationsForAllMarkets[2][j]),
+                            cplex.sum(demandEquationsForAllMarkets[0][j], demandEquationsForAllMarkets[1][j],
+                                    demandEquationsForAllMarkets[2][j]));
+
+                    constraints[1][j] = (IloRange) cplex.addEq(crossBorderFlowVariablesForAllInterconnectors[0][j],
+                            cplex.sum(
+                                    cplex.prod(PTDFBtoAB,
+                                            cplex.diff(generationEquationsForAllMarkets[1][j],
+                                                    demandEquationsForAllMarkets[1][j])),
+                                    cplex.prod(PTDFCtoAB, cplex.diff(generationEquationsForAllMarkets[2][j],
+                                            demandEquationsForAllMarkets[2][j]))));
+
+                    constraints[2][j] = (IloRange) cplex.addEq(crossBorderFlowVariablesForAllInterconnectors[1][j],
+                            cplex.sum(
+                                    cplex.prod(PTDFBtoAC,
+                                            cplex.diff(generationEquationsForAllMarkets[1][j],
+                                                    demandEquationsForAllMarkets[1][j])),
+                                    cplex.prod(PTDFCtoAC, cplex.diff(generationEquationsForAllMarkets[2][j],
+                                            demandEquationsForAllMarkets[2][j]))));
+
+                    constraints[3][j] = (IloRange) cplex.addEq(crossBorderFlowVariablesForAllInterconnectors[2][j],
+                            cplex.sum(
+                                    cplex.prod(PTDFBtoBC,
+                                            cplex.diff(generationEquationsForAllMarkets[1][j],
+                                                    demandEquationsForAllMarkets[1][j])),
+                                    cplex.prod(PTDFCtoBC, cplex.diff(generationEquationsForAllMarkets[2][j],
+                                            demandEquationsForAllMarkets[2][j]))));
+                }
+
+                marketIndex = 0;
+                for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+
+                    if (market.isStorageImplemented()) {
+
+                        EnergyStorageTechnology storageTechnologyInMarket = reps.energyStorageTechnologyRepository
+                                .findEnergyStorageTechnologyByMarket(market);
+
+                        for (int i = 1; i < timeSteps; i++) {
+
+                            cplex.addLe(storageDischargingInMW[marketIndex][i],
+                                    cplex.prod(storageTechnologyInMarket.getEfficiencyOutFlowTimeSeries()
+                                            .getValue(getCurrentTick()), stateOfChargeInMWh[marketIndex][i]));
+
+                            cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][i],
+                                    stateOfChargeInMWh[marketIndex][i]);
+                        }
+                        cplex.addEq(storageContentExpressionsForAllMarkets[marketIndex][timeSteps - 1],
+                                storageTechnologyInMarket.getFinalStateOfChargeInStorage());
+
+                    }
+                    if (market.isDailyDemandResponseImplemented()) {
+
+                        for (int i = 0; i < market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
+                                .getLengthInHours(); i++) {
+
+                            cplex.addEq(accumulativeElasticDemandPerDayForAllMarkets[marketIndex][i],
+                                    market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
+                                            .getHourlyArray(0)[i]);
+                        }
+                    }
+                    marketIndex++;
+                }
+                break;
             }
+
             // }
             // cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets),
             // co2Cap);
+
             IloRange carbonConstraint = (IloRange) cplex.addLe(cplex.sum(carbonEmissionsEquationsForAllMarkets),
                     co2Cap);
 
@@ -396,49 +572,82 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             System.out.println(ppdpAnnualList1.size());
 
-            // for (PpdpAnnual ppdp1 : ppdpAnnualList1) {
-            // // if (ppdp1.getPowerPlant().getTechnology().isIntermittent() =
-            // // "false") {
-            //
-            // System.out.println("Capacity is: " +
-            // ppdp1.getAvailableHourlyAmount().getHourlyArray(0).toString()
-            // + " Price is: " + ppdp1.getPrice());
-            //
-            // // }
-            // }
-
             if (cplex.solve()) {
                 int ppdpIndex = 0;
                 System.out.println("----------------------------------------------------------");
                 System.out.println("Objective = " + cplex.getObjValue());
                 System.out.println("Objective = " + cplex.getStatus());
                 System.out.println("---------------------Market Clearing-------------------------");
-                // for (int k = 0; k < numberOfElectricitySpotMarkets; k++) {
-                // System.out.print("Dual Constraint for market " + k + " =");
+
+                // double[] Dual2 = new double[timeSteps];
+                // double[] Dual3 = new double[timeSteps];
+                // double[] Dual4 = new double[timeSteps];
+                //
+                // double[] ESMprice1 = new double[timeSteps];
+                // double[] ESMprice2 = new double[timeSteps];
+                // double[] ESMprice3 = new double[timeSteps];
+                //
                 // for (int i = 0; i < timeSteps; i++) {
-                // System.out.print(cplex.getDual(constraints[k][i]) + " ");
+                //
+                // Dual2[i] = cplex.getDual(constraints[1][i]);
+                // Dual3[i] = cplex.getDual(constraints[2][i]);
+                // Dual4[i] = cplex.getDual(constraints[3][i]);
+                //
+                // ESMprice1[i] = cplex.getDual(constraints[0][i]);
+                // ESMprice2[i] = ESMprice1[i] - (PTDFBtoAB * Dual2[i]) -
+                // (PTDFBtoAC * Dual3[i])
+                // - (PTDFBtoBC * Dual4[i]);
+                // ESMprice3[i] = ESMprice1[i] - (PTDFCtoAB * Dual2[i]) -
+                // (PTDFCtoAC * Dual3[i])
+                // - (PTDFCtoBC * Dual4[i]);
                 // }
-                // System.out.println(" ");
-                // }
+
                 int ind = 0;
                 System.out.println("Carbon constraint = " + cplex.getDual(carbonConstraint));
                 for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
                     YearlySegment ys = reps.marketRepository.findYearlySegmentForElectricitySpotMarketForTime(market);
-                    // YearlySegmentClearingPointMarketInformation info = new
-                    // YearlySegmentClearingPointMarketInformation();
+
+                    // for (int i = 0; i < 20; i++) {
+                    // if (market.isStorageImplemented()) {
+                    // System.out.println("Market: " + ind + "Charging: "
+                    // + cplex.getValue(storageChargingInMW[ind][i]) + "at time:
+                    // " + i);
+                    // System.out.println("Market: " + ind + "Discharging: "
+                    // + cplex.getValue(storageDischargingInMW[ind][i]) + "at
+                    // time: " + i);
+                    // System.out.println("Market: " + ind + "SOC: " +
+                    // cplex.getValue(stateOfChargeInMWh[ind][i])
+                    // + "at time: " + i);
+                    //
+                    // }
+                    // }
+
                     double[] gen = new double[timeSteps];
                     double[] dem = new double[timeSteps];
+                    double[] elasticDem = new double[timeSteps];
                     double[] price = new double[timeSteps];
+                    double[] charging = new double[timeSteps];
+                    double[] discharging = new double[timeSteps];
+                    double[] soc = new double[timeSteps];
                     for (int i = 0; i < timeSteps; i++) {
                         gen[i] = cplex.getValue(generationEquationsForAllMarkets[ind][i]);
                         dem[i] = cplex.getValue(demandEquationsForAllMarkets[ind][i]);
                         price[i] = Math.abs(cplex.getDual(constraints[ind][i]));
+                        if (market.isStorageImplemented()) {
+                            charging[i] = cplex.getValue(storageChargingInMW[ind][i]);
+                            discharging[i] = cplex.getValue(storageDischargingInMW[ind][i]);
+                            soc[i] = cplex.getValue(stateOfChargeInMWh[ind][i]);
+                        }
+                        if (market.isDailyDemandResponseImplemented())
+                            elasticDem[i] = cplex.getValue(elasticDemandForAllMarkets[ind][i]);
                     }
-                    storeInDatabase(price, gen, dem, cplex.getValues(valueOfLostLoadInMWH[ind]), market, ys,
-                            getCurrentTick(), Math.abs(cplex.getDual(carbonConstraint)));
-                    // System.out.print(Arrays.toString(info.getMarketPrice().getHourlyArray(0)));
-                    //
-                    // System.out.print(Arrays.toString(info.getMarketDemand().getHourlyArray(0)));
+                    if (market.isStorageImplemented() && market.isDailyDemandResponseImplemented())
+                        storeInDatabase(price, gen, dem, elasticDem, charging, discharging, soc,
+                                cplex.getValues(valueOfLostLoadInMWH[ind]), market, ys, getCurrentTick(),
+                                Math.abs(cplex.getDual(carbonConstraint)));
+                    else
+                        storeInDatabase(price, gen, dem, cplex.getValues(valueOfLostLoadInMWH[ind]), market, ys,
+                                getCurrentTick(), Math.abs(cplex.getDual(carbonConstraint)));
 
                     for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
                         changeAcceptedAmountPpdpAnnual(ppdp,
@@ -493,7 +702,16 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // ","
                 // + cplex.getValue(crossBorderGenerationAandB[i]) + " " + ","
                 // + cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
-                // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
+                // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + " " + ","
+                // + cplex.getValue(stateOfChargeInMWh[0][i]) + " " + ","
+                // + cplex.getValue(storageChargingInMW[0][i]) + " " + ","
+                // + cplex.getValue(storageDischargingInMW[0][i]) + " " + ","
+                // + cplex.getValue(elasticDemandForAllMarkets[0][i]) + " " +
+                // ","
+                // + cplex.getValue(stateOfChargeInMWh[1][i]) + " " + ","
+                // + cplex.getValue(storageChargingInMW[1][i]) + " " + ","
+                // + cplex.getValue(storageDischargingInMW[1][i]) + " " + ","
+                // + cplex.getValue(elasticDemandForAllMarkets[1][i]) + "\n");
                 // // FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i])
                 // // + " " + ","
                 // // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");
@@ -505,6 +723,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // } catch (IOException e) {
                 // e.printStackTrace();
                 // }
+
             } else {
                 System.out.println("Something went wrong");
             }
@@ -558,6 +777,54 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
         info.setYearlySegment(ys);
         info.setTime(time);
         info.setCO2Price(cO2Price);
+        info.persist();
+    }
+
+    @Transactional
+    public void storeInDatabase(double[] price, double[] generation, double[] demand, double[] charging,
+            double[] discharging, double[] soc, double[] valueOfLostLoad, ElectricitySpotMarket market,
+            YearlySegment ys, long time, double cO2Price) {
+        YearlySegmentClearingPointMarketInformation info = new YearlySegmentClearingPointMarketInformation();
+        // info.updateMarketPrice(price);
+        // info.updateMarketSupply(generation);
+        // info.updateValueOfLostLoad(valueOfLostLoad);
+        // info.updateMarketDemand(demand);
+        info.setMarketPrice(price);
+        info.setMarketSupply(generation);
+        info.setValueOfLostLoad(valueOfLostLoad);
+        info.setMarketDemand(demand);
+        info.setElectricitySpotMarket(market);
+        info.setYearlySegment(ys);
+        info.setTime(time);
+        info.setCO2Price(cO2Price);
+        info.setStorageChargingInMW(charging);
+        info.setStorageDischargingInMW(discharging);
+        info.setStateOfChargeInMWh(soc);
+        info.persist();
+    }
+
+    // TODO:Add more functions like this, for all other cases
+    @Transactional
+    public void storeInDatabase(double[] price, double[] generation, double[] demand, double[] elasticDem,
+            double[] charging, double[] discharging, double[] soc, double[] valueOfLostLoad,
+            ElectricitySpotMarket market, YearlySegment ys, long time, double cO2Price) {
+        YearlySegmentClearingPointMarketInformation info = new YearlySegmentClearingPointMarketInformation();
+        // info.updateMarketPrice(price);
+        // info.updateMarketSupply(generation);
+        // info.updateValueOfLostLoad(valueOfLostLoad);
+        // info.updateMarketDemand(demand);
+        info.setMarketPrice(price);
+        info.setMarketSupply(generation);
+        info.setValueOfLostLoad(valueOfLostLoad);
+        info.setMarketDemand(demand);
+        info.setElectricitySpotMarket(market);
+        info.setYearlySegment(ys);
+        info.setTime(time);
+        info.setCO2Price(cO2Price);
+        info.setStorageChargingInMW(charging);
+        info.setStorageDischargingInMW(discharging);
+        info.setStateOfChargeInMWh(soc);
+        info.setElasticDemand(elasticDem);
         info.persist();
     }
 

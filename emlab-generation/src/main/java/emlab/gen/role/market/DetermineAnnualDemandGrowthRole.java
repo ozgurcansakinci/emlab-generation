@@ -25,6 +25,7 @@ import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.jet.math.Functions;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.YearlySegmentLoad;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.repository.Reps;
 
 /**
@@ -61,9 +62,19 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
                     segmentLoad.getHourlyInElasticBaseDemandForYearlySegment());
             if (market.isDailyDemandResponseImplemented()) {
                 segmentLoad.setDailyElasticCurrentDemandForYearlySegment(
-                        segmentLoad.getDailyElasticBaseDemandForYearlySegment()); //////////// Daily
-                                                                                  //////////// demand
+                        segmentLoad.getDailyElasticBaseDemandForYearlySegment()); // DemandResponse
             }
+            if (market.isStorageImplemented()) {
+
+                EnergyStorageTechnology storageTech = reps.energyStorageTechnologyRepository
+                        .findEnergyStorageTechnologyByMarket(market);
+
+                storageTech.setCurrentMaxStorageCapacity(storageTech.getBaseMaxStorageCapacity());
+                storageTech.setCurrentMaxStorageDischargingRate(storageTech.getBaseMaxStorageDischargingRate());
+                storageTech.setCurrentMaxStorageChargingRate(storageTech.getBaseMaxStorageChargingRate()); // Storage
+
+            }
+
         } else {
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(
                     market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment().getHourlyArray(0));
@@ -79,14 +90,12 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
                     .setHourlyArray(hourlyArray.toArray(), 0);
             if (market.isDailyDemandResponseImplemented()) {
                 DoubleMatrix1D dailyArray = new DenseDoubleMatrix1D(
-                        market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment().getDailyArray(0));
-                dailyArray.assign(
-                        market.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment().getDailyArray(0));
+                        market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment().getHourlyArray(0));
                 DoubleMatrix1D dailyGrowth = dailyArray.copy();
                 dailyGrowth.assign(growthRate);
                 dailyArray.assign(dailyGrowth, Functions.mult);
                 market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
-                        .setDailyArray(dailyArray.toArray(), 0);
+                        .setHourlyArray(dailyArray.toArray(), 0);
             }
             //////////// Hourly demand
         }

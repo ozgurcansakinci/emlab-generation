@@ -23,8 +23,6 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import agentspring.simulation.SimulationParameter;
 import emlab.gen.domain.market.DecarbonizationMarket;
-import emlab.gen.trend.DailyCSVTimeSeries;
-import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.trend.TimeSeriesImpl;
 
 @NodeEntity
@@ -43,13 +41,17 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
     private TimeSeriesImpl demandGrowthTrend;
     // <<<<<<< HEAD
 
-    @RelatedTo(type = "HOURLYDEMAND_MARKET", elementClass = HourlyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private HourlyCSVTimeSeries hourlyInElasticDemandForESMarket;
-
-    @RelatedTo(type = "DAILYDEMAND_MARKET", elementClass = DailyCSVTimeSeries.class, direction = Direction.OUTGOING)
-    private DailyCSVTimeSeries dailyElasticDemandForESMarket;
-
     private boolean dailyDemandResponseImplemented;
+
+    private boolean storageImplemented;
+
+    public boolean isStorageImplemented() {
+        return storageImplemented;
+    }
+
+    public void setStorageImplemented(boolean storageImplemented) {
+        this.storageImplemented = storageImplemented;
+    }
 
     public boolean isDailyDemandResponseImplemented() {
         return dailyDemandResponseImplemented;
@@ -57,22 +59,6 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     public void setDailyDemandResponseImplemented(boolean dailyDemandResponseImplemented) {
         this.dailyDemandResponseImplemented = dailyDemandResponseImplemented;
-    }
-
-    public HourlyCSVTimeSeries getHourlyInElasticDemandForESMarket() {
-        return hourlyInElasticDemandForESMarket;
-    }
-
-    public void setHourlyInElasticDemandForESMarket(HourlyCSVTimeSeries hourlyInElasticDemandForESMarket) {
-        this.hourlyInElasticDemandForESMarket = hourlyInElasticDemandForESMarket;
-    }
-
-    public DailyCSVTimeSeries getDailyElasticDemandForESMarket() {
-        return dailyElasticDemandForESMarket;
-    }
-
-    public void setDailyElasticDemandForESMarket(DailyCSVTimeSeries dailyElasticDemandForESMarket) {
-        this.dailyElasticDemandForESMarket = dailyElasticDemandForESMarket;
     }
 
     public YearlySegment getYearlySegment() {

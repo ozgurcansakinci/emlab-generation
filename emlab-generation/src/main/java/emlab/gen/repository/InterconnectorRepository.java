@@ -18,7 +18,9 @@ package emlab.gen.repository;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.annotation.QueryType;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
 
+import emlab.gen.domain.market.electricity.YearlySegment;
 import emlab.gen.domain.technology.Interconnector;
 
 public interface InterconnectorRepository extends GraphRepository<Interconnector> {
@@ -37,5 +39,15 @@ public interface InterconnectorRepository extends GraphRepository<Interconnector
 
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.technology.Interconnector']].capacity", type = QueryType.Gremlin)
     public double findInterconnectorCapacity();
+
+    @Query(value = "g.v(interconnector).out('YEARLYSEGMENT_INTERCONNECTOR').filter{it.__type__=='emlab.gen.domain.market.electricity.YearlySegment'}", type = QueryType.Gremlin)
+    public YearlySegment findYearlySegmentForInterconnectorForTime(
+            @Param("interconnector") Interconnector interconnector);
+
+    @Query(value = "start interconnector=node:__types__(\"className:emlab.gen.domain.technology.Interconnector\") return interconnector")
+    public Iterable<Interconnector> findAllInterconnectors();
+
+    @Query(value = "start interconnector=node:__types__(\"className:emlab.gen.domain.technology.Interconnector\") return count(interconnector)")
+    double countAllInterconnectors();
 
 }

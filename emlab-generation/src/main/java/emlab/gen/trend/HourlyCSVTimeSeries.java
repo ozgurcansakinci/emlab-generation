@@ -24,7 +24,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author J.C. Richstein
+ * @author asmkhan
  *
  */
 @NodeEntity
@@ -43,6 +43,8 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
     private int lengthInHours;
 
     private double[] hourlyArray;
+
+    private double elasticDemandShift;
 
     @Transactional
     private void readData() {
@@ -170,6 +172,14 @@ public class HourlyCSVTimeSeries implements HourlyTimeSeries {
 
     public void setLengthInHours(int lengthInHours) {
         this.lengthInHours = lengthInHours;
+    }
+
+    public double getElasticDemandShift() {
+        return elasticDemandShift;
+    }
+
+    public void setElasticDemandShift(double elasticDemandShift) {
+        this.elasticDemandShift = elasticDemandShift;
     }
 
     @Override
