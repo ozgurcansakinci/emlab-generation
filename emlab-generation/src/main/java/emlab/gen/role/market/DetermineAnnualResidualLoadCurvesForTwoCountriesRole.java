@@ -160,11 +160,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
             DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
             DoubleMatrix1D valueOfLostLoad = new DenseDoubleMatrix1D(info.getValueOfLostLoad());
-            double growthRate = reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
-                    .getValue(clearingTick);
-            DoubleMatrix1D growthFactors = hourlyArray.copy();
-            growthFactors.assign(growthRate);
-            hourlyArray.assign(growthFactors, Functions.mult);
+            // double growthRate =
+            // reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
+            // .getValue(clearingTick);
+            // DoubleMatrix1D growthFactors = hourlyArray.copy();
+            // growthFactors.assign(growthRate);
+            // hourlyArray.assign(growthFactors, Functions.mult);
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
