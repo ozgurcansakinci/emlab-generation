@@ -170,6 +170,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // TODO:think about the multi node implementation
 
             double numberofICs = reps.interconnectorRepository.countAllInterconnectors();
+            // int numberofInterconnectors = (int) numberofICs;
 
             System.out.println("Number of interconnectors are: " + numberofICs);
 
@@ -272,8 +273,8 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 }
 
                 for (int i = 0; i < timeSteps; i++) {
-                    if (numberofICs != 0 && !interconnectorsCreated) {
-                        switch ((int) numberofICs) {
+                    if (numberofInterconnectors != 0 && !interconnectorsCreated) {
+                        switch (numberofInterconnectors) {
                         case 1:
                             for (Interconnector interconnector : reps.interconnectorRepository
                                     .findAllInterconnectors()) {
@@ -281,7 +282,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                         -interconnector.getCapacity(getCurrentTick()),
                                         interconnector.getCapacity(getCurrentTick()));
                             }
-                            interconnectorsCreated = true;
+                            // interconnectorsCreated = true;
                             break;
                         case 3:
                             int interconnectorIndex = 0;
@@ -292,7 +293,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                         interconnector.getCapacity(getCurrentTick()));
                                 interconnectorIndex++;
                             }
-                            interconnectorsCreated = true;
+                            // interconnectorsCreated = true;
                             break;
                         }
                     }
@@ -388,7 +389,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     if (marketIndex == 0)
                         carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();
                 }
-
+                interconnectorsCreated = true;
                 for (PpdpAnnual ppdp : ESMtoPPDPList.get(market)) {
 
                     // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
@@ -424,6 +425,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             IloRange[][] constraints = null;
             if (numberOfElectricitySpotMarkets != 3) {
                 constraints = new IloRange[numberOfElectricitySpotMarkets][timeSteps];
+                logger.warn("Creating constraints");
             } else {
                 constraints = new IloRange[numberOfElectricitySpotMarkets + 1][timeSteps];
             }
@@ -471,7 +473,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 break;
             case 2:
                 for (int j = 0; j < timeSteps; j++) {
-
+                    // logger.warn("for loop index is {}", j);
                     constraints[0][j] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][j], cplex.sum(
                             demandEquationsForAllMarkets[0][j], crossBorderFlowVariablesForAllInterconnectors[0][j]));
 
