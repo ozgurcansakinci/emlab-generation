@@ -50,6 +50,24 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
         for (CapacityDispatchPlan plan : reps.capacityMarketRepository
                 .findAllAcceptedCapacityDispatchPlansForTime(capacityMarket, getCurrentTick())) {
 
+            // this query seems fine to me. The capacity market is going in as
+            // an input.
+
+            // I tried to print the payments being made (in the statements below
+            // but it gives an error, the code doesnt seem to work. I cant make
+            // sense out of it.
+
+            // logger.warn("Bid Accepted for " + plan.getPlant().getName() + "
+            // Status: " + plan.getStatus() + " Amount: "
+            // + plan.getAmount() + " " + plan.getBiddingMarket());
+
+            // if (plan.getStorage().getName() != null) {
+            // logger.warn("Bid Accepted for " + plan.getStorage().getName() + "
+            // Status: " + plan.getStatus()
+            // + " Ammount: " + plan.getAmount() + " " +
+            // plan.getBiddingMarket());
+            // }
+
             // logger.warn("Hi");
             // logger.warn("cdp for plant" + plan.getPlant());
 
@@ -61,7 +79,7 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
             // double price = capacityClearingPoint.getPrice();
             ElectricitySpotMarket esm = reps.marketRepository
                     .findElectricitySpotMarketForZone(capacityMarket.getZone());
-            // logger.warn("esmt " + esm.getName());
+            // logger.warn("esm " + esm.getName());
 
             reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(),
                     plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,

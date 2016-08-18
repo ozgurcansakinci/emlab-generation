@@ -28,7 +28,6 @@ import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.contract.Loan;
 import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
-import emlab.gen.domain.market.electricity.SegmentLoad;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.domain.technology.PowerPlant;
@@ -44,6 +43,8 @@ public class ElectricityProducerFactory implements InitializingBean {
     private ElectricitySpotMarket market;
 
     private List<EnergyProducer> producers;
+
+    private double maximumBaseLoadForSpotMarket;
 
     static final Logger logger = LoggerFactory.getLogger(ElectricityProducerFactory.class);
 
@@ -100,15 +101,19 @@ public class ElectricityProducerFactory implements InitializingBean {
 
     private void createPowerPlantsForMarket(ElectricitySpotMarket market) {
 
-        double maxLoad = Double.MIN_NORMAL;
-        // get max load
-        for (SegmentLoad segmentLoad : market.getLoadDurationCurve()) {
+        // double maxLoad = Double.MIN_NORMAL;
+        // // get max load
+        // for (SegmentLoad segmentLoad : market.getLoadDurationCurve()) {
+        //
+        // if (maxLoad < segmentLoad.getBaseLoad()) {
+        // maxLoad = segmentLoad.getBaseLoad();
+        // }
+        // }
+        //
+        // double requiredCapacity = maxLoad * (1 + capacityMargin);
 
-            if (maxLoad < segmentLoad.getBaseLoad()) {
-                maxLoad = segmentLoad.getBaseLoad();
-            }
-        }
-        double requiredCapacity = maxLoad * (1 + capacityMargin);
+        double requiredCapacity = maximumBaseLoadForSpotMarket * (1 + capacityMargin);
+
         logger.info("required capacity for market {} is {}", market, requiredCapacity);
         for (PowerGeneratingTechnology technology : portfolioShares.keySet()) {
             double pctValue = portfolioShares.get(technology);
@@ -151,6 +156,18 @@ public class ElectricityProducerFactory implements InitializingBean {
         }
         return null;
     }
+
+    /////////////////////////////////////////////////////////////////////////////
+
+    public double getMaximumBaseLoadForSpotMarket() {
+        return maximumBaseLoadForSpotMarket;
+    }
+
+    public void setMaximumBaseLoadForSpotMarket(double maximumBaseLoadForSpotMarket) {
+        this.maximumBaseLoadForSpotMarket = maximumBaseLoadForSpotMarket;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
 
     public double getCapacityMargin() {
         return capacityMargin;

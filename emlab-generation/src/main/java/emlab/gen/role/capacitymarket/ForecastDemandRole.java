@@ -45,6 +45,7 @@ public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<
 
         if (getCurrentTick() <= (long) regulator.getImplementationPhaseLength()
                 && regulator.getImplementationPhaseLength() > 0) {
+
             phaseInPeriod = regulator.getReserveMargin()
                     - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin())
                             / regulator.getImplementationPhaseLength()) * getCurrentTick())
@@ -118,10 +119,22 @@ public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<
         // double peakLoadforMarketNOtrend =
         // reps.segmentLoadRepository.peakLoadbyZoneMarketandTime(zone, market);
         double peakLoadforMarketNOtrend = reps.segmentLoadRepository.nonAdjustedPeakLoadbyMarketAnnual(market);
+
+        logger.warn("peakLoadforMarketNOtrend " + peakLoadforMarketNOtrend);
+
+        // this is 69918 for esm A
+
         double peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
+
+        logger.warn("peakExpectedDemand " + peakExpectedDemand);
+
+        // this is 83902 (69918 * 1.2), the expected peak demand for the current
+        // year
 
         // Compute demand target by multiplying reserve margin double double
         double demandTarget = peakExpectedDemand * (1 + regulator.getReserveMargin() - phaseInPeriod);
+
+        // demand target would be 83902 * ((1+0.156)-0) = 96990
 
         regulator.setDemandTarget(demandTarget);
 

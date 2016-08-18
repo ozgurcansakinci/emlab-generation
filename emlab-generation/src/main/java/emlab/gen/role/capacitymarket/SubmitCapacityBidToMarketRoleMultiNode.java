@@ -39,10 +39,10 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  */
 
 @RoleComponent
-public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<EnergyProducer>
+public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProducerRole<EnergyProducer>
         implements Role<EnergyProducer> {
 
-    Logger logger = Logger.getLogger(SubmitCapacityBidToMarketRole.class);
+    Logger logger = Logger.getLogger(SubmitCapacityBidToMarketRoleMultiNode.class);
 
     @Autowired
     Reps reps;
@@ -57,10 +57,13 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
         // for (PowerPlant plant :
         // reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
         // getCurrentTick())) {
+
         for (PowerPlant plant : reps.powerPlantRepository.findOperationalNonIntermittentPowerPlantsByOwner(producer,
                 getCurrentTick())) {
+
             CapacityMarket market = reps.capacityMarketRepository
                     .findCapacityMarketForZone(plant.getLocation().getZone());
+
             if (market != null) {
                 ElectricitySpotMarket eMarket = reps.marketRepository
                         .findElectricitySpotMarketForZone(plant.getLocation().getZone());
@@ -131,6 +134,11 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                     }
 
                 }
+
+                // This entire for loop (above) can be replaced by a query in
+                // cash flow repository which gets the revenues of the plant in
+                // the previous tick, very similar to what we did to get the
+                // revenues for storage
 
                 netRevenues = (expectedElectricityRevenues) - fixedOnMCost;
 

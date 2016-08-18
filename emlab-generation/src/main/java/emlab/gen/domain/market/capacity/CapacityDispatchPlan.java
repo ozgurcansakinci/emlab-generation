@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.market.Bid;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.domain.technology.PowerPlant;
 
 /**
@@ -35,12 +36,23 @@ public class CapacityDispatchPlan extends Bid {
     @RelatedTo(type = "CAPACITY_DISPATCHPLAN", elementClass = PowerPlant.class, direction = Direction.OUTGOING)
     private PowerPlant plant;
 
+    @RelatedTo(type = "CAPACITY_DISPATCHPLAN_STORAGE", elementClass = EnergyStorageTechnology.class, direction = Direction.OUTGOING)
+    private EnergyStorageTechnology storage;
+
     public PowerPlant getPlant() {
         return plant;
     }
 
     public void setPlant(PowerPlant plant) {
         this.plant = plant;
+    }
+
+    public EnergyStorageTechnology getStorage() {
+        return storage;
+    }
+
+    public void setStorage(EnergyStorageTechnology storage) {
+        this.storage = storage;
     }
 
     public void specifyNotPersist(PowerPlant plant, EnergyProducer producer, CapacityMarket market, long time,
@@ -64,6 +76,30 @@ public class CapacityDispatchPlan extends Bid {
             double price, double capacityMarketCapacity, int status) {
         this.persist();
         this.specifyNotPersist(plant, producer, market, time, price, capacityMarketCapacity, status);
+
+    }
+
+    public void specifyNotPersistForStorage(EnergyStorageTechnology storage, EnergyProducer producer,
+            CapacityMarket market, long time, double price, double capacityMarketCapacity, int status) {
+        this.setStorage(storage);
+        this.setTime(time);
+        this.setBidder(producer);
+        this.setBiddingMarket(market);
+        this.setPrice(price);
+        this.setAmount(capacityMarketCapacity);
+        this.setStatus(status);
+    }
+
+    /**
+     * @param storage
+     */
+
+    // All transactional methods below are signified by starting with update
+    @Transactional
+    public void specifyAndPersistForStorage(EnergyStorageTechnology storage, EnergyProducer producer,
+            CapacityMarket market, long time, double price, double capacityMarketCapacity, int status) {
+        this.persist();
+        this.specifyNotPersistForStorage(storage, producer, market, time, price, capacityMarketCapacity, status);
 
     }
 

@@ -227,6 +227,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             determineAnnualDemandGrowthRole.act(market);
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         }
+
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
         logger.warn("  0c. Paying loans");
@@ -257,7 +258,6 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         /*
          * Submit and select long-term electricity contracts
          */
-
         if (model.isLongTermContractsImplemented()) {
             timerMarket.reset();
             timerMarket.start();

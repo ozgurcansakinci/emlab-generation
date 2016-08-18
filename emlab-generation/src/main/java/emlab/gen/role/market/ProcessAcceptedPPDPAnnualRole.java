@@ -44,9 +44,11 @@ public class ProcessAcceptedPPDPAnnualRole extends AbstractMarketRole<Electricit
 
         YearlySegmentClearingPointMarketInformation info = reps.yearlySegmentClearingPointMarketInformationRepository
                 .findMarketInformationForMarketAndTime(getCurrentTick(), esm);
+
         for (PpdpAnnual plan : reps.ppdpAnnualRepository.findAllAcceptedPpdpAnnualForGivenMarketAndTime(esm,
                 getCurrentTick())) {
             double cash = calculateYearlyPowerPlantRevenue(info, plan);
+
             reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(), cash, CashFlow.ELECTRICITY_SPOT,
                     getCurrentTick(), plan.getPowerPlant());
         }

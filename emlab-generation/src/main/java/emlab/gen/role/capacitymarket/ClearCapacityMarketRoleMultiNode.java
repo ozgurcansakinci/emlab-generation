@@ -35,7 +35,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implements Role<Regulator> {
+public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> implements Role<Regulator> {
 
     // CapacityMarketRepository capacityMarketRepository;
 
@@ -97,6 +97,12 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         // capacity
         for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
                 .findAllSortedCapacityDispatchPlansByTime(getCurrentTick())) {
+
+            // Now the above query doesnt make sense to me. We need to only get
+            // the CDPs submitted in the specific capacity market only, whereas
+            // here they are getting all the CDPs in all markets submitted here
+            // and sorting them. The capacity market is not going in as as input
+
             totalVolumeBid = totalVolumeBid + currentCDP.getAmount();
         }
 
@@ -123,6 +129,9 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
 
             for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
                     .findAllSortedCapacityDispatchPlansByTime(getCurrentTick())) {
+
+                // same case as of the above query
+
                 currentCDP.setStatus(Bid.ACCEPTED);
                 currentCDP.setAcceptedAmount(currentCDP.getAmount());
                 clearingPrice = marketCap;

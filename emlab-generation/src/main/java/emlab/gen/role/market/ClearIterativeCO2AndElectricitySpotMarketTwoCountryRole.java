@@ -271,6 +271,7 @@ public class ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole
                 clearOneOrTwoConnectedElectricityMarketsAtAGivenCO2PriceForOneSegment(
                         interconnector.getCapacity(clearingTick), segment, government, clearingTick, forecast,
                         demandGrowthMap);
+
             }
 
         }

@@ -32,7 +32,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket> implements Role<CapacityMarket> {
+public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket> implements Role<CapacityMarket> {
 
     @Autowired
     Reps reps;
@@ -59,17 +59,37 @@ public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket> i
         Regulator regulator = market.getRegulator();
 
         // Forecast Demand
+
+        // So this role runs only for a single capacity market and we have to
+        // stick to the plants in thats market only. Currently all plants in all
+        // markets are bidding.
+
         forecastDemandRole.act(regulator);
+
+        // the forecast demand role will remain the same as it gets the peak
+        // demand in each specific market
+
         logger.warn("Forecast demand role run");
 
         // Energy producers submit Bids to Capacity market
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
+
+            // The above query needs to change, we have to get only the energy
+            // producers who can bid into the sepcific ESM connected to the
+            // capacity market
+
             submitCapacityBidToMarketRole.act(producer);
         }
 
         if (market.isStorageBiddingAllowed()) {
             for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
+
+                // The above query needs to change, we have to get only the
+                // energy
+                // producer who can bid into the specific ESM connected to the
+                // capacity market
+
                 submitStorageCapacityBidToMarketRole.act(producer);
             }
         }
@@ -77,12 +97,17 @@ public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket> i
         logger.warn("******************capacity bids submitted****************************");
 
         // Clear capacity market
+
         clearCapacityMarketNewRole.act(regulator);
+
+        // The queries in this role will also need to be changed
 
         logger.warn("************************Capacity Market cleared******************************");
 
         // ensure cash flows
         paymentFromConsumerToProducerforCapacityRole.act(market);
+
+        // The above role seems fine to me.
 
         logger.warn("capacity payments made");
         logger.warn("Capacity Market Main Role Completed  once");

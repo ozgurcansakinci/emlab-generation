@@ -57,6 +57,7 @@ public class ExportLimiterRole extends AbstractRole<DecarbonizationModel> implem
         if (getCurrentTick() == 1) {
 
             initialInterconnectorCapacity = interconnector.getCapacity(getCurrentTick());
+
             logger.warn("at tick 1 the interconnector capacity is" + initialInterconnectorCapacity);
 
         }
@@ -64,9 +65,11 @@ public class ExportLimiterRole extends AbstractRole<DecarbonizationModel> implem
         // initialize interconnector capacity, irrespective of current tick, to
         // initialInterconnectorCapacity
         logger.warn("print capacity temp variable initialICcapacity" + initialInterconnectorCapacity);
+
         logger.warn("interconnector capacity before setting " + interconnector.getCapacity(getCurrentTick()));
         interconnector.setCapacity(initialInterconnectorCapacity);
         logger.warn("interconnector capacity after setting " + interconnector.getCapacity(getCurrentTick()));
+
         // loop through capacity markets and if supply < demand in any of the
         // capacity market regions, set interconnector capacity = 0
         for (CapacityMarket market : reps.capacityMarketRepository.findAll()) {

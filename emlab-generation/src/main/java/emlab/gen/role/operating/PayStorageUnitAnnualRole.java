@@ -53,49 +53,74 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
     @Override
     @Transactional
     public void act(EnergyProducer producer) {
+
         logger.info("Make the payments for storage");
+
         ElectricitySpotMarket operatingMarket = producer.getInvestorMarket();
+
         YearlySegmentClearingPointMarketInformation info = reps.yearlySegmentClearingPointMarketInformationRepository
                 .findMarketInformationForMarketAndTime(getCurrentTick(), operatingMarket);
+
         PowerPlantMaintainer maintainer = reps.genericRepository.findFirst(PowerPlantMaintainer.class);
+
         EnergyStorageTechnology storageTech = reps.energyProducerRepository
                 .findStorageTechnologyForEnergyProducer(producer);
+
         double omCost = storageTech.getFixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh()
                 .getValue(getCurrentTick()) * storageTech.getCurrentMaxStorageCapacity();
+
         double money = calculateYearlyStorageRevenue(info) - calculateYearlyStorageExpenses(info);
+
         if (money != 0) {
+
             CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(operatingMarket, producer, money,
                     CashFlow.STORAGE, getCurrentTick(), null);
+
             logger.info("Cash flow created for storage: {}", cf);
         }
+
         CashFlow cf_om = reps.nonTransactionalCreateRepository.createCashFlow(producer, maintainer, omCost,
                 CashFlow.STORAGE_OM, getCurrentTick(), null);
 
         logger.warn("money={}", money);
         logger.info("Cash flow created for storage O&M cost: {}", cf_om);
         logger.warn("O&M cost={}", omCost);
+
         if (getCurrentTick() == 0) {
+
             double amount = storageTech.getCurrentMaxStorageCapacity()
                     * storageTech.getFixedCapitalCostTimeSeriesForStoragePerMWh().getValue(getCurrentTick());
+
             BigBank bigbank = reps.genericRepository.findFirst(BigBank.class);
+
             DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
+
             Loan loan = reps.loanRepository.createLoan(producer, bigbank, amount, (long) model.getSimulationLength(),
                     getCurrentTick(), null);
+
             double amountPerPayment = determineLoanAnnuities(amount, model.getSimulationLength() - 1,
                     producer.getLoanInterestRate());
+
             loan.setAmountPerPayment(amountPerPayment);
             loan.setNumberOfPaymentsDone(0);
             storageTech.setLoan(loan);
             storageTech.persist();
             loan.persist();
+
         } else {
             Loan loan = storageTech.getLoan();
+
             if (loan.getNumberOfPaymentsDone() < loan.getTotalNumberOfPayments()) {
+
                 double payment = loan.getAmountPerPayment();
+
                 reps.nonTransactionalCreateRepository.createCashFlow(producer, loan.getTo(), payment, CashFlow.LOAN,
                         getCurrentTick(), null);
+
                 loan.setNumberOfPaymentsDone(loan.getNumberOfPaymentsDone() + 1);
+
                 logger.info("Paying {} (euro) for storage loan {}", payment, loan);
+
                 logger.info("Number of payments done for storage {}, total needed: {}", loan.getNumberOfPaymentsDone(),
                         loan.getTotalNumberOfPayments());
             }

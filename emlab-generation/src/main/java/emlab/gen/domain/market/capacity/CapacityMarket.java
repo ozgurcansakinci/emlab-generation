@@ -37,6 +37,16 @@ public class CapacityMarket extends DecarbonizationMarket {
     @RelatedTo(type = "WITH_CONSUMER", elementClass = EnergyConsumer.class, direction = Direction.OUTGOING)
     private EnergyConsumer consumer;
 
+    private boolean storageBiddingAllowed;
+
+    public boolean isStorageBiddingAllowed() {
+        return storageBiddingAllowed;
+    }
+
+    public void setStorageBiddingAllowed(boolean storageBiddingAllowed) {
+        this.storageBiddingAllowed = storageBiddingAllowed;
+    }
+
     public EnergyConsumer getConsumer() {
         return consumer;
     }

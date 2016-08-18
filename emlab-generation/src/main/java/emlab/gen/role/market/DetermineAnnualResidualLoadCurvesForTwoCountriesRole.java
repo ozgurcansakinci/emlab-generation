@@ -22,7 +22,6 @@ import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.market.electricity.SegmentLoad;
 import emlab.gen.domain.market.electricity.TimeSeriesToLDCClearingPoint;
 import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInformation;
-import emlab.gen.domain.technology.Interconnector;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.repository.Reps;
@@ -86,8 +85,10 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
         // enum.
         int HOUR = columnIterator;
         columnIterator++;
+
         int SEGMENT = columnIterator;
         columnIterator++;
+
         Map<Zone, Integer> LOADINZONE = new HashMap<Zone, Integer>();
         for (Zone zone : zoneList) {
             LOADINZONE.put(zone, columnIterator);
@@ -108,8 +109,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
         int RLOADTOTAL = columnIterator;
         columnIterator++;
-        int INTERCONNECTOR = columnIterator;
-        columnIterator++;
+
+        // int INTERCONNECTOR = columnIterator;
+        // columnIterator++;
 
         Map<Zone, Integer> SEGMENTFORZONE = new HashMap<Zone, Integer>();
         for (Zone zone : zoneList) {
@@ -123,8 +125,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             columnIterator++;
         }
 
-        double interConnectorCapacity = reps.template.findAll(Interconnector.class).iterator().next()
-                .getCapacity(clearingTick);
+        // double interConnectorCapacity =
+        // reps.template.findAll(Interconnector.class).iterator().next()
+        // .getCapacity(clearingTick);
 
         // Create globalResidualLoadMatrix and add hours.
 
@@ -141,7 +144,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
         // Is set to negative, since later on a max(-interconnector, Rload) is
         // applied.
-        m.viewColumn(INTERCONNECTOR).assign(-interConnectorCapacity);
+
+        // m.viewColumn(INTERCONNECTOR).assign(-interConnectorCapacity);
 
         logger.debug("First 10 values of matrix: \n " + m.viewPart(0, 0, 10, m.columns()).toString());
 
@@ -160,11 +164,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
             DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
             DoubleMatrix1D valueOfLostLoad = new DenseDoubleMatrix1D(info.getValueOfLostLoad());
-            double growthRate = reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
-                    .getValue(clearingTick);
-            DoubleMatrix1D growthFactors = hourlyArray.copy();
-            growthFactors.assign(growthRate);
-            hourlyArray.assign(growthFactors, Functions.mult);
+            // double growthRate =
+            // reps.marketRepository.findElectricitySpotMarketForZone(zone).getDemandGrowthTrend()
+            // .getValue(clearingTick);
+            // DoubleMatrix1D growthFactors = hourlyArray.copy();
+            // growthFactors.assign(growthRate);
+            // hourlyArray.assign(growthFactors, Functions.mult);
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
@@ -305,7 +310,10 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
                 segmentLoadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, LOADINZONE.get(zone)));
                 segmentPriceBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, PRICEFORZONE.get(zone)));
             }
-            segmentInterConnectorBins[currentSegmentID - 1].add(m.get(row, INTERCONNECTOR));
+
+            // segmentInterConnectorBins[currentSegmentID - 1].add(m.get(row,
+            // INTERCONNECTOR));
+
             hoursAssignedToCurrentSegment++;
         }
 
@@ -460,7 +468,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // double demandGrowthFactor =
             // reps.marketRepository.findElectricitySpotMarketForZone(zone)
             // .getDemandGrowthTrend().getValue(clearingTick);
+
             segmentLoad.setResidualGLDC(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+
             // segmentLoad
             // .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID()
             // - 1].mean());

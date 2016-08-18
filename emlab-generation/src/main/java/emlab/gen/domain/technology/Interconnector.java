@@ -30,6 +30,8 @@ import emlab.gen.trend.TimeSeriesImpl;
 @NodeEntity
 public class Interconnector {
 
+    private String name;
+
     @RelatedTo(type = "INTERCONNECTIONS", elementClass = PowerGridNode.class, direction = Direction.OUTGOING)
     // TODO: Limit the set to the size of two.
     private Set<PowerGridNode> connections;
@@ -40,8 +42,19 @@ public class Interconnector {
     @RelatedTo(type = "INTERCONNECTOR_CAPACITY_TREND", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
     private TimeSeriesImpl interconnectorCapacityTrend;
 
+    @RelatedTo(type = "INTERCONNECTOR_CAPACITY", elementClass = TimeSeriesImpl.class, direction = Direction.OUTGOING)
+    private TimeSeriesImpl interconnectorCapacity;
+
     @RelatedTo(type = "YEARLYSEGMENT_INTERCONNECTOR", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
     private YearlySegment yearlySegment;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public YearlySegment getYearlySegment() {
         return yearlySegment;
@@ -65,6 +78,14 @@ public class Interconnector {
 
     public void setConnections(Set<PowerGridNode> connections) {
         this.connections = connections;
+    }
+
+    public TimeSeriesImpl getInterconnectorCapacity() {
+        return interconnectorCapacity;
+    }
+
+    public void setInterconnectorCapacity(TimeSeriesImpl interconnectorCapacity) {
+        this.interconnectorCapacity = interconnectorCapacity;
     }
 
     public void setInterconnectorCapacityTrend(TimeSeriesImpl interconnectorCapacityTrend) {
