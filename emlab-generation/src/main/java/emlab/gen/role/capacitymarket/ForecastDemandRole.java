@@ -31,7 +31,7 @@ import emlab.gen.repository.Reps;
  * 
  */
 @RoleComponent
-public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<Regulator> {
+public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<Regulator> {
 
     @Autowired
     Reps reps;
@@ -110,14 +110,20 @@ public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<
             }
             expectedDemandFactor = Math.pow(avgGrowthFactor / iteration, (double) capabilityYear);
         } else
-            expectedDemandFactor = market.getDemandGrowthTrend().getValue(getCurrentTick());
+            // expectedDemandFactor =
+            // market.getDemandGrowthTrend().getValue(getCurrentTick());
+            expectedDemandFactor = 1;
 
         logger.warn("ExpectedDemandFactor for this tick: " + expectedDemandFactor);
-        logger.warn("demand factor " + market.getDemandGrowthTrend().getValue(getCurrentTick()));
+
+        // logger.warn("demand factor " +
+        // market.getDemandGrowthTrend().getValue(getCurrentTick()));
+
         // Calculate peak demand across all markets
 
         // double peakLoadforMarketNOtrend =
         // reps.segmentLoadRepository.peakLoadbyZoneMarketandTime(zone, market);
+
         double peakLoadforMarketNOtrend = reps.segmentLoadRepository.nonAdjustedPeakLoadbyMarketAnnual(market);
 
         logger.warn("peakLoadforMarketNOtrend " + peakLoadforMarketNOtrend);

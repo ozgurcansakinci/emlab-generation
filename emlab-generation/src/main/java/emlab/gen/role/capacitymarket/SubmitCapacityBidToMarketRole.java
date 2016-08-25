@@ -57,6 +57,7 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
         // for (PowerPlant plant :
         // reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
         // getCurrentTick())) {
+
         for (PowerPlant plant : reps.powerPlantRepository.findOperationalNonIntermittentPowerPlantsByOwner(producer,
                 getCurrentTick())) {
             CapacityMarket market = reps.capacityMarketRepository
@@ -85,6 +86,16 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                 // get market for the plant by zone
 
                 // logger.warn("CapacityMarket is " + market.getName());
+
+                // if (getCurrentTick() > 0) {
+                //
+                // CashFlow revenue =
+                // reps.cashFlowRepository.findAnnualRevenueCashFlowsForPowerPlantForTime(plant,
+                // getCurrentTick() - 1);
+                //
+                // logger.warn("Revenue for Plant: " +
+                // plant.getName().toString() + " is: " + revenue.getMoney());
+                // }
 
                 for (SegmentLoad segmentLoad : eMarket.getLoadDurationCurve()) {
                     // double segmentClearingPoint = 0;
@@ -118,9 +129,9 @@ public class SubmitCapacityBidToMarketRole extends AbstractEnergyProducerRole<En
                         }
 
                     }
-                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability()) + (((plant
-                            .getTechnology().getBaseSegmentDependentAvailability()
-                            - plant.getTechnology().getPeakSegmentDependentAvailability())
+                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability())
+                            + (((plant.getTechnology().getBaseSegmentDependentAvailability() - plant.getTechnology()
+                                    .getPeakSegmentDependentAvailability())
                             / ((double) (reps.segmentRepository.findBaseSegmentforMarket(eMarket).getSegmentID() - 1)))
                             * (segmentLoad.getSegment().getSegmentID() - 1)));
 

@@ -21,6 +21,7 @@ import emlab.gen.domain.agent.DecarbonizationAgent;
 import emlab.gen.domain.contract.CashFlow;
 import emlab.gen.domain.market.Bid;
 import emlab.gen.domain.market.DecarbonizationMarket;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.domain.technology.PowerPlant;
 
 /**
@@ -57,6 +58,23 @@ public class NonTransactionalCreateRepository extends AbstractRepository<CashFlo
         cashFlow.setType(type);
         cashFlow.setTime(time);
         cashFlow.setRegardingPowerPlant(plant);
+        from.setCash(from.getCash() - amount);
+        if (to != null) {
+            to.setCash(to.getCash() + amount);
+        }
+
+        return cashFlow;
+    }
+
+    public CashFlow createCashFlowStorage(DecarbonizationAgent from, DecarbonizationAgent to, double amount, int type,
+            long time, EnergyStorageTechnology storage) {
+        CashFlow cashFlow = new CashFlow().persist();
+        cashFlow.setFrom(from);
+        cashFlow.setTo(to);
+        cashFlow.setMoney(amount);
+        cashFlow.setType(type);
+        cashFlow.setTime(time);
+        cashFlow.setRegardingStorage(storage);
         from.setCash(from.getCash() - amount);
         if (to != null) {
             to.setCash(to.getCash() + amount);

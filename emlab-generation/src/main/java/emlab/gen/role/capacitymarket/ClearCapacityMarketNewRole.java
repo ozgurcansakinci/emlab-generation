@@ -35,7 +35,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implements Role<Regulator> {
+public class ClearCapacityMarketNewRole extends AbstractRole<Regulator>implements Role<Regulator> {
 
     // CapacityMarketRepository capacityMarketRepository;
 
@@ -95,9 +95,35 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         // the below query gets all the CDPs for all capacity markets for all
         // energy producers and sorts them by price, then adds all bidded
         // capacity
+
+        // for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
+        // .findCapacityDispatchPlansForMarketForTime(market, getCurrentTick()))
+        // {
+        //
+        // if (currentCDP.getPlant() == null) {
+        // logger.warn(currentCDP.getBiddingMarket() + " " +
+        // currentCDP.getStorage().getName() + " "
+        // + currentCDP.getAmount() + " " + currentCDP.getPrice());
+        // } else {
+        // logger.warn(currentCDP.getBiddingMarket() + " " +
+        // currentCDP.getPlant().getName() + " "
+        // + currentCDP.getAmount() + " " + currentCDP.getPrice());
+        // }
+        // }
+
         for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
                 .findAllSortedCapacityDispatchPlansByTime(getCurrentTick())) {
             totalVolumeBid = totalVolumeBid + currentCDP.getAmount();
+
+            // if (currentCDP.getPlant() == null) {
+            // logger.warn(currentCDP.getBiddingMarket() + "------" +
+            // currentCDP.getStorage().getName() + "------"
+            // + currentCDP.getAmount() + " " + currentCDP.getPrice());
+            // } else {
+            // logger.warn(currentCDP.getBiddingMarket() + "------" +
+            // currentCDP.getPlant().getName() + "------"
+            // + currentCDP.getAmount() + "------" + currentCDP.getPrice());
+            // }
         }
 
         // logger.warn("2 TotVol "
@@ -109,12 +135,14 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         // getCurrentTick())
         // + " LMD " + (demandTarget * (lowerMargin)));
 
-        logger.warn("2 TotVol " + totalVolumeBid + " CalVol "
+        logger.warn("2 TotVolumeBidded " + totalVolumeBid + " TotVolAvailable "
                 + reps.powerPlantRepository.calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(
                         reps.marketRepository.findElectricitySpotMarketForZone(regulator.getZone()), getCurrentTick())
-                + " LMD " + (demandTarget * (lowerMargin)));
+                + " LowerMarginDemand " + (demandTarget * (lowerMargin)) + " UpperMarginDemand "
+                + (demandTarget * (upperMargin)));
 
         // if 279276 <= (83902*1.131) or 94893 & market is not cleared
+
         if (totalVolumeBid <= (demandTarget * (lowerMargin)) && isTheMarketCleared == false) {
 
             // find all capacity dispatch plans and fully accept the capacity
@@ -127,7 +155,17 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                 currentCDP.setAcceptedAmount(currentCDP.getAmount());
                 clearingPrice = marketCap;
                 totalContractedCapacity = totalVolumeBid;
+
+                if (currentCDP.getPlant() == null) {
+                    logger.warn("1: Following bids got accepted: " + currentCDP.getStorage().getName() + " "
+                            + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                } else {
+                    logger.warn("1: Following bids got accepted: " + currentCDP.getPlant() + " "
+                            + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                }
+
             }
+
             isTheMarketCleared = true;
 
             // Capacity in shortage..... contract all bids....
@@ -155,6 +193,15 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                     currentCDP.setStatus(Bid.ACCEPTED);
                     currentCDP.setAcceptedAmount(currentCDP.getAmount());
                     totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
+
+                    if (currentCDP.getPlant() == null) {
+                        logger.warn("2: Following bids got accepted: " + currentCDP.getStorage().getName() + " "
+                                + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                    } else {
+                        logger.warn("2: Following bids got accepted: " + currentCDP.getPlant() + " "
+                                + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                    }
+
                 }
 
                 // if the total capacity bidded is greater then 94893 and market
@@ -174,6 +221,15 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                         currentCDP.setStatus(Bid.ACCEPTED);
                         currentCDP.setAcceptedAmount(currentCDP.getAmount());
                         totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
+
+                        if (currentCDP.getPlant() == null) {
+                            logger.warn("3: Following bids got accepted: " + currentCDP.getStorage().getName() + " "
+                                    + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                        } else {
+                            logger.warn("3: Following bids got accepted: " + currentCDP.getPlant() + " "
+                                    + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                        }
+
                     }
 
                     // if total capacity bidded is greater then (83902 * (1.181
@@ -206,6 +262,15 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                                     + currentCDP.getAmount())
                                     - (demandTarget * ((upperMargin)
                                             - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))));
+
+                            if (currentCDP.getPlant() == null) {
+                                logger.warn("4: Following bids got partially accepted: "
+                                        + currentCDP.getStorage().getName() + " " + currentCDP.getAcceptedAmount() + " "
+                                        + currentCDP.getBiddingMarket());
+                            } else {
+                                logger.warn("4: Following bids got partially accepted: " + currentCDP.getPlant() + " "
+                                        + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
+                            }
 
                             // price bid by this last bid is the clearing price
 
@@ -246,7 +311,9 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
                 }
 
             }
-            if (isTheMarketCleared == false) {
+            if (isTheMarketCleared == false)
+
+            {
                 clearingPrice = -(marketCap / (upperMargin - lowerMargin))
                         * ((totalContractedCapacity / demandTarget) - upperMargin);
                 isTheMarketCleared = true;
@@ -255,12 +322,20 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         }
 
         if (isTheMarketCleared == true) {
-            for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
-                    .findAllSortedCapacityDispatchPlansByTime(getCurrentTick())) {
+            for (
+
+            CapacityDispatchPlan currentCDP : reps.capacityMarketRepository.findAllSortedCapacityDispatchPlansByTime(
+
+            getCurrentTick())) {
                 if (currentCDP.getStatus() == Bid.SUBMITTED) {
                     currentCDP.setStatus(Bid.FAILED);
 
-                    logger.warn("Following bids failed: " + currentCDP.getPlant());
+                    logger.warn(
+                            "Following bids failed: " + currentCDP.getPlant() + " " + currentCDP.getBiddingMarket());
+
+                    if (currentCDP.getPlant() == null)
+                        logger.warn("Following bids failed: " + currentCDP.getStorage().getName() + " "
+                                + currentCDP.getBiddingMarket());
 
                     currentCDP.setAcceptedAmount(0);
                 }
@@ -277,7 +352,9 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
         // persistClearingPoint(clearingPrice, marketCap,
         // totalContractedCapacity, market, isTheMarketCleared);
 
-        if (isTheMarketCleared == true) {
+        if (isTheMarketCleared == true)
+
+        {
             if (clearingPrice > marketCap) {
                 clearingPoint.setPrice(marketCap);
             } else {
@@ -296,6 +373,15 @@ public class ClearCapacityMarketNewRole extends AbstractRole<Regulator> implemen
             // logger.warn("MARKET CLEARED at time" + clearingPoint.getTime());
 
             logger.warn("Clearing point Volume {} and Price {}", clearingPoint.getVolume(), clearingPoint.getPrice());
+
+            // System.exit(0);
+
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
         }
 

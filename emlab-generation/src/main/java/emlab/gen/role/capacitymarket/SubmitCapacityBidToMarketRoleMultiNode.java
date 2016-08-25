@@ -34,7 +34,7 @@ import emlab.gen.role.AbstractEnergyProducerRole;
 //import org.springframework.data.neo4j.annotation.NodeEntity;
 
 /**
- * @author
+ * @author Salman
  * 
  */
 
@@ -89,6 +89,16 @@ public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProduc
 
                 // logger.warn("CapacityMarket is " + market.getName());
 
+                // if (getCurrentTick() > 0) {
+                //
+                // CashFlow revenue =
+                // reps.cashFlowRepository.findAnnualRevenueCashFlowsForPowerPlantForTime(plant,
+                // getCurrentTick() - 1);
+                //
+                // logger.warn("Revenue for Plant: " +
+                // plant.getName().toString() + " is: " + revenue);
+                // }
+
                 for (SegmentLoad segmentLoad : eMarket.getLoadDurationCurve()) {
                     // double segmentClearingPoint = 0;
                     double price = 0;
@@ -121,9 +131,9 @@ public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProduc
                         }
 
                     }
-                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability()) + (((plant
-                            .getTechnology().getBaseSegmentDependentAvailability()
-                            - plant.getTechnology().getPeakSegmentDependentAvailability())
+                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability())
+                            + (((plant.getTechnology().getBaseSegmentDependentAvailability() - plant.getTechnology()
+                                    .getPeakSegmentDependentAvailability())
                             / ((double) (reps.segmentRepository.findBaseSegmentforMarket(eMarket).getSegmentID() - 1)))
                             * (segmentLoad.getSegment().getSegmentID() - 1)));
 
@@ -134,11 +144,6 @@ public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProduc
                     }
 
                 }
-
-                // This entire for loop (above) can be replaced by a query in
-                // cash flow repository which gets the revenues of the plant in
-                // the previous tick, very similar to what we did to get the
-                // revenues for storage
 
                 netRevenues = (expectedElectricityRevenues) - fixedOnMCost;
 

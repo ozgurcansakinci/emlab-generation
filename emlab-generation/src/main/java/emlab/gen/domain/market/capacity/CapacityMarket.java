@@ -39,12 +39,22 @@ public class CapacityMarket extends DecarbonizationMarket {
 
     private boolean storageBiddingAllowed;
 
+    private boolean renewableTargetInvestorCanInvest;
+
     public boolean isStorageBiddingAllowed() {
         return storageBiddingAllowed;
     }
 
     public void setStorageBiddingAllowed(boolean storageBiddingAllowed) {
         this.storageBiddingAllowed = storageBiddingAllowed;
+    }
+
+    public boolean isRenewableTargetInvestorCanInvest() {
+        return renewableTargetInvestorCanInvest;
+    }
+
+    public void setRenewableTargetInvestorCanInvest(boolean renewableTargetInvestorCanInvest) {
+        this.renewableTargetInvestorCanInvest = renewableTargetInvestorCanInvest;
     }
 
     public EnergyConsumer getConsumer() {

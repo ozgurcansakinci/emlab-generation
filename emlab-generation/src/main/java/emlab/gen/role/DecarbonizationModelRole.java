@@ -34,6 +34,7 @@ import emlab.gen.domain.market.CommodityMarket;
 import emlab.gen.domain.market.capacity.CapacityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.repository.Reps;
+import emlab.gen.role.capacitymarket.CapacityMarketMainRoleMultiNode;
 import emlab.gen.role.capacitymarket.ExportLimiterRole;
 import emlab.gen.role.capacitymarket.SimpleCapacityMarketMainRole;
 import emlab.gen.role.capacitymechanisms.ProcessAcceptedPowerPlantDispatchRoleinSR;
@@ -77,7 +78,7 @@ import emlab.gen.role.operating.PayStorageUnitAnnualRole;
  *
  */
 @ScriptComponent
-public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
+public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>implements Role<DecarbonizationModel> {
 
     @Autowired
     private PayCO2TaxRole payCO2TaxRole;
@@ -149,6 +150,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private DetermineAnnualResidualLoadCurvesForTwoCountriesRole determineAnnualResidualLoadCurve;
     @Autowired
     private InvestInEnergyStorageTechnologiesRole investInEnergyStorageTechnologiesRole;
+    @Autowired
+    private CapacityMarketMainRoleMultiNode capacityMarketMainRoleMultiNode;
 
     @Autowired
     Reps reps;
@@ -377,7 +380,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             logger.warn(" 5. Run Simple Capacity Market");
 
             for (CapacityMarket cmarket : reps.capacityMarketRepository.findAll()) {
-                simpleCapacityMarketMainRole.act(cmarket);
+                // simpleCapacityMarketMainRole.act(cmarket);
+                capacityMarketMainRoleMultiNode.act(cmarket);
             }
 
             // exportLimiterRole.act(model);

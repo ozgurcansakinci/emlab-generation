@@ -41,8 +41,6 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
     @Autowired
     Reps reps;
 
-    // CashFlow cash = new CashFlow();
-
     @Override
     @Transactional
     public void act(CapacityMarket capacityMarket) {
@@ -53,42 +51,62 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
             // this query seems fine to me. The capacity market is going in as
             // an input.
 
-            // I tried to print the payments being made (in the statements below
-            // but it gives an error, the code doesnt seem to work. I cant make
-            // sense out of it.
+            if (plan.getPlant() == null) {
+                logger.warn("Bid Accepted for " + plan.getStorage().getName() + " Status: " + plan.getStatus()
+                        + " Amount: " + plan.getAcceptedAmount() + " Price: " + plan.getPrice() + " "
+                        + plan.getBiddingMarket());
+            } else {
 
-            // logger.warn("Bid Accepted for " + plan.getPlant().getName() + "
-            // Status: " + plan.getStatus() + " Amount: "
-            // + plan.getAmount() + " " + plan.getBiddingMarket());
-
-            // if (plan.getStorage().getName() != null) {
-            // logger.warn("Bid Accepted for " + plan.getStorage().getName() + "
-            // Status: " + plan.getStatus()
-            // + " Ammount: " + plan.getAmount() + " " +
-            // plan.getBiddingMarket());
-            // }
-
-            // logger.warn("Hi");
-            // logger.warn("cdp for plant" + plan.getPlant());
+                logger.warn("Bid Accepted for " + plan.getPlant() + " Status: " + plan.getStatus() + " Amount: "
+                        + plan.getAcceptedAmount() + " Price: " + plan.getPrice() + " " + plan.getBiddingMarket());
+            }
 
             CapacityClearingPoint capacityClearingPoint = reps.capacityMarketRepository
-                    .findOneCapacityClearingPointForTimeAndMarket(getCurrentTick(), capacityMarket);
+                    .findOneCapacityClearingPointForTimeAndMarket(capacityMarket, getCurrentTick());
+
             // logger.warn("We are at tick " + getCurrentTick());
             // logger.warn("capacity clearing point " +
             // capacityClearingPoint.getPrice());
             // double price = capacityClearingPoint.getPrice();
+
             ElectricitySpotMarket esm = reps.marketRepository
                     .findElectricitySpotMarketForZone(capacityMarket.getZone());
+
             // logger.warn("esm " + esm.getName());
 
-            reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(),
-                    plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
-                    getCurrentTick(), plan.getPlant());
+            // reps.nonTransactionalCreateRepository.createCashFlow(esm,
+            // plan.getBidder(),
+            // plan.getAcceptedAmount() * capacityClearingPoint.getPrice(),
+            // CashFlow.SIMPLE_CAPACITY_MARKET,
+            // getCurrentTick(), plan.getPlant());
+
+            if (plan.getPlant() == null) {
+                reps.nonTransactionalCreateRepository.createCashFlowStorage(esm, plan.getBidder(),
+                        plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
+                        getCurrentTick(), plan.getStorage());
+
+                logger.warn("Storage Payment made");
+
+            } else {
+                reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(),
+                        plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
+                        getCurrentTick(), plan.getPlant());
+
+                logger.warn("Plant Payment made");
+            }
+
             // logger.warn("Cash flow from consumer {} to Producer {} of value
             // {} "
             // + plan.getAcceptedAmount()
             // * capacityClearingPoint.getPrice(), plan.getBidder(),
             // capacityMarket.getConsumer());
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
     }

@@ -169,11 +169,16 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // Only works when there is one interconnector
             // TODO:think about the multi node implementation
 
-            double numberofICs = reps.interconnectorRepository.countAllInterconnectors();
+            int numberofInterconnectors = 0;
 
-            System.out.println("Number of interconnectors are: " + numberofICs);
+            if (numberOfElectricitySpotMarkets != 1) {
 
-            int numberofInterconnectors = (int) numberofICs;
+                double numberofICs = reps.interconnectorRepository.countAllInterconnectors();
+
+                System.out.println("Number of interconnectors are: " + numberofICs);
+
+                numberofInterconnectors = (int) numberofICs;
+            }
 
             // double maxMarketCrossBorderFlowAandB =
             // reps.template.findAll(Interconnector.class).iterator().next()
@@ -279,8 +284,8 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     // if (numberofICs != 0 && interconnectorsCreated == false)
                     // {
 
-                    if (marketIndex == 0) {
-                        switch ((int) numberofICs) {
+                    if (marketIndex == 0 && numberofInterconnectors != 0) {
+                        switch ((int) numberofInterconnectors) {
                         case 1:
                             for (Interconnector interconnector : reps.interconnectorRepository
                                     .findAllInterconnectors()) {
@@ -451,7 +456,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     constraints[0][i] = (IloRange) cplex.addEq(generationEquationsForAllMarkets[0][i],
                             demandEquationsForAllMarkets[0][i]);
                 }
-                // marketIndex = 0;
+                marketIndex = 0;
                 for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
 
                     if (market.isStorageImplemented()) {
@@ -762,7 +767,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     }
                     ind++;
                 }
-                switch ((int) numberofICs) {
+                switch ((int) numberofInterconnectors) {
                 case 1:
                     for (Interconnector interconnector : reps.interconnectorRepository.findAllInterconnectors()) {
 

@@ -20,6 +20,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import emlab.gen.domain.agent.DecarbonizationAgent;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.domain.technology.PowerPlant;
 
 @NodeEntity
@@ -51,6 +52,9 @@ public class CashFlow {
 
     @RelatedTo(type = "REGARDING_POWERPLANT", elementClass = PowerPlant.class, direction = Direction.OUTGOING)
     private PowerPlant regardingPowerPlant;
+
+    @RelatedTo(type = "REGARDING_STORAGE", elementClass = EnergyStorageTechnology.class, direction = Direction.OUTGOING)
+    private EnergyStorageTechnology regardingStorage;
 
     private int type;
     private double money;
@@ -107,6 +111,14 @@ public class CashFlow {
 
     public void setRegardingPowerPlant(PowerPlant regardingPowerPlant) {
         this.regardingPowerPlant = regardingPowerPlant;
+    }
+
+    public EnergyStorageTechnology getRegardingStorage() {
+        return regardingStorage;
+    }
+
+    public void setRegardingStorage(EnergyStorageTechnology regardingStorage) {
+        this.regardingStorage = regardingStorage;
     }
 
 }

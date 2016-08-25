@@ -32,7 +32,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket> implements Role<CapacityMarket> {
+public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket>implements Role<CapacityMarket> {
 
     @Autowired
     Reps reps;
@@ -63,6 +63,32 @@ public class SimpleCapacityMarketMainRole extends AbstractRole<CapacityMarket> i
         logger.warn("Forecast demand role run");
 
         // Energy producers submit Bids to Capacity market
+
+        // for (EnergyProducer prod : reps.energyProducerRepository
+        // .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandomForZone(market.getZone()))
+        // {
+        //
+        // logger.warn(prod.getName().toString());
+        // }
+        //
+        // logger.warn("-----------------------");
+        //
+        // for (EnergyProducer prod : reps.energyProducerRepository
+        // .findAllEnergyProducersIncludingRenewableTargetInvestorsAtRandomForZone(market.getZone()))
+        // {
+        //
+        // logger.warn(prod.getName().toString());
+        // }
+        //
+        // logger.warn("-----------------------");
+        //
+        // for (EnergyProducer prod : reps.energyProducerRepository
+        // .findStorageOwningEnergyProducerForZone(market.getZone())) {
+        //
+        // logger.warn("Storage owner: " + prod.getName().toString());
+        // }
+        //
+        // logger.warn("-----------------------");
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
             submitCapacityBidToMarketRole.act(producer);

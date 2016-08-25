@@ -984,7 +984,7 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="true" >
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="false">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="nl" />
@@ -1000,7 +1000,7 @@
 	</bean>
 		
 	<bean id="capacityMarketB" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market B" p:storageBiddingAllowed="true" >
+		p:name="Capacity Market B" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="false">
 		<property name="regulator" ref="regulatorB"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="de" />
@@ -1015,7 +1015,7 @@
 	</bean>
 		
 	<bean id="capacityMarketC" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market C" p:storageBiddingAllowed="true" >
+		p:name="Capacity Market C" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="false">
 		<property name="regulator" ref="regulatorC"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="uk" />
@@ -1073,7 +1073,7 @@
 	<!-- Renewable Targets CWE -->
 	
 	<bean id="renewableTargetInvestorCountryBL" class="emlab.gen.domain.agent.TargetInvestor"
-	p:name="Renewable Target Investor BL" p:cash-ref="startCashBL"
+	p:name="Renewable Target Investor NL" p:cash-ref="startCashBL"
 	p:investmentRole-ref="targetInvestmentRole"
 	p:priceMarkUp="1.0"
 	p:investorMarket-ref="beneluxElectricitySpotMarket"
@@ -1161,7 +1161,7 @@
 <!-- 	<bean id="biogasTrendCountryDE" class="emlab.gen.trend.TimeSeriesCSVReader" p:filename="/data/policyGoalNREAP_CF_UK.csv" p:delimiter="," p:variableName="Biogas"/>  -->
 	
 <bean id="renewableTargetInvestorCountryUK" class="emlab.gen.domain.agent.TargetInvestor"
-	p:name="Renewable Target Investor DE" p:cash-ref="startCashDE"
+	p:name="Renewable Target Investor UK" p:cash-ref="startCashDE"
 	p:investmentRole-ref="targetInvestmentRole"
 	p:priceMarkUp="1.0"
 	p:investorMarket-ref="britishElectricitySpotMarket"

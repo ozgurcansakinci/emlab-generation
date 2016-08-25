@@ -42,13 +42,21 @@ public interface CapacityMarketRepository extends GraphRepository<CapacityMarket
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.capacity.CapacityDispatchPlan']].filter{it.time == tick}.sort{it.price}._()", type = QueryType.Gremlin)
     public Iterable<CapacityDispatchPlan> findAllSortedCapacityDispatchPlansByTime(@Param("tick") long time);
 
+    ///////////////////////////////
+
+    @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(capacityDispatchPlan) WHERE (capacityDispatchPlan.time = {time}) RETURN capacityDispatchPlan ORDER BY capacityDispatchPlan.price asc")
+    Iterable<CapacityDispatchPlan> findCapacityDispatchPlansForMarketForTime(
+            @Param("market") CapacityMarket capacityMarket, @Param("time") long time);
+
+    //////////////////////////////
+
     @Query(value = "g.v(market).in('BIDDINGMARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time).propertyFilter('status', FilterPipe.Filter.GREATER_THAN, 1)", type = QueryType.Gremlin)
     public Iterable<CapacityDispatchPlan> findAllAcceptedCapacityDispatchPlansForTime(
             @Param("market") CapacityMarket capacityMarket, @Param("time") long time);
 
     @Query(value = "g.v(market).in('CAPACITY_MARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
-    public CapacityClearingPoint findOneCapacityClearingPointForTimeAndMarket(@Param("time") long time,
-            @Param("market") CapacityMarket capacityMarket);
+    public CapacityClearingPoint findOneCapacityClearingPointForTimeAndMarket(
+            @Param("market") CapacityMarket capacityMarket, @Param("time") long time);
 
     @Query(value = "g.v(market).in('CAPACITY_MARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
     public ClearingPoint findOneClearingPointForTimeAndCapacityMarket(@Param("time") long time,

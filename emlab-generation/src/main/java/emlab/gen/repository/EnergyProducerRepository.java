@@ -23,6 +23,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 
 import emlab.gen.domain.agent.EnergyProducer;
+import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.technology.EnergyStorageTechnology;
 
 /**
@@ -42,6 +43,17 @@ public interface EnergyProducerRepository extends GraphRepository<EnergyProducer
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.agent.EnergyProducer']].in('STORAGE_OWNER').out('STORAGE_OWNER')", type = QueryType.Gremlin)
     Iterable<EnergyProducer> findStorageUnitOwners();
     ////////////
+
+    @Query(value = "g.v(zone).in('ZONE').filter{it.__type__=='emlab.gen.domain.market.electricity.ElectricitySpotMarket'}.in('INVESTOR_MARKET').propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.TargetInvestor').propertyFilter('__type__', FilterPipe.Filter.NOT_EQUAL, 'emlab.gen.domain.agent.StochasticTargetInvestor')", type = QueryType.Gremlin)
+    public Iterable<EnergyProducer> findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandomForZone(
+            @Param("zone") Zone zone);
+
+    @Query(value = "g.v(zone).in('ZONE').filter{it.__type__=='emlab.gen.domain.market.electricity.ElectricitySpotMarket'}.in('INVESTOR_MARKET')", type = QueryType.Gremlin)
+    public Iterable<EnergyProducer> findAllEnergyProducersIncludingRenewableTargetInvestorsAtRandomForZone(
+            @Param("zone") Zone zone);
+
+    @Query(value = "g.v(zone).in('ZONE').filter{it.__type__=='emlab.gen.domain.market.electricity.ElectricitySpotMarket'}.in('INVESTOR_MARKET').in('STORAGE_OWNER').out('STORAGE_OWNER')", type = QueryType.Gremlin)
+    public Iterable<EnergyProducer> findStorageOwningEnergyProducerForZone(@Param("zone") Zone zone);
 
     @Query(value = "agents = g.idx('__types__')[[className:'emlab.gen.domain.agent.DecarbonizationAgent']];"
             + "co2Allowances=0;"
