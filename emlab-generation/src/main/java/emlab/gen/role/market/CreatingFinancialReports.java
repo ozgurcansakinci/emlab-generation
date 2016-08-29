@@ -15,18 +15,17 @@
  ******************************************************************************/
 package emlab.gen.role.market;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import agentspring.role.RoleComponent;
 import emlab.gen.domain.agent.DecarbonizationModel;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import emlab.gen.domain.market.electricity.FinancialPowerPlantReport;
+import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.domain.technology.Substance;
 import emlab.gen.domain.technology.SubstanceShareInFuelMix;
@@ -56,7 +55,7 @@ public class CreatingFinancialReports extends AbstractClearElectricitySpotMarket
         for (Substance substance : template.findAll(Substance.class)) {
             fuelPriceMap.put(substance, findLastKnownPriceForSubstance(substance));
         }
-	logger.warn(fuelPriceMap.toString());
+        logger.warn(fuelPriceMap.toString());
 
         createFinancialReportsForPowerPlantsAndTick(
                 reps.powerPlantRepository.findAllPowerPlantsWhichAreNotDismantledBeforeTick(getCurrentTick() - 2),
@@ -81,50 +80,62 @@ public class CreatingFinancialReports extends AbstractClearElectricitySpotMarket
             financialPowerPlantReport.setCommodityCosts(0);
             financialPowerPlantReport.persist();
 
-
             // Determining variable and CO2 costs in current time step.
-            double totalSupply = plant.calculateElectricityOutputAtTime(tick, false);
+            // double totalSupply = plant.calculateElectricityOutputAtTime(tick,
+            // false);
+            // logger.warn(plant.getName());
+            PpdpAnnual ppdp = reps.ppdpAnnualRepository.findPPDPAnnualforPlantForCurrentTick(plant, tick);
+            // logger.warn(ppdp.getPowerPlant().getName());
+            // financialPowerPlantReport.setProduction(totalSupply);
+            double totalSupply;
+            if (ppdp != null) {
+                totalSupply = ppdp.getYearlySupply();
+                // logger.warn("Total Supply" + totalSupply);
+                // logger.warn("PPDP Status" + ppdp.getStatus());
+            } else {
+                totalSupply = 0;
+            }
             financialPowerPlantReport.setProduction(totalSupply);
-
             for (SubstanceShareInFuelMix share : plant.getFuelMix()) {
 
                 double amount = share.getShare() * totalSupply;
                 Substance substance = share.getSubstance();
                 double substanceCost = findLastKnownPriceForSubstance(substance) * amount;
-                financialPowerPlantReport.setCommodityCosts(financialPowerPlantReport.getCommodityCosts()
-                        + substanceCost);
-
+                financialPowerPlantReport
+                        .setCommodityCosts(financialPowerPlantReport.getCommodityCosts() + substanceCost);
 
             }
-            financialPowerPlantReport.setCo2Costs(reps.powerPlantRepository.calculateCO2CostsOfPowerPlant(plant,
-                    tick));
-            financialPowerPlantReport.setVariableCosts(financialPowerPlantReport.getCommodityCosts()+financialPowerPlantReport.getCo2Costs());
+            financialPowerPlantReport.setCo2Costs(reps.powerPlantRepository.calculateCO2CostsOfPowerPlant(plant, tick));
+            financialPowerPlantReport.setVariableCosts(
+                    financialPowerPlantReport.getCommodityCosts() + financialPowerPlantReport.getCo2Costs());
 
-            //Determine fixed costs
-            financialPowerPlantReport.setFixedCosts(reps.powerPlantRepository
-                    .calculateFixedCostsOfPowerPlant(plant,
-                            tick));
+            // Determine fixed costs
+            financialPowerPlantReport
+                    .setFixedCosts(reps.powerPlantRepository.calculateFixedCostsOfPowerPlant(plant, tick));
 
-            //Calculate overall revenue
-            financialPowerPlantReport.setSpotMarketRevenue(reps.powerPlantRepository
-                    .calculateSpotMarketRevenueOfPowerPlant(plant, tick));
+            // Calculate overall revenue
+            financialPowerPlantReport.setSpotMarketRevenue(
+                    reps.powerPlantRepository.calculateSpotMarketRevenueOfPowerPlant(plant, tick));
 
-            financialPowerPlantReport.setStrategicReserveRevenue(reps.powerPlantRepository
-                    .calculateStrategicReserveRevenueOfPowerPlant(plant, tick));
+            financialPowerPlantReport.setStrategicReserveRevenue(
+                    reps.powerPlantRepository.calculateStrategicReserveRevenueOfPowerPlant(plant, tick));
 
-            financialPowerPlantReport.setCapacityMarketRevenue(reps.powerPlantRepository
-                    .calculateCapacityMarketRevenueOfPowerPlant(plant, tick));
+            financialPowerPlantReport.setCapacityMarketRevenue(
+                    reps.powerPlantRepository.calculateCapacityMarketRevenueOfPowerPlant(plant, tick));
 
-            financialPowerPlantReport.setCo2HedgingRevenue(reps.powerPlantRepository
-                    .calculateCO2HedgingRevenueOfPowerPlant(plant, tick));
+            financialPowerPlantReport.setCo2HedgingRevenue(
+                    reps.powerPlantRepository.calculateCO2HedgingRevenueOfPowerPlant(plant, tick));
 
-
-            financialPowerPlantReport.setOverallRevenue(financialPowerPlantReport.getCapacityMarketRevenue() + financialPowerPlantReport.getCo2HedgingRevenue() + financialPowerPlantReport.getSpotMarketRevenue() + financialPowerPlantReport
-                    .getStrategicReserveRevenue());
+            financialPowerPlantReport.setOverallRevenue(financialPowerPlantReport.getCapacityMarketRevenue()
+                    + financialPowerPlantReport.getCo2HedgingRevenue()
+                    + financialPowerPlantReport.getSpotMarketRevenue()
+                    + financialPowerPlantReport.getStrategicReserveRevenue());
 
             // Calculate Full load hours
-            financialPowerPlantReport.setFullLoadHours(reps.powerPlantRepository.calculateFullLoadHoursOfPowerPlant(
-                    plant, tick));
+            // financialPowerPlantReport
+            // .setFullLoadHours(reps.powerPlantRepository.calculateFullLoadHoursOfPowerPlant(plant,
+            // tick));
+            financialPowerPlantReport.setFullLoadHours(totalSupply / plant.getActualNominalCapacity());
 
             int operationalStatus;
             if (plant.isOperational(tick))
@@ -135,8 +146,6 @@ public class CreatingFinancialReports extends AbstractClearElectricitySpotMarket
                 operationalStatus = 2;
 
             financialPowerPlantReport.setPowerPlantStatus(operationalStatus);
-
-
 
         }
 

@@ -35,7 +35,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>implements Role<Regulator> {
+public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> implements Role<Regulator> {
 
     @Autowired
     Reps reps;
@@ -154,7 +154,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
 
                 }
 
-                if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
+                else if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
                         && isTheMarketCleared == false) {
 
                     if ((totalContractedCapacity + currentCDP.getAmount()) < (demandTarget
@@ -176,7 +176,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
 
                     }
 
-                    if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget
+                    else if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget
                             * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
 
                         double tempAcceptedAmount = 0;

@@ -48,6 +48,7 @@ import emlab.gen.role.investment.InvestInEnergyStorageTechnologiesRole;
 import emlab.gen.role.market.ClearCommodityMarketRole;
 import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
+import emlab.gen.role.market.CreatingFinancialReports;
 import emlab.gen.role.market.DetermineAnnualDemandGrowthRole;
 import emlab.gen.role.market.DetermineAnnualResidualLoadCurvesForTwoCountriesRole;
 import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
@@ -78,7 +79,7 @@ import emlab.gen.role.operating.PayStorageUnitAnnualRole;
  *
  */
 @ScriptComponent
-public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>implements Role<DecarbonizationModel> {
+public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
 
     @Autowired
     private PayCO2TaxRole payCO2TaxRole;
@@ -152,6 +153,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     private InvestInEnergyStorageTechnologiesRole investInEnergyStorageTechnologiesRole;
     @Autowired
     private CapacityMarketMainRoleMultiNode capacityMarketMainRoleMultiNode;
+    @Autowired
+    private CreatingFinancialReports creatingFinancialReports;
 
     @Autowired
     Reps reps;
@@ -492,14 +495,14 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
-        // logger.warn(" 6.b) Creating power plant financial reports.");
-        // Timer financialReports = new Timer();
-        // financialReports.start();
-        //
-        // creatingFinancialReports.act(model);
-        //
-        // financialReports.stop();
-        // logger.warn(" took: {} seconds.", financialReports.seconds());
+        logger.warn(" 6.b) Creating power plant financial reports.");
+        Timer financialReports = new Timer();
+        financialReports.start();
+
+        creatingFinancialReports.act(model);
+
+        financialReports.stop();
+        logger.warn(" took: {} seconds.", financialReports.seconds());
 
         logger.warn("  8. Investing");
         Timer timerInvest = new Timer();
@@ -562,7 +565,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         /*
          * Deletion of old nodes
          */
-
+        // TODO: Take a look
         if (model.isDeletionOldPPDPBidsAndCashFlowsEnabled() && (getCurrentTick() - model.getDeletionAge() >= 0)) {
             timerMarket.reset();
             timerMarket.start();
@@ -573,9 +576,11 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
                     reps.cashFlowRepository.findAllCashFlowsForForTime(getCurrentTick() - model.getDeletionAge()));
             reps.powerPlantRepository.delete(reps.powerPlantRepository
                     .findAllPowerPlantsDismantledBeforeTick(getCurrentTick() - 1 - model.getDeletionAge()));
-            reps.powerPlantDispatchPlanRepository
-                    .delete(reps.powerPlantDispatchPlanRepository.findAllPowerPlantDispatchPlansForTime(
-                            getCurrentTick() + model.getCentralForecastingYear() - 1, true));
+            // reps.powerPlantDispatchPlanRepository
+            // .delete(reps.powerPlantDispatchPlanRepository.findAllPowerPlantDispatchPlansForTime(
+            // getCurrentTick() + model.getCentralForecastingYear() - 1, true));
+            reps.ppdpAnnualRepository.delete(reps.ppdpAnnualRepository
+                    .findAllPpdpAnnualForGivenTime(getCurrentTick() - model.getDeletionAge() - 1));
             reps.financialPowerPlantReportRepository.delete(reps.financialPowerPlantReportRepository
                     .findAllFinancialPowerPlantReportsForTime(getCurrentTick() - 5 - model.getDeletionAge()));
             timerMarket.stop();

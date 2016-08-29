@@ -97,21 +97,27 @@
 		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:lengthInHours="${lengthInHours}"
 		p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
 
-	<bean id="interconnectorBeneluxGermany" class="emlab.gen.domain.technology.Interconnector"
-		p:capacity="${interconnectorCapacity}">
-		<property name="connections">
-			<set>
-				<ref bean="beneluxNode" />
-				<ref bean="germanNode" />
-			</set>
-		</property>
-		<property name="spotMarketConnections">
-			<set>
-				<ref bean="beneluxElectricitySpotMarket" />
-				<ref bean="germanElectricitySpotMarket" />
-			</set>
-		</property>
-	</bean>
+<bean id="interconnectorCapacityNL-DE" class="emlab.gen.trend.TimeSeriesCSVReader"
+  p:filename="/data/Kaveri/ICCapacityNL.csv" p:startingYear="0"
+  p:delimiter="," p:variableName="IC" />
+
+ <bean id="interconnectorBeneluxGermany" class="emlab.gen.domain.technology.Interconnector"
+  p:name = "NL-DE IC" >
+  <property name="interconnectorCapacity" ref="interconnectorCapacityNL-DE"/>
+  <property name="yearlySegment" ref="yearlySegment"/>
+  <property name="connections">
+   <set>
+    <ref bean="beneluxNode" />
+    <ref bean="germanNode" />
+   </set>
+  </property>
+  <property name="spotMarketConnections">
+   <set>
+    <ref bean="beneluxElectricitySpotMarket" />
+    <ref bean="germanElectricitySpotMarket" />
+   </set>
+  </property>
+ </bean>
 	
 	<bean id="photovoltaicNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile" 
 		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
@@ -1413,7 +1419,7 @@
 	<bean id="projectPropertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location"
-			value="classpath:scenarios/parametersI2-SR.properties" />
+			value="classpath:scenarios/parametersI2-SR2.properties" />
 	</bean>
 
 </beans>
