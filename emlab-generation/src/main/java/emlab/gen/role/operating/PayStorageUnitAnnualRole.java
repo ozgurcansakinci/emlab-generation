@@ -73,14 +73,14 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
 
         if (money != 0) {
 
-            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(operatingMarket, producer, money,
-                    CashFlow.STORAGE, getCurrentTick(), null);
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlowStorage(operatingMarket, producer, money,
+                    CashFlow.STORAGE, getCurrentTick(), storageTech);
 
             logger.info("Cash flow created for storage: {}", cf);
         }
 
-        CashFlow cf_om = reps.nonTransactionalCreateRepository.createCashFlow(producer, maintainer, omCost,
-                CashFlow.STORAGE_OM, getCurrentTick(), null);
+        CashFlow cf_om = reps.nonTransactionalCreateRepository.createCashFlowStorage(producer, maintainer, omCost,
+                CashFlow.STORAGE_OM, getCurrentTick(), storageTech);
 
         logger.warn("money={}", money);
         logger.info("Cash flow created for storage O&M cost: {}", cf_om);
@@ -95,8 +95,8 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
 
             DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
 
-            Loan loan = reps.loanRepository.createLoan(producer, bigbank, amount, (long) model.getSimulationLength(),
-                    getCurrentTick(), null);
+            Loan loan = reps.loanRepository.createLoanStorage(producer, bigbank, amount,
+                    (long) model.getSimulationLength(), getCurrentTick(), storageTech);
 
             double amountPerPayment = determineLoanAnnuities(amount, model.getSimulationLength() - 1,
                     producer.getLoanInterestRate());
@@ -114,8 +114,8 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
 
                 double payment = loan.getAmountPerPayment();
 
-                reps.nonTransactionalCreateRepository.createCashFlow(producer, loan.getTo(), payment, CashFlow.LOAN,
-                        getCurrentTick(), null);
+                reps.nonTransactionalCreateRepository.createCashFlowStorage(producer, loan.getTo(), payment,
+                        CashFlow.LOAN, getCurrentTick(), storageTech);
 
                 loan.setNumberOfPaymentsDone(loan.getNumberOfPaymentsDone() + 1);
 

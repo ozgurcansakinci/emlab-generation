@@ -32,31 +32,33 @@ import emlab.gen.role.AbstractEnergyProducerRole;
  * {@link EnergyProducer}s pay CO2 taxes to the {@link Government}.
  * 
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
- *         Chmieliauskas</a> @author <a
- *         href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
+ *         Chmieliauskas</a> @author
+ *         <a href="mailto:E.J.L.Chappin@tudelft.nl">Emile Chappin</a>
  */
 @RoleComponent
 public class PayOperatingAndMaintainanceCostsRole extends AbstractEnergyProducerRole implements Role<EnergyProducer> {
 
-	@Autowired
+    @Autowired
     Reps reps;
 
     public Reps getReps() {
         return reps;
     }
-    
+
     @Transactional
     public void act(EnergyProducer producer) {
         logger.info("Pay the Operating and Maintainance cost tax");
 
         PowerPlantMaintainer maintainer = reps.genericRepository.findFirst(PowerPlantMaintainer.class);
         int i = 0;
-        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer, getCurrentTick())) {
+        for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
+                getCurrentTick())) {
             i++;
-			double money = plant.getActualFixedOperatingCost();
+            double money = plant.getActualFixedOperatingCost();
             // TODO calculate actual based on modifier.
             logger.info("Im paying {} for O and M of plant {}", money, plant.getName());
-            reps.nonTransactionalCreateRepository.createCashFlow(producer, maintainer, money, CashFlow.FIXEDOMCOST, getCurrentTick(), plant);
+            reps.nonTransactionalCreateRepository.createCashFlow(producer, maintainer, money, CashFlow.FIXEDOMCOST,
+                    getCurrentTick(), plant);
         }
         logger.info("I: {} have paid for {} plants ", producer, i);
     }

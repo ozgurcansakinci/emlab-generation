@@ -15,12 +15,12 @@
  ******************************************************************************/
 package emlab.gen.domain.contract;
 
-
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import emlab.gen.domain.agent.DecarbonizationAgent;
+import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.domain.technology.PowerPlant;
 
 @NodeEntity
@@ -34,6 +34,9 @@ public class Loan {
 
     @RelatedTo(type = "LOAN_POWERPLANT", elementClass = PowerPlant.class, direction = Direction.OUTGOING)
     private PowerPlant regardingPowerPlant;
+
+    @RelatedTo(type = "LOAN_STORAGE", elementClass = EnergyStorageTechnology.class, direction = Direction.OUTGOING)
+    private EnergyStorageTechnology regardingStorage;
 
     private double amountPerPayment;
     private long totalNumberOfPayments;
@@ -95,4 +98,13 @@ public class Loan {
     public void setRegardingPowerPlant(PowerPlant regardingPowerPlant) {
         this.regardingPowerPlant = regardingPowerPlant;
     }
+
+    public EnergyStorageTechnology getRegardingStorage() {
+        return regardingStorage;
+    }
+
+    public void setRegardingStorage(EnergyStorageTechnology regardingStorage) {
+        this.regardingStorage = regardingStorage;
+    }
+
 }
