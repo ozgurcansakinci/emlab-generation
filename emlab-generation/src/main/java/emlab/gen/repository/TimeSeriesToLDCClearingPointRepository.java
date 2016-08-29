@@ -22,10 +22,9 @@ import org.springframework.data.repository.query.Param;
 
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.Segment;
-import emlab.gen.domain.market.electricity.SegmentClearingPoint;
 import emlab.gen.domain.market.electricity.TimeSeriesToLDCClearingPoint;
 
-public interface TimeSeriesToLDCClearingPointRepository extends GraphRepository<SegmentClearingPoint> {
+public interface TimeSeriesToLDCClearingPointRepository extends GraphRepository<TimeSeriesToLDCClearingPoint> {
 
     @Query(value = "g.v(segment).in('PRICE_POINT').propertyFilter('time', FilterPipe.Filter.EQUAL, time).as('x').out('MARKET_POINT').idFilter(market, FilterPipe.Filter.EQUAL).back('x')", type = QueryType.Gremlin)
     TimeSeriesToLDCClearingPoint findOneTimeSeriesToLDCClearingPointForMarketSegmentAndTime(@Param("time") long time,

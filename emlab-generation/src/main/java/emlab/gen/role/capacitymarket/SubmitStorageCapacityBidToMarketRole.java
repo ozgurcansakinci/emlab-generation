@@ -105,7 +105,7 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
 
                 if (netRevenuesForStorage >= 0) {
 
-                    bidPrice = 0d;
+                    bidPrice = 0d;// why?s
 
                 } else {
 
