@@ -93,6 +93,10 @@ public class YearlySegmentLoad {
         this.electricitySpotMarket = electricitySpotMarket;
     }
 
+    public void makeDemandGrow(double[] newDemand) {
+        this.hourlyInElasticCurrentDemandForYearlySegment.setHourlyArray(newDemand, 0);
+    }
+
     // public double getBaseLoad() {
     // return baseLoad;
     // }

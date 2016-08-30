@@ -93,8 +93,10 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
                 // - 1) + " Are: " + revenue.getMoney());
                 // logger.warn("Storage O&M Costs from year " +
                 // (getCurrentTick() - 1) + " Are: " + omCosts.getMoney());
-
-                netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
+                if (revenue != null)
+                    netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
+                else
+                    netRevenuesForStorage = -omCosts.getMoney();
             }
 
             if (getCurrentTick() == 0) {
