@@ -32,7 +32,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket>implements Role<CapacityMarket> {
+public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket> implements Role<CapacityMarket> {
 
     @Autowired
     Reps reps;
@@ -69,7 +69,7 @@ public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket
         if (market.isRenewableTargetInvestorCanInvest()) {
             for (EnergyProducer producer : reps.energyProducerRepository
                     .findAllEnergyProducersIncludingRenewableTargetInvestorsAtRandomForZone(market.getZone())) {
-
+                // logger.warn("The bidder is" + producer.getName());
                 submitCapacityBidToMarketRoleMultiNode.act(producer);
             }
         } else {

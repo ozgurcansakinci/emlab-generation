@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -301,51 +300,61 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                  // current tick
                                 avgGrowthFactor += market.getDemandGrowthTrend().getValue(0);
                         }
-                        demandGrowthFactor = Math.pow(avgGrowthFactor / iteration,
-                                (double) (getCurrentTick() + iterator));
+                        // demandGrowthFactor = Math.pow(avgGrowthFactor /
+                        // iteration,
+                        // (double) (getCurrentTick() + iterator));
+                        demandGrowthFactor = avgGrowthFactor / iteration;
                     }
 
-                    double range = 0;
-
-                    if ((getCurrentTick() + iterator) == 1) {
-                        // double max =
-                        // reps.powerPlantRepository.calculateBaseCapacityOfOperationalPowerPlantsInMarket(
-                        // market, (getCurrentTick() + iterator));
-                        double max = reps.powerPlantRepository
-                                .calculateBaseCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
-                                        (getCurrentTick() + iterator));
-                        // double min =
-                        // reps.powerPlantRepository.calculatePeakCapacityOfOperationalPowerPlantsInMarket(
-                        // market, (getCurrentTick() + iterator));
-                        double min = reps.powerPlantRepository
-                                .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
-                                        (getCurrentTick() + iterator));
-                        range = ((max + min) / 2);
-                    }
-
-                    if ((getCurrentTick() + iterator) > 1) {
-                        SimpleRegression sr = new SimpleRegression();
-                        for (long time = (getCurrentTick() + iterator) - 1; time >= (getCurrentTick() + iterator)
-                                - market.getBacklookingForDemandForecastinginDismantling()
-                                && time >= 0; time = time - 1) {
-                            // double max = reps.powerPlantRepository
-                            // .calculateBaseCapacityOfOperationalPowerPlantsInMarket(market,
-                            // time);
-                            // double min = reps.powerPlantRepository
-                            // .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market,
-                            // time);
-                            double max = reps.powerPlantRepository
-                                    .calculateBaseCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
-                                            (getCurrentTick() + iterator));
-                            double min = reps.powerPlantRepository
-                                    .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
-                                            (getCurrentTick() + iterator));
-                            sr.addData(time, ((max + min) / 2));
-
-                        }
-
-                        range = (sr.predict((getCurrentTick() + iterator)));
-                    }
+                    // Could not understand the purpose of the following block,
+                    // so commented it out!
+                    // double range = 0;
+                    //
+                    // if ((getCurrentTick() + iterator) == 1) {
+                    // // double max =
+                    // //
+                    // reps.powerPlantRepository.calculateBaseCapacityOfOperationalPowerPlantsInMarket(
+                    // // market, (getCurrentTick() + iterator));
+                    // double max = reps.powerPlantRepository
+                    // .calculateBaseCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
+                    // (getCurrentTick() + iterator));
+                    // // double min =
+                    // //
+                    // reps.powerPlantRepository.calculatePeakCapacityOfOperationalPowerPlantsInMarket(
+                    // // market, (getCurrentTick() + iterator));
+                    // double min = reps.powerPlantRepository
+                    // .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
+                    // (getCurrentTick() + iterator));
+                    // range = ((max + min) / 2);
+                    // }
+                    //
+                    // if ((getCurrentTick() + iterator) > 1) {
+                    // SimpleRegression sr = new SimpleRegression();
+                    // for (long time = (getCurrentTick() + iterator) - 1; time
+                    // >= (getCurrentTick() + iterator)
+                    // -
+                    // market.getBacklookingForDemandForecastinginDismantling()
+                    // && time >= 0; time = time - 1) {
+                    // // double max = reps.powerPlantRepository
+                    // //
+                    // .calculateBaseCapacityOfOperationalPowerPlantsInMarket(market,
+                    // // time);
+                    // // double min = reps.powerPlantRepository
+                    // //
+                    // .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market,
+                    // // time);
+                    // double max = reps.powerPlantRepository
+                    // .calculateBaseCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
+                    // (getCurrentTick() + iterator));
+                    // double min = reps.powerPlantRepository
+                    // .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
+                    // (getCurrentTick() + iterator));
+                    // sr.addData(time, ((max + min) / 2));
+                    //
+                    // }
+                    //
+                    // range = (sr.predict((getCurrentTick() + iterator)));
+                    // }
 
                     // * ((100 + r.nextGaussian() * 20) / 100);
 

@@ -60,7 +60,10 @@ public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProduc
 
         for (PowerPlant plant : reps.powerPlantRepository.findOperationalNonIntermittentPowerPlantsByOwner(producer,
                 getCurrentTick())) {
-
+            // logger.warn("Technology of the bidding power plant is " +
+            // plant.getTechnology().toString());
+            // logger.warn("Owner of the bidding power plant is " +
+            // plant.getOwner().getName());
             CapacityMarket market = reps.capacityMarketRepository
                     .findCapacityMarketForZone(plant.getLocation().getZone());
 
@@ -131,9 +134,9 @@ public class SubmitCapacityBidToMarketRoleMultiNode extends AbstractEnergyProduc
                         }
 
                     }
-                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability())
-                            + (((plant.getTechnology().getBaseSegmentDependentAvailability() - plant.getTechnology()
-                                    .getPeakSegmentDependentAvailability())
+                    double plantLoadFactor = ((plant.getTechnology().getPeakSegmentDependentAvailability()) + (((plant
+                            .getTechnology().getBaseSegmentDependentAvailability()
+                            - plant.getTechnology().getPeakSegmentDependentAvailability())
                             / ((double) (reps.segmentRepository.findBaseSegmentforMarket(eMarket).getSegmentID() - 1)))
                             * (segmentLoad.getSegment().getSegmentID() - 1)));
 

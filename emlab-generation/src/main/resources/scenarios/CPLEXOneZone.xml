@@ -428,14 +428,14 @@
 	
 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
 		p:name="Regulator A" p:capacityMarketPriceCap="58900"
-		p:reserveMargin="0.1" p:targetPeriod="0"
+		p:reserveMargin="0.1" p:targetPeriod="0" 
 		p:reserveDemandLowerMargin="0.025" p:reserveDemandUpperMargin="0.025"
 		p:numberOfYearsLookingBackToForecastDemand="4"> 
 		<property name="zone" ref="nl" />
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="true" >
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="nl" />
@@ -474,7 +474,7 @@
 	<bean id="renewableTargetInvestorCountryBL" class="emlab.gen.domain.agent.TargetInvestor"
 	p:name="Renewable Target Investor BL" p:cash-ref="startCashBL"
 	p:investmentRole-ref="targetInvestmentRole"
-	p:priceMarkUp="1.0"
+	p:priceMarkUp="1.0" p:simpleCapacityMarketEnabled="${simpleCapacityMarketEnabled}"
 	p:investorMarket-ref="beneluxElectricitySpotMarket"
 	p:equityInterestRate="0.12" p:loanInterestRate="0.09"
 	p:debtRatioOfInvestments="0.7">
