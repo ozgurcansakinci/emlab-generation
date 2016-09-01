@@ -30,7 +30,7 @@ else
     QUERYCOMMAND=""
 fi
 
-java -d64 -server -Xmx3072m -Drun.id=$JOBNAME -DSCENARIO_FOLDER=$SCENARIOPATH -Dresults.path=$LOCALRESULTFOLDER/$JOBNAME -Dscenario.file=$SCENARIO".xml" -Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux $QUERYCOMMAND -jar $LOCALJARFILE
+java -d64 -server -Xmx3072m -Drun.id=$JOBNAME -DSCENARIO_FOLDER=$SCENARIOPATH -Dresults.path=$LOCALRESULTFOLDER/$JOBNAME -Dscenario.file=$SCENARIO".xml" -Djava.library.path=/Users/apple/Applications/IBM/ILOG/CPLEX_Studio1263/cplex/bin/x86-64_osx $QUERYCOMMAND -jar $LOCALJARFILE
 rm -rf /tmp/ramdisk/emlab.gen-db/$JOBNAME
 
 mv simulation.log $JOBNAME.log
