@@ -35,7 +35,7 @@ import emlab.gen.repository.Reps;
  */
 
 @RoleComponent
-public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>implements Role<Regulator> {
+public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> implements Role<Regulator> {
 
     @Autowired
     Reps reps;
@@ -142,7 +142,8 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                     currentCDP.setStatus(Bid.ACCEPTED);
                     currentCDP.setAcceptedAmount(currentCDP.getAmount());
                     totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
-                    logger.warn("total capacity is:" + totalContractedCapacity);
+                    // logger.warn("total capacity is:" +
+                    // totalContractedCapacity);
                     if (currentCDP.getPlant() == null) {
                         logger.warn("2: Following bids got accepted: " + currentCDP.getStorage().getName() + " "
                                 + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
@@ -157,7 +158,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                 if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
                         && isTheMarketCleared == false) {
 
-                    if ((totalContractedCapacity + currentCDP.getAmount()) < (demandTarget
+                    if ((totalContractedCapacity + currentCDP.getAmount()) <= (demandTarget
                             * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
                         logger.warn("3 if condition: " + (demandTarget * ((upperMargin)
                                 - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
@@ -166,7 +167,8 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                         currentCDP.setStatus(Bid.ACCEPTED);
                         currentCDP.setAcceptedAmount(currentCDP.getAmount());
                         totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
-                        logger.warn("total capacity is:" + totalContractedCapacity);
+                        // logger.warn("total capacity is:" +
+                        // totalContractedCapacity);
                         if (currentCDP.getPlant() == null) {
                             logger.warn("3: Following bids got accepted: " + currentCDP.getStorage().getName() + " "
                                     + currentCDP.getAcceptedAmount() + " " + currentCDP.getBiddingMarket());
@@ -192,13 +194,9 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                         // lowerMargin)) / marketCap))));
                         // logger.warn("bid price: " + currentCDP.getPrice());
                         double tempAcceptedAmount = 0;
-                        // tempAcceptedAmount = currentCDP.getAmount()
-                        // - ((totalContractedCapacity + currentCDP.getAmount())
-                        // - (demandTarget * ((upperMargin)
-                        // - ((currentCDP.getPrice() * (upperMargin -
-                        // lowerMargin)) / marketCap))));
-                        tempAcceptedAmount = -((totalContractedCapacity) - (demandTarget
-                                * (upperMargin - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
+                        tempAcceptedAmount = currentCDP.getAmount()
+                                - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin)
+                                        - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
                         // logger.warn("temp accepted amount: " +
                         // tempAcceptedAmount);
                         if (tempAcceptedAmount >= 0) {

@@ -237,6 +237,10 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
     public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarket(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
 
+    @Query(value = "g.v(market).in('INVESTOR_MARKET').filter{it.__type__!='emlab.gen.domain.agent.TargetInvestor' && it.__type__!='emlab.gen.domain.agent.StochasticTargetInvestor' }.in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
+    public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarketExcludingTargetInvestor(
+            @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+
     @Query(value = "t = new Table();"
             + "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.dismantleTime > tick)}.as('pp').out('TECHNOLOGY').filter{it.intermittent==false}.as('ty').table(t){it.actualNominalCapacity}{it.peakSegmentDependentAvailability}.cap().next(); "
             + "capacitySum = 0; for (row in t){capacitySum += row.get(0) * row.get(1);}; return capacitySum;", type = QueryType.Gremlin)
@@ -388,7 +392,7 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
             + "capacitySum = 0; for (row in t){capacitySum += row.get(0) * row.get(1);}; return capacitySum;", type = QueryType.Gremlin)
     public double calculateBaseCapacityOfNonIntermittentOperationalPowerPlantsInMarket(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
-            ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     // >>>>>>> PCBhagwat/feature/mergingEconomicDismantlingAndCapacityMarkets2
     @Query(value = "g.v(gridnode).in('LOCATION').filter{(it.__type__=='emlab.gen.domain.technology.PowerPlant')}.as('p').out('TECHNOLOGY').filter{it.intermittent == true}.back('p').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.dismantleTime > tick)}", type = QueryType.Gremlin)

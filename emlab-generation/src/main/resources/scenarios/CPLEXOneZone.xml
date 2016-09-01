@@ -630,7 +630,7 @@
 
 	<!-- Power Generation Technologies -->
 	<bean id="coalPulverizedSuperCritical" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="CoalPSC" p:capacity="5758"
+		p:name="CoalPSC" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="coalPSCInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="coalPSCFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="coalPSCEfficiencyTimeSeries" 
@@ -659,7 +659,7 @@
 	
 	
 	<bean id="lignitePGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="Lignite" p:capacity="5000"
+		p:name="Lignite" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="ligniteInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="ligniteFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ligniteEfficiencyTimeSeries" 
@@ -686,7 +686,7 @@
 	<bean id="ligniteEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.005" p:start=".45" />
 	
 	<bean id="IGCC" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="IGCC" p:capacity="5758"
+		p:name="IGCC" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="igccInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="igccFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="igccEfficiencyTimeSeries" 
@@ -713,7 +713,7 @@
 	<bean id="igccEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.0033406805" p:start="0.48" />
 	
 	<bean id="coalPscCSS" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="CoalPscCSS" p:capacity="5600" 
+		p:name="CoalPscCSS" p:capacity="2500" 
 		p:investmentCostTimeSeries-ref="coalPulverizedCSSInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="coalPulverizedCSSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="coalPulverizedCSSEfficiencyTimeSeries" 
@@ -740,7 +740,7 @@
 	<bean id="coalPulverizedCSSEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.0011744757" p:start=".35" />
 	
 	<bean id="igccCCS" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="IgccCCS" p:capacity="5600"
+		p:name="IgccCCS" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="igccCCSInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="igccCCSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="igccCCSEfficiencyTimeSeries" 
@@ -767,7 +767,7 @@
 	<bean id="igccCCSEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.0059803464" p:start=".39" />
 	
 	<bean id="CCGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="CCGT" p:capacity="5776"
+		p:name="CCGT" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="ccgtInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="ccgtFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ccgtEfficiencyTimeSeries" 
@@ -793,7 +793,7 @@
 	<bean id="ccgtEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.002068676" p:start=".59" />
 	
 	<bean id="ccgtCCS" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="CcgtCCS" p:capacity="5600"
+		p:name="CcgtCCS" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="ccgtCCSInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="ccgtCCSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ccgtCCSEfficiencyTimeSeries" 
@@ -819,7 +819,7 @@
 	<bean id="ccgtCCSEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.0031511023" p:start=".51" />
 	
 	<bean id="OCGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="OCGT" p:capacity="5150"
+		p:name="OCGT" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="ocgtCCSInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="ocgtCCSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ocgtCCSEfficiencyTimeSeries" 
@@ -845,7 +845,7 @@
 	<bean id="ocgtCCSEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.002068676" p:start="0.38" />
 	
 	<bean id="biomassPGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="Biomass" p:capacity="5500"
+		p:name="Biomass" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="biomassInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="biomassFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="biomassEfficiencyTimeSeries" 
@@ -872,7 +872,7 @@
 	<bean id="biomassEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.000001" p:start=".35" />
 	
 	<bean id="windPGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="Wind" p:capacity="5600" 
+		p:name="Wind" p:capacity="2500" 
 		p:investmentCostTimeSeries-ref="windInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="windFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="windEfficiencyTimeSeries" 
@@ -895,7 +895,7 @@
 	
 	
 	<bean id="windOffshorePGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="WindOffshore" p:capacity="5600"
+		p:name="WindOffshore" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="windOffshoreInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="windOffshoreFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="windOffshoreEfficiencyTimeSeries" 
@@ -917,7 +917,7 @@
 	<bean id="windOffshoreEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="1" />
 	
 	<bean id="photovoltaicPGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="Photovoltaic" p:capacity="5500" 
+		p:name="Photovoltaic" p:capacity="2500" 
 		p:investmentCostTimeSeries-ref="pvInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="pvFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="pvEfficiencyTimeSeries" 
@@ -939,7 +939,7 @@
 	<bean id="pvEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="1" />
 	
 	<bean id="nuclearPGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"
-		p:name="Nuclear" p:capacity="5000"
+		p:name="Nuclear" p:capacity="2500"
 		p:investmentCostTimeSeries-ref="nuclearInvestmentCostTimeSeries"
 		p:fixedOperatingCostTimeSeries-ref="nuclearFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="nuclearEfficiencyTimeSeries" 
