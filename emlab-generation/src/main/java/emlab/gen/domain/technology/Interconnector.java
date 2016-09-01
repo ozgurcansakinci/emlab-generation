@@ -48,6 +48,16 @@ public class Interconnector {
     @RelatedTo(type = "YEARLYSEGMENT_INTERCONNECTOR", elementClass = YearlySegment.class, direction = Direction.OUTGOING)
     private YearlySegment yearlySegment;
 
+    private float TransmissionLineSusceptance;
+
+    public float getTransmissionLineSusceptance() {
+        return TransmissionLineSusceptance;
+    }
+
+    public void setTransmissionLineSusceptance(float transmissionLineSusceptance) {
+        TransmissionLineSusceptance = transmissionLineSusceptance;
+    }
+
     public String getName() {
         return name;
     }

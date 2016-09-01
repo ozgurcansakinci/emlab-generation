@@ -45,7 +45,7 @@ public interface CapacityMarketRepository extends GraphRepository<CapacityMarket
     ///////////////////////////////
 
     @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(capacityDispatchPlan) WHERE (capacityDispatchPlan.time = {time}) RETURN capacityDispatchPlan ORDER BY capacityDispatchPlan.price asc")
-    Iterable<CapacityDispatchPlan> findCapacityDispatchPlansForMarketForTime(
+    Iterable<CapacityDispatchPlan> findSortedCapacityDispatchPlansForMarketForTime(
             @Param("market") CapacityMarket capacityMarket, @Param("time") long time);
 
     //////////////////////////////

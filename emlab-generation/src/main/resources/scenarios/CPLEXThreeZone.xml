@@ -33,7 +33,7 @@
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
-		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
+		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
 
@@ -130,7 +130,7 @@
 		p:delimiter="," p:variableName="IC" />
 		
 	<bean id="interconnectorBeneluxGermany" class="emlab.gen.domain.technology.Interconnector"
-		p:name = "NL-DE IC" >
+		p:name = "NL-DE IC" p:transmissionLineSusceptance="1">
 		<property name="interconnectorCapacity" ref="interconnectorCapacityNL-DE"/>
 		<property name="yearlySegment" ref="yearlySegment"/>
 		<property name="connections">
@@ -148,7 +148,7 @@
 	</bean>
 	
 	<bean id="interconnectorBeneluxBritish" class="emlab.gen.domain.technology.Interconnector"
-		p:name = "NL-UK IC" >
+		p:name = "NL-UK IC" p:transmissionLineSusceptance="1">
 		<property name="interconnectorCapacity" ref="interconnectorCapacityNL-UK"/>
 		<property name="yearlySegment" ref="yearlySegment"/>
 		<property name="connections">
@@ -166,7 +166,7 @@
 	</bean>
 	
 	<bean id="interconnectorGermanyBritish" class="emlab.gen.domain.technology.Interconnector"
-		p:name = "DE-UK IC" >
+		p:name = "DE-UK IC" p:transmissionLineSusceptance="1">
 		<property name="interconnectorCapacity" ref="interconnectorCapacityDE-UK"/>
 		<property name="yearlySegment" ref="yearlySegment"/>
 		<property name="connections">

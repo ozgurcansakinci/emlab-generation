@@ -54,6 +54,9 @@ public interface PpdpAnnualRepository extends GraphRepository<PpdpAnnual> {
     @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.PpdpAnnual']].propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 1}", type = QueryType.Gremlin)
     public Iterable<PpdpAnnual> findAllSubmittedPpdpAnnualForGivenTime(@Param("time") long time);
 
+    @Query(value = "g.idx('__types__')[[className:'emlab.gen.domain.market.electricity.PpdpAnnual']].propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
+    public Iterable<PpdpAnnual> findAllPpdpAnnualForGivenTime(@Param("time") long time);
+
     @Query(value = "g.v(plant).in('PPDPANNUAL_POWERPLANT').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
     public PpdpAnnual findPPDPAnnualforPlantForCurrentTick(@Param("plant") PowerPlant plant, @Param("time") long time);
 }

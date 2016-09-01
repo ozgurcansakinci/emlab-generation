@@ -25,7 +25,7 @@
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
-		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
+		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
 		
@@ -45,7 +45,7 @@
 			p:co2Density="0.05194" p:unit="GJ" />
 		
 	<bean id="biomass" class="emlab.gen.domain.technology.Substance"
-		p:name="Biomass" p:quality="0.5" p:energyDensity="10000" p:co2Density="0" p:unit="GJ" />
+		p:name="Biomass" p:quality="1" p:energyDensity="10000" p:co2Density="0" p:unit="GJ" />
 		
 	<bean id="uranium" class="emlab.gen.domain.technology.Substance"
 		p:name="Uranium" p:quality="1" p:energyDensity="10000" p:co2Density="0" p:unit="GJ" />
@@ -428,18 +428,18 @@
 	
 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
 		p:name="Regulator A" p:capacityMarketPriceCap="58900"
-		p:reserveMargin="0.1" p:targetPeriod="0"
-		p:reserveDemandLowerMargin="0.025" p:reserveDemandUpperMargin="0.025"
+		p:reserveMargin="0.07" p:targetPeriod="0"
+		p:reserveDemandLowerMargin="0.04" p:reserveDemandUpperMargin="0.04"
 		p:numberOfYearsLookingBackToForecastDemand="4"> 
 		<property name="zone" ref="nl" />
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="true" >
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="nl" />
-	</bean>	
+	</bean>
 	
 	<bean id="capitalCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
 		p:filename="/data/Kaveri/CapitalCosts.csv" p:startingYear="0"
@@ -788,7 +788,7 @@
 		</property>
 	</bean>
 	
-	<bean id="ccgtInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.0075679493" p:start="646830" />
+	<bean id="ccgtInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.0075679493" p:start="1646830" />
 	<bean id="ccgtFixedOperatingCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="29470" />
 	<bean id="ccgtEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.002068676" p:start=".59" />
 	
@@ -840,7 +840,7 @@
 		</property>
 	</bean>
 	
-	<bean id="ocgtCCSInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="359350" />
+	<bean id="ocgtCCSInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="1359350" />
 	<bean id="ocgtCCSFixedOperatingCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0" p:start="14370" />
 	<bean id="ocgtCCSEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.002068676" p:start="0.38" />
 	
@@ -856,8 +856,8 @@
 		p:expectedLeadtime="3" p:expectedPermittime="1" p:minimumFuelQuality="0.5"
 		p:maximumInstalledCapacityFractionInCountry="1"
 		p:maximumInstalledCapacityFractionPerAgent="1"
-		p:baseSegmentDependentAvailability="0.7"
-		p:peakSegmentDependentAvailability="0.7"
+		p:baseSegmentDependentAvailability="1"
+		p:peakSegmentDependentAvailability="1"
 		p:applicableForLongTermContract="true"
 		p:intermittent="false">
 		<property name="fuels">
@@ -867,8 +867,8 @@
 		</property>
 	</bean>
 	
-	<bean id="biomassInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.004438785" p:start="1703320" />
-	<bean id="biomassFixedOperatingCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.004438785" p:start="59620" />
+	<bean id="biomassInvestmentCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.004438785" p:start="703320" />
+	<bean id="biomassFixedOperatingCostTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="-0.004438785" p:start="19620" />
 	<bean id="biomassEfficiencyTimeSeries" class="emlab.gen.trend.GeometricTrend" p:growthRate="0.000001" p:start=".35" />
 	
 	<bean id="windPGT" class="emlab.gen.domain.technology.PowerGeneratingTechnology"

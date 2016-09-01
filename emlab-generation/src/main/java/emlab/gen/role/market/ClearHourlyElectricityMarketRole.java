@@ -42,8 +42,6 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 
-//TODO: add papaya here, get the absolute values of electricity prices
-
 /**
  * @author asmkhan
  *
@@ -65,6 +63,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
     public void act(DecarbonizationModel model) {
 
         try {
+
             Government gov = template.findAll(Government.class).iterator().next();
             IloCplex cplex = new IloCplex();
             double co2Cap = gov.getCo2Cap(getCurrentTick());
@@ -92,9 +91,14 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // .asList(reps.powerGridNodeRepository.findAllPowerGridNodesByZone(zone));
                 // zoneToNodeList.put(zone, nodeList);
             }
+
             YearlySegment yearlySegment = reps.marketRepository
                     .findYearlySegmentForElectricitySpotMarketForTime(market1);
+
             int timeSteps = (int) yearlySegment.getYearlySegmentLengthInHours();
+
+            int numberOfDays = (int) market1.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
+                    .getLengthInHours();
 
             // for (Zone zone : zoneList) {
             //
@@ -146,28 +150,19 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // powerPlantList =
             // reps.powerPlantRepository.findOperationalPowerPlants(getCurrentTick());
 
-            double PTDFBtoAB = -0.6666666666666666;
-            double PTDFBtoAC = -0.3333333333333333;
-            double PTDFBtoBC = 0.3333333333333333;
-
-            double PTDFCtoAB = -0.3333333333333333;
-            double PTDFCtoAC = -0.6666666666666666;
-            double PTDFCtoBC = -0.3333333333333333;
+            // double PTDFBtoAB = -0.6666666666666666;
+            // double PTDFBtoAC = -0.3333333333333333;
+            // double PTDFBtoBC = 0.3333333333333333;
+            //
+            // double PTDFCtoAB = -0.3333333333333333;
+            // double PTDFCtoAC = -0.6666666666666666;
+            // double PTDFCtoBC = -0.3333333333333333;
 
             double numberofMarkets = reps.marketRepository.countAllElectricitySpotMarkets();
 
             int numberOfElectricitySpotMarkets = (int) numberofMarkets;
 
             int numberOfPowerPlants = reps.powerPlantRepository.findNumberOfOperationalPowerPlants(getCurrentTick());
-
-            // int timeSteps = 8760;
-
-            // The i th row contains the array of variable generation capacity
-            // of plant i
-            IloNumVar[][] generationCapacityofPlantsMatrix = new IloNumVar[numberOfPowerPlants][timeSteps];
-
-            // Only works when there is one interconnector
-            // TODO:think about the multi node implementation
 
             int numberofInterconnectors = 0;
 
@@ -180,28 +175,49 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 numberofInterconnectors = (int) numberofICs;
             }
 
-            // double maxMarketCrossBorderFlowAandB =
-            // reps.template.findAll(Interconnector.class).iterator().next()
-            // .getCapacity(getCurrentTick());
-            // double minMarketCrossBorderFlowAandB =
-            // -maxMarketCrossBorderFlowAandB;
+            double[] linesSusceptances = new double[3];
 
-            // IloNumVar[] crossBorderGenerationAtoB = new IloNumVar[timeSteps];
-            // // Power flow from zone A to B
-            // for (int i = 0; i < timeSteps; i++) {
-            // crossBorderGenerationAtoB[i] =
-            // cplex.numVar(minMarketCrossBorderFlowAandB,
-            // maxMarketCrossBorderFlowAandB);
-            // }
-            //
-            // IloNumVar[] crossBorderGenerationBtoA = new IloNumVar[timeSteps];
-            // // Power flow from zone A to B
-            // for (int i = 0; i < timeSteps; i++) {
-            // crossBorderGenerationBtoA[i] =
-            // cplex.numVar(minMarketCrossBorderFlowAandB,
-            // maxMarketCrossBorderFlowAandB);
-            // }
-            // TODO: Right now, it is assumed that there are only two markets.
+            if (numberofInterconnectors == 3) {
+                int interconnectorIndex = 0;
+                for (Interconnector interconnector : reps.interconnectorRepository.findAllInterconnectors()) {
+                    System.out.println("Name of interconnector: " + interconnector.getName());
+                    linesSusceptances[interconnectorIndex] = interconnector.getTransmissionLineSusceptance();
+                    interconnectorIndex++;
+                }
+            }
+
+            double D1 = linesSusceptances[0] + linesSusceptances[2];
+            double D2 = linesSusceptances[2] + linesSusceptances[1];
+            double D3 = linesSusceptances[2];
+            double D4 = linesSusceptances[2];
+            double Da = D1 * D2;
+            double Db = D3 * D4;
+            double Deno = Da - Db;
+
+            double Mbb11 = D2;
+            double Mbb12 = D3;
+            double Mbb21 = D4;
+            double Mbb22 = D1;
+
+            double Mb11 = Mbb11 / Deno;
+            double Mb12 = Mbb12 / Deno;
+            double Mb21 = Mbb21 / Deno;
+            double Mb22 = Mbb22 / Deno;
+
+            double Ma11 = -linesSusceptances[0];
+            double Ma12 = 0;
+            double Ma21 = 0;
+            double Ma22 = -linesSusceptances[1];
+            double Ma31 = D3;
+            double Ma32 = -D3;
+
+            double PTDFBtoAB = (Ma11 * Mb11) + (Ma12 * Mb21);
+            double PTDFBtoAC = (Ma21 * Mb11) + (Ma22 * Mb21);
+            double PTDFBtoBC = (Ma31 * Mb11) + (Ma32 * Mb21);
+
+            double PTDFCtoAB = (Ma11 * Mb12) + (Ma12 * Mb22);
+            double PTDFCtoAC = (Ma21 * Mb12) + (Ma22 * Mb22);
+            double PTDFCtoBC = (Ma31 * Mb12) + (Ma32 * Mb22);
 
             // Map<ElectricitySpotMarket, List<PowerPlant>> ESMtoPPList = new
             // HashMap<ElectricitySpotMarket, List<PowerPlant>>();
@@ -234,6 +250,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // maxMarketCrossBorderFlowAandB);
             // }
 
+            // The i th row contains the array of variable generation capacity
+            // of plant i
+            IloNumVar[][] generationCapacityofPlantsMatrix = new IloNumVar[numberOfPowerPlants][timeSteps];
+
             IloLinearNumExpr[][] generationEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
 
             IloLinearNumExpr[][] demandEquationsForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][timeSteps];
@@ -245,9 +265,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             // Demand response data structure
             IloNumVar[][] elasticDemandForAllMarkets = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
 
-            IloLinearNumExpr[][] accumulativeElasticDemandPerDayForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][365];
-
-            // TODO:Get the number 365 from the file
+            IloLinearNumExpr[][] accumulativeElasticDemandPerDayForAllMarkets = new IloLinearNumExpr[numberOfElectricitySpotMarkets][numberOfDays];
 
             IloNumVar[][] valueOfLostLoadInMWH = new IloNumVar[numberOfElectricitySpotMarkets][timeSteps];
 
@@ -281,9 +299,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
                 for (int i = 0; i < timeSteps; i++) {
 
-                    // if (numberofICs != 0 && interconnectorsCreated == false)
-                    // {
-
                     if (marketIndex == 0 && numberofInterconnectors != 0) {
                         switch ((int) numberofInterconnectors) {
                         case 1:
@@ -294,7 +309,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                         interconnector.getInterconnectorCapacity().getValue(getCurrentTick()));
 
                             }
-                            // interconnectorsCreated = true;
                             break;
                         case 3:
                             int interconnectorIndex = 0;
@@ -442,12 +456,15 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 marketIndex++;
             }
             cplex.addMinimize(objective);
+
             IloRange[][] constraints = null;
+
             if (numberOfElectricitySpotMarkets != 3) {
                 constraints = new IloRange[numberOfElectricitySpotMarkets][timeSteps];
             } else {
                 constraints = new IloRange[numberOfElectricitySpotMarkets + 1][timeSteps];
             }
+
             // Creating constraints
 
             switch (numberOfElectricitySpotMarkets) {

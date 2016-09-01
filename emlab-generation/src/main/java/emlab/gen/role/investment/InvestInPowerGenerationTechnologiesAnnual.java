@@ -114,7 +114,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
         // CO2
         Map<ElectricitySpotMarket, Double> expectedCO2Price = determineExpectedCO2PriceInclTaxAndFundamentalForecast(
 
-                futureTimePoint, agent.getNumberOfYearsBacklookingForForecasting(), 0, getCurrentTick());
+        futureTimePoint, agent.getNumberOfYearsBacklookingForForecasting(), 0, getCurrentTick());
 
         // logger.warn("{} expects CO2 prices {}", agent.getName(),
         // expectedCO2Price);
@@ -147,7 +147,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                 else // TODO:not sure if we should take 0th tick or current tick
                     avgGrowthFactor += elm.getDemandGrowthTrend().getValue(0);
             }
-            expectedDemand.put(elm, Math.pow(avgGrowthFactor / iteration, (double) futureTimePoint));
+            expectedDemand.put(elm, (Math.pow(avgGrowthFactor / iteration, (double) futureTimePoint)));
         }
 
         ElectricitySpotMarket market = agent.getInvestorMarket();
@@ -226,7 +226,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                 if ((expectedInstalledCapacityOfTechnology + plant.getActualNominalCapacity())
                         / (marketInformation.maxExpectedLoad + plant.getActualNominalCapacity()) > technology
 
-                                .getMaximumInstalledCapacityFractionInCountry()) {
+                .getMaximumInstalledCapacityFractionInCountry()) {
 
                     // logger.warn(agent +
                     // " will not invest in {} technology because there's too

@@ -71,6 +71,7 @@ public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket
                     .findAllEnergyProducersIncludingRenewableTargetInvestorsAtRandomForZone(market.getZone())) {
 
                 submitCapacityBidToMarketRoleMultiNode.act(producer);
+
             }
         } else {
             for (EnergyProducer producer : reps.energyProducerRepository

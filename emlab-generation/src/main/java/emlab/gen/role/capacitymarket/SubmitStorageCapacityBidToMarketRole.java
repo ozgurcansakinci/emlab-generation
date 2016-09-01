@@ -93,8 +93,10 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
                 // - 1) + " Are: " + revenue.getMoney());
                 // logger.warn("Storage O&M Costs from year " +
                 // (getCurrentTick() - 1) + " Are: " + omCosts.getMoney());
-
-                netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
+                if (revenue != null)
+                    netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
+                else
+                    netRevenuesForStorage = -omCosts.getMoney();
             }
 
             if (getCurrentTick() == 0) {
@@ -105,7 +107,7 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
 
                 if (netRevenuesForStorage >= 0) {
 
-                    bidPrice = 0d;
+                    bidPrice = 0d;// why?s
 
                 } else {
 
@@ -115,7 +117,7 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
 
             // Storage can only bid 8% of the available discharging capacity
 
-            double capacity = storageTech.getBaseMaxStorageDischargingRate() * 0.08;
+            double capacity = storageTech.getBaseMaxStorageDischargingRate() * 0.2;
 
             CapacityDispatchPlan plan = new CapacityDispatchPlan().persist();
 

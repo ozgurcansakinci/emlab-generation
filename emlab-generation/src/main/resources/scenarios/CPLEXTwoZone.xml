@@ -28,7 +28,7 @@
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
-		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5" p:dailyDemandResponseImplemented ="false"
+		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
 
@@ -96,9 +96,15 @@
 	<bean id="demandDE" class="emlab.gen.trend.HourlyCSVTimeSeries"
 		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:lengthInHours="${lengthInHours}"
 		p:timeSeriesAreInDifferentColumns="true" p:delimiter="," />
+		
+	<bean id="interconnectorCapacityNL-DE" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Kaveri/ICCapacityNL.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="IC" />
 
 	<bean id="interconnectorBeneluxGermany" class="emlab.gen.domain.technology.Interconnector"
-		p:capacity="${interconnectorCapacity}">
+		p:name = "NL-DE IC" >
+		<property name="interconnectorCapacity" ref="interconnectorCapacityNL-DE"/>
+		<property name="yearlySegment" ref="yearlySegment"/>
 		<property name="connections">
 			<set>
 				<ref bean="beneluxNode" />
@@ -183,45 +189,45 @@
 		
 	<!-- Segments of load duration curves -->
 	<bean id="segment1" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="10" p:segmentID="20" />
+		p:segmentID="20" />
 	<bean id="segment2" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="50" p:segmentID="19" />
+		p:segmentID="19" />
 	<bean id="segment3" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="18" />
+		p:segmentID="18" />
 	<bean id="segment4" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="17" />
+		p:segmentID="17" />
 	<bean id="segment5" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="16" />
+		p:segmentID="16" />
 	<bean id="segment6" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="15" />
+		p:segmentID="15" />
 	<bean id="segment7" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="14" />
+		p:segmentID="14" />
 	<bean id="segment8" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="13" />
+		p:segmentID="13" />
 	<bean id="segment9" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="12" />
+		p:segmentID="12" />
 	<bean id="segment10" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="11" />
+		p:segmentID="11" />
 	<bean id="segment11" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="10" />
+		p:segmentID="10" />
 	<bean id="segment12" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="9" />
+		p:segmentID="9" />
 	<bean id="segment13" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="8" />
+		p:segmentID="8" />
 	<bean id="segment14" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="7" />
+		p:segmentID="7" />
 	<bean id="segment15" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="6" />
+		p:segmentID="6" />
 	<bean id="segment16" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="5" />
+		p:segmentID="5" />
 	<bean id="segment17" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="576" p:segmentID="4" />
+		p:segmentID="4" />
 	<bean id="segment18" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="50" p:segmentID="3" />
+		p:segmentID="3" />
 	<bean id="segment19" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="9" p:segmentID="2" />
+		p:segmentID="2" />
 	<bean id="segment20" class="emlab.gen.domain.market.electricity.Segment"
-		p:lengthInHours="1" p:segmentID="1" />
+		p:segmentID="1" />
 		
 	<bean id="yearlySegmentLoadNL" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">	
 		<property name="hourlyInElasticBaseDemandForYearlySegment" ref="InElasticDemandNL" />
@@ -706,7 +712,7 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" >
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="nl" />
@@ -722,7 +728,7 @@
 	</bean>
 		
 	<bean id="capacityMarketB" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market B" >
+		p:name="Capacity Market B" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true">
 		<property name="regulator" ref="regulatorB"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="de" />
@@ -883,6 +889,7 @@
 		p:name="Power Plant Maintainer" />
 
 	<bean id="beneluxPowerPortfolio" class="emlab.gen.domain.factory.ElectricityProducerFactory">
+	<property name="maximumBaseLoadForSpotMarket" value="70000" />
 		<property name="capacityMargin" value="0.50" />
 		<property name="portfolioShares">
 			<map>
@@ -948,6 +955,7 @@
 	</bean>
 	<bean id="germanPowerPortfolio" class="emlab.gen.domain.factory.ElectricityProducerFactory">
 		<property name="capacityMargin" value="0.50" />
+		<property name="maximumBaseLoadForSpotMarket" value="70000" />
 		<property name="portfolioShares">
 			<map>
 				<entry>
@@ -1413,7 +1421,7 @@
 	<bean id="projectPropertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location"
-			value="classpath:scenarios/parametersI2-SR.properties" />
+			value="classpath:scenarios/parametersI2-SR2.properties" />
 	</bean>
 
 </beans>
