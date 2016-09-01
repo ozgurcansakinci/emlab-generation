@@ -245,9 +245,12 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
             // for (PowerPlant plant : reps.powerPlantRepository
             // .findOperationalPowerPlantsByAscendingProfitabilityAndMarket(market,
             // getCurrentTick())) {
+            // for (PowerPlant plant : reps.powerPlantRepository
+            // .findOperationalNonIntermittentPowerPlantsByAscendingProfitabilityAndMarket(market,
+            // getCurrentTick())) {
             for (PowerPlant plant : reps.powerPlantRepository
-                    .findOperationalNonIntermittentPowerPlantsByAscendingProfitabilityAndMarket(market,
-                            getCurrentTick())) {
+                    .findOperationalNonIntermittentPowerPlantsByAscendingProfitabilityAndMarketExcludingTargetInvestor(
+                            market, getCurrentTick())) {
 
                 // logger.warn("profitability " + plant.getProfitability());
 
