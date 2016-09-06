@@ -48,18 +48,19 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
         for (CapacityDispatchPlan plan : reps.capacityMarketRepository
                 .findAllAcceptedCapacityDispatchPlansForTime(capacityMarket, getCurrentTick())) {
 
-            // this query seems fine to me. The capacity market is going in as
-            // an input.
-
-            if (plan.getPlant() == null) {
-                logger.warn("Bid Accepted for " + plan.getStorage().getName() + " Status: " + plan.getStatus()
-                        + " Amount: " + plan.getAcceptedAmount() + " Price: " + plan.getPrice() + " "
-                        + plan.getBiddingMarket());
-            } else {
-
-                logger.warn("Bid Accepted for " + plan.getPlant() + " Status: " + plan.getStatus() + " Amount: "
-                        + plan.getAcceptedAmount() + " Price: " + plan.getPrice() + " " + plan.getBiddingMarket());
-            }
+            // if (plan.getPlant() == null) {
+            // logger.warn("Bid Accepted for " + plan.getStorage().getName() + "
+            // Status: " + plan.getStatus()
+            // + " Amount: " + plan.getAcceptedAmount() + " Price: " +
+            // plan.getPrice() + " "
+            // + plan.getBiddingMarket());
+            // } else {
+            //
+            // logger.warn("Bid Accepted for " + plan.getPlant() + " Status: " +
+            // plan.getStatus() + " Amount: "
+            // + plan.getAcceptedAmount() + " Price: " + plan.getPrice() + " " +
+            // plan.getBiddingMarket());
+            // }
 
             CapacityClearingPoint capacityClearingPoint = reps.capacityMarketRepository
                     .findOneCapacityClearingPointForTimeAndMarket(capacityMarket, getCurrentTick());
@@ -85,14 +86,14 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
                         plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
                         getCurrentTick(), plan.getStorage());
 
-                logger.warn("Storage Payment made");
+                // logger.warn("Storage Payment made");
 
             } else {
                 reps.nonTransactionalCreateRepository.createCashFlow(esm, plan.getBidder(),
                         plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
                         getCurrentTick(), plan.getPlant());
 
-                logger.warn("Plant Payment made");
+                // logger.warn("Plant Payment made");
             }
 
             // logger.warn("Cash flow from consumer {} to Producer {} of value
@@ -102,12 +103,12 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
             // capacityMarket.getConsumer());
         }
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // try {
+        // Thread.sleep(10000);
+        // } catch (InterruptedException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
 
     }
 

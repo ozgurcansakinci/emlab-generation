@@ -62,15 +62,15 @@ public class ElectricityProducerFactory implements InitializingBean {
         plant.setTechnology(technology);
         plant.setOwner(energyProducer);
         plant.setLocation(location);
+
         plant.setConstructionStartTime(-(technology.getExpectedLeadtime() + technology.getExpectedPermittime()
-                + Math.round((Math.random() * technology.getExpectedLifetime()))) + 2); // TODO:
-                                                                                        // Why
-                                                                                        // include
-                                                                                        // expected
-                                                                                        // lead
+                + Math.round((Math.random() * technology.getExpectedLifetime()))) + 2);
+
+        // TODO: Why include expected lead
         // time and permit time? Wouldn't it
         // be realistic to have some PP in
         // the pipeline at the start?
+
         plant.setActualLeadtime(plant.getTechnology().getExpectedLeadtime());
         plant.setActualPermittime(plant.getTechnology().getExpectedPermittime());
         plant.setExpectedEndOfLife(plant.getConstructionStartTime() + plant.getActualPermittime()

@@ -429,10 +429,8 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     // marginalCostOfPowerPlantsForCurrentTick[plantIndex] =
                     // ppdp.getPrice();
 
-                    // System.out.println(
-                    // "Plant: " + ppdp.getPowerPlant().toString() + " Bids at
-                    // Price: " + ppdp.getPrice());
-                    //
+                    // logger.warn("Plant: " + ppdp.getPowerPlant().toString() +
+                    // " Bids at Price: " + ppdp.getPrice());
 
                     // emissionsIntensityOfPowerPlantsForCurrentTick[plantIndex]
                     // = ppdp.getPowerPlant().calculateEmissionIntensity();
@@ -812,10 +810,12 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     }
                     break;
                 }
+
                 // try {
                 //
-                // FileWriter FW = new FileWriter("/home/sk/Test CSVs/4380 Time
-                // Steps/Output/Generation.csv");
+                // FileWriter FW = new FileWriter(
+                // "/home/sk/Test CSVs/4380 Time
+                // Steps/Output/GenerationSingleMarket.csv");
                 // for (int i = 0; i < timeSteps; ++i) {
                 // int ind1 = 0;
                 // for (ElectricitySpotMarket market :
@@ -835,37 +835,40 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 // FW.flush();
                 // FW.close();
                 //
-                // FileWriter FW1 = new FileWriter("/home/sk/Test CSVs/4380 Time
-                // Steps/Output/Emission.csv");
+                // FileWriter FW1 = new FileWriter(
+                // "/home/sk/Test CSVs/4380 Time
+                // Steps/Output/EmissionSingleMarket.csv");
                 // FW1.write("Carbon Emissions" + " " + "," + "Generation in A"
-                // + "," + "Generation in B" + " " + ","
-                // + "Demand in A" + " " + "," + "Demand in B" + " " + "," +
-                // "Cross Border Generation" + " "
-                // + "," + "Amount of LL in A" + " " + "," + "Amount of LL in B"
-                // + " " + "," + "\n");
+                // + "," + "Demand in A" + " " + ","
+                // + "Amount of LL in A" + " " + "," + "\n");
                 // for (int i = 0; i < timeSteps; ++i) {
                 // FW1.write(cplex.getValue(carbonEmissionsEquationsForAllMarkets[i])
                 // + " " + ","
                 // + cplex.getValue(generationEquationsForAllMarkets[0][i]) + "
                 // " + ","
-                // + cplex.getValue(generationEquationsForAllMarkets[1][i]) + "
-                // " + ","
+                // // +
+                // // cplex.getValue(generationEquationsForAllMarkets[1][i])
+                // // + " " + ","
                 // + cplex.getValue(demandEquationsForAllMarkets[0][i]) + " " +
                 // ","
-                // + cplex.getValue(demandEquationsForAllMarkets[1][i]) + " " +
-                // ","
-                // + cplex.getValue(crossBorderGenerationAandB[i]) + " " + ","
+                // // +
+                // // cplex.getValue(demandEquationsForAllMarkets[1][i])
+                // // + " " + ","
                 // + cplex.getValue(valueOfLostLoadInMWH[0][i]) + " " + ","
-                // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + " " + ","
+                // // + cplex.getValue(valueOfLostLoadInMWH[1][i])
+                // // + " " + ","
                 // + cplex.getValue(stateOfChargeInMWh[0][i]) + " " + ","
                 // + cplex.getValue(storageChargingInMW[0][i]) + " " + ","
                 // + cplex.getValue(storageDischargingInMW[0][i]) + " " + ","
-                // + cplex.getValue(elasticDemandForAllMarkets[0][i]) + " " +
-                // ","
-                // + cplex.getValue(stateOfChargeInMWh[1][i]) + " " + ","
-                // + cplex.getValue(storageChargingInMW[1][i]) + " " + ","
-                // + cplex.getValue(storageDischargingInMW[1][i]) + " " + ","
-                // + cplex.getValue(elasticDemandForAllMarkets[1][i]) + "\n");
+                // + cplex.getValue(elasticDemandForAllMarkets[0][i]) + "\n");
+                // // + cplex.getValue(stateOfChargeInMWh[1][i]) + " " +
+                // // ","
+                // // + cplex.getValue(storageChargingInMW[1][i]) + " " +
+                // // ","
+                // // + cplex.getValue(storageDischargingInMW[1][i]) + " "
+                // // + ","
+                // // + cplex.getValue(elasticDemandForAllMarkets[1][i]) +
+                // // "\n");
                 // // FW1.write(cplex.getValue(valueOfLostLoadInMWH[0][i])
                 // // + " " + ","
                 // // + cplex.getValue(valueOfLostLoadInMWH[1][i]) + "\n");

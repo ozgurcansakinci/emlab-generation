@@ -462,8 +462,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             TimeSeriesToLDCClearingPoint priceClearingPoint = new TimeSeriesToLDCClearingPoint();
             priceClearingPoint.setSegment(segment);
             priceClearingPoint.setAbstractMarket(segmentLoad.getElectricitySpotMarket());
-            priceClearingPoint.setPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            priceClearingPoint.setPrice(Math.abs(segmentPriceBinsByZone.get(zone)[segment.getSegmentID() - 1].mean()));
             priceClearingPoint.setTime(getCurrentTick());
+            priceClearingPoint.setVolume(Math.abs(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean()));
             priceClearingPoint.persist();
             // double demandGrowthFactor =
             // reps.marketRepository.findElectricitySpotMarketForZone(zone)

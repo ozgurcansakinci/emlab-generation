@@ -181,7 +181,16 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
     public Iterable<PowerPlant> findPowerPlantsByOwnerAndMarket(@Param("owner") EnergyProducer owner,
             @Param("market") ElectricitySpotMarket market);
 
-    @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
+    // @Query(value =
+    // "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime
+    // + it.actualPermittime + it.actualLeadtime) <= tick) &&
+    // (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
+    // public Iterable<PowerPlant>
+    // findOperationalPowerPlantsInMarket(@Param("market") ElectricitySpotMarket
+    // market,
+    // @Param("tick") long tick);
+
+    @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.dismantleTime > tick)}", type = QueryType.Gremlin)
     public Iterable<PowerPlant> findOperationalPowerPlantsInMarket(@Param("market") ElectricitySpotMarket market,
             @Param("tick") long tick);
 
@@ -235,6 +244,10 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
 
     @Query(value = "g.v(market).out('ZONE').in('REGION').in('LOCATION').filter{it.__type__=='emlab.gen.domain.technology.PowerPlant'}.as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
     public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarket(
+            @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
+
+    @Query(value = "g.v(market).in('INVESTOR_MARKET').filter{it.__type__!='emlab.gen.domain.agent.TargetInvestor' && it.__type__!='emlab.gen.domain.agent.StochasticTargetInvestor' }.in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick) && (it.expectedEndOfLife > tick)}", type = QueryType.Gremlin)
+    public Iterable<PowerPlant> findExpectedOperationalNonIntermittentPowerPlantsInMarketExcludingTargetInvestor(
             @Param("market") ElectricitySpotMarket market, @Param("tick") long tick);
 
     @Query(value = "t = new Table();"
