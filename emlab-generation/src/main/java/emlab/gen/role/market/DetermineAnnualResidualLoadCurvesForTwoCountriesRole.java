@@ -56,7 +56,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
         long clearingTick = getCurrentTick();
 
-        logger.warn("0. Determining the residual load duration curve");
+        // logger.warn("0. Determining the residual load duration curve");
 
         // 1. Create big matrix which contains columns for the information later
         // used.
@@ -214,6 +214,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
                 // TODO: We have to subtract VOLL (volume) from the residual
                 // generation as well.....
+                // TODO: Ask about negative residual load....
 
             }
 

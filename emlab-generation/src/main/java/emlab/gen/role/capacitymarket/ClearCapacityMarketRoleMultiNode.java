@@ -157,7 +157,8 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> im
 
                 if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
                         && isTheMarketCleared == false) {
-
+                    logger.warn("2 if condition: " + (demandTarget
+                            * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
                     if ((totalContractedCapacity + currentCDP.getAmount()) <= (demandTarget
                             * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
                         logger.warn("3 if condition: " + (demandTarget * ((upperMargin)
@@ -194,19 +195,25 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> im
                         // lowerMargin)) / marketCap))));
                         // logger.warn("bid price: " + currentCDP.getPrice());
                         double tempAcceptedAmount = 0;
-                        tempAcceptedAmount = currentCDP.getAmount()
-                                - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin)
-                                        - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
-                        // logger.warn("temp accepted amount: " +
-                        // tempAcceptedAmount);
+                        // tempAcceptedAmount = currentCDP.getAmount()
+                        // - ((totalContractedCapacity + currentCDP.getAmount())
+                        // - (demandTarget * ((upperMargin)
+                        // - ((currentCDP.getPrice() * (upperMargin -
+                        // lowerMargin)) / marketCap))));
+                        tempAcceptedAmount = -totalContractedCapacity + (demandTarget * ((upperMargin)
+                                - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)));
+                        logger.warn("temp accepted amount: " + tempAcceptedAmount);
                         if (tempAcceptedAmount >= 0) {
 
                             currentCDP.setStatus(Bid.PARTLY_ACCEPTED);
 
-                            currentCDP.setAcceptedAmount(currentCDP.getAmount() - ((totalContractedCapacity
-                                    + currentCDP.getAmount())
-                                    - (demandTarget * ((upperMargin)
-                                            - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))));
+                            // currentCDP.setAcceptedAmount(currentCDP.getAmount()
+                            // - ((totalContractedCapacity
+                            // + currentCDP.getAmount())
+                            // - (demandTarget * ((upperMargin)
+                            // - ((currentCDP.getPrice() * (upperMargin -
+                            // lowerMargin)) / marketCap)))));
+                            currentCDP.setAcceptedAmount(tempAcceptedAmount);
 
                             if (currentCDP.getPlant() == null) {
                                 logger.warn("4: Following bids got partially accepted: "
@@ -248,7 +255,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator> im
 
                         logger.warn("2 true Price " + currentCDP.getPrice() + " accepted bid "
                                 + currentCDP.getAcceptedAmount() + " bid qty " + currentCDP.getAmount());
-                        continue;
+                        // continue;
                     }
 
                 }

@@ -61,6 +61,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
         mc += calculateCO2TaxMarginalCost(powerPlant, tick);
         mc += calculateCO2MarketMarginalCost(powerPlant, tick, forecast);
         logger.info("Margincal cost for plant {} is {}", powerPlant.getName(), mc);
+        logger.warn("CO2 tax: " + calculateCO2MarketMarginalCost(powerPlant, tick, forecast));
         return mc;
     }
 
@@ -89,8 +90,12 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
 
             double amount = mix.getShare();
             logger.info("Calculating need for fuel: {} units of {}", mix.getShare(), mix.getSubstance().getName());
+            logger.warn("Calculating need for fuel: {} units of {}", mix.getShare(), mix.getSubstance().getName());
+
             double fuelPrice = findLastKnownPriceForSubstance(mix.getSubstance(), clearingTick);
             fc += amount * fuelPrice;
+            logger.warn("Calculating marginal cost and found a fuel price which is {} per unit of fuel", fuelPrice);
+
             logger.info("Calculating marginal cost and found a fuel price which is {} per unit of fuel", fuelPrice);
         }
 

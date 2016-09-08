@@ -208,19 +208,31 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
             for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
                     getCurrentTick())) {
 
-                if (plant.getOwner().equals(reps.targetInvestorRepository.findTargetInvestorByMarket(market))) {
+                // if
+                // (plant.getOwner().equals(reps.targetInvestorRepository.findTargetInvestorByMarket(market)))
+                // {
 
-                    double prolongYearsOfDismantlng = plant.getTechnology().getMaximumLifeExtension()
-                            + plant.getTechnology().getExpectedLifetime();
+                double prolongYearsOfDismantlng = plant.getTechnology().getMaximumLifeExtension()
+                        + plant.getTechnology().getExpectedLifetime();
 
-                    if (plant.getActualLifetime() > (prolongYearsOfDismantlng)) {
+                if ((double) (plant.getActualLifetime()) > (prolongYearsOfDismantlng)) {
 
-                        logger.warn(" **********************  TARGET INVESTOR DISMANTLED: " + plant.getName() + " Age "
-                                + plant.getActualLifetime());
-                        plant.dismantlePowerPlant(getCurrentTick());
+                    logger.warn(" **********************  TARGET INVESTOR DISMANTLED: " + plant.getName() + " Age "
+                            + plant.getActualLifetime());
+                    plant.dismantlePowerPlant(getCurrentTick());
 
-                    }
                 }
+                // } else {
+                // int prolongYearsOfDismantlng = plant.getOwner()
+                // .getDismantlingProlongingYearsAfterTechnicalLifetime();
+                // if (!plant.isWithinTechnicalLifetime(getCurrentTick() +
+                // prolongYearsOfDismantlng)) {
+                // logger.info(
+                // " Dismantling power plant because the technical life time has
+                // passed: " + plant);
+                // plant.dismantlePowerPlant(getCurrentTick());
+                // }
+                // }
             }
 
             Map<PowerPlant, Double> marginalCostMap = new HashMap<PowerPlant, Double>();
@@ -255,9 +267,9 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     .findOperationalNonIntermittentPowerPlantsByAscendingProfitabilityAndMarketExcludingTargetInvestor(
                             market, getCurrentTick())) {
 
-                logger.warn("profitability " + plant.getProfitability());
+                // logger.warn("profitability " + plant.getProfitability());
 
-                if (plant.getProfitability() < -1000) {
+                if ((plant.getProfitability() < 0) && plant.getActualLifetime() > 3) {
                     // double totalInvestment =
                     // plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime())
                     // * plant.getActualNominalCapacity();

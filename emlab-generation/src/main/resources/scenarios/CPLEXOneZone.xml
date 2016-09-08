@@ -35,20 +35,20 @@
 
 	<!-- Substances -->
 	<bean id="coal" class="emlab.gen.domain.technology.Substance" p:name="Coal"
-		p:quality="1" p:energyDensity="10000" p:co2Density="0.095" p:unit="GJ"  />
+		p:quality="1" p:energyDensity="1000" p:co2Density="0.095" p:unit="GJ"  />
 		
 	<bean id="lignite" class="emlab.gen.domain.technology.Substance" p:name="Lignite"
-		p:quality="1" p:energyDensity="10000" p:co2Density="0.11389" p:unit="GJ" />
+		p:quality="1" p:energyDensity="1000" p:co2Density="0.11389" p:unit="GJ" />
 		
 	<bean id="naturalgas" class="emlab.gen.domain.technology.Substance"
-		p:name="Natural Gas" p:quality="1" p:energyDensity="10000"
+		p:name="Natural Gas" p:quality="1" p:energyDensity="1000"
 			p:co2Density="0.05194" p:unit="GJ" />
 		
 	<bean id="biomass" class="emlab.gen.domain.technology.Substance"
-		p:name="Biomass" p:quality="1" p:energyDensity="10000" p:co2Density="0" p:unit="GJ" />
+		p:name="Biomass" p:quality="0.5" p:energyDensity="1000" p:co2Density="0" p:unit="GJ" />
 		
 	<bean id="uranium" class="emlab.gen.domain.technology.Substance"
-		p:name="Uranium" p:quality="1" p:energyDensity="10000" p:co2Density="0" p:unit="GJ" />
+		p:name="Uranium" p:quality="1" p:energyDensity="1000" p:co2Density="0" p:unit="GJ" />
 		
 	<bean id="electricity" class="emlab.gen.domain.technology.Substance"
 		p:name="Electricity" p:quality="1" p:energyDensity="0" p:co2Density="0" p:unit="MWh_el" />

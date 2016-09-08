@@ -79,7 +79,7 @@ import emlab.gen.role.operating.PayStorageUnitAnnualRole;
  *
  */
 @ScriptComponent
-public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>implements Role<DecarbonizationModel> {
+public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
 
     @Autowired
     private PayCO2TaxRole payCO2TaxRole;
@@ -412,7 +412,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         for (ElectricitySpotMarket electricitySpotMarket : reps.marketRepository.findAllElectricitySpotMarkets()) {
 
             //////////////////////////////////////////////////////////////////
-            logger.warn("Processing accepted hourly bids using optimization");
+            logger.warn(" 6a. Processing accepted hourly bids using optimization");
             /// Commented out for annual optimization
             //////////////////////////////////////////////////////////////////
             // processAcceptedPowerPlantDispatchRole.act(electricitySpotMarket);
@@ -430,7 +430,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         /*
          * Maintenance and CO2
          */
-        logger.warn("  6. Paying for maintenance & co2");
+        logger.warn("  6b. Paying for maintenance & co2");
         timerMarket.reset();
         timerMarket.start();
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
@@ -453,7 +453,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         }
         // payments for storage
-        logger.warn(" Paying for storage units");
+        logger.warn(" 6c. Paying for storage units");
         for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
             payStorageUnitAnnualRole.act(producer);
         }
@@ -494,7 +494,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
-        logger.warn(" 7.b) Creating power plant financial reports.");
+        logger.warn(" 7b. Creating power plant financial reports.");
         Timer financialReports = new Timer();
         financialReports.start();
 
@@ -524,14 +524,14 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             }
             resetWillingnessToInvest();
         }
-        logger.warn("\t Subsidized investment.");
+        logger.warn("\t Subsidized investment");
         if (getCurrentTick() >= 0) {
             for (TargetInvestor targetInvestor : template.findAll(TargetInvestor.class)) {
                 genericInvestmentRole.act(targetInvestor);
             }
         }
 
-        logger.warn("\t Investment on storage.");
+        logger.warn("\t Storage investment");
         if (getCurrentTick() >= 0) {
             for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
                 if (producer.getInvestorMarket().isStorageImplemented()) {

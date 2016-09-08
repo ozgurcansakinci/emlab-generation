@@ -54,7 +54,8 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
         // DecarbonizationModel model =
         // reps.genericRepository.findAll(DecarbonizationModel.class).iterator().next();
 
-        System.out.println("Growth Rate = " + market.getDemandGrowthTrend().getValue(getCurrentTick()));
+        // System.out.println("Growth Rate = " +
+        // market.getDemandGrowthTrend().getValue(getCurrentTick()));
 
         //////////// Hourly demand
         if (getCurrentTick() == 0) {
@@ -102,8 +103,9 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
             double[] a = market.getYearlySegmentLoad().getHourlyInElasticCurrentDemandForYearlySegment()
                     .getHourlyArray(0);
 
-            System.out.println("First element of Static demand is = " + a[0]);
-
+            // System.out.println("First element of Static demand is = " +
+            // a[0]);
+            logger.warn("Static demand [0]: " + a[0]);
             if (market.isDailyDemandResponseImplemented()) {
 
                 DoubleMatrix1D dailyArray = new DenseDoubleMatrix1D(
@@ -127,7 +129,9 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
                 double[] b = market.getYearlySegmentLoad().getDailyElasticCurrentDemandForYearlySegment()
                         .getHourlyArray(0);
 
-                System.out.println("First element of elastic demand is = " + b[0]);
+                // System.out.println("First element of elastic demand is = " +
+                // b[0]);
+                logger.warn("Elastic demand [0]: " + b[0]);
             }
             //////////// Hourly demand
         }

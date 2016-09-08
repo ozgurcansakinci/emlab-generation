@@ -130,8 +130,8 @@ public class SubmitOffersToElectricitySpotMarketAnnualRole extends AbstractEnerg
                 capacity.setHourlyArray(temp, 0);
             }
 
-            logger.info("I bid capacity: {} and price: {}", capacity, mc);
-
+            // logger.info("I bid capacity: {} and price: {}", capacity, mc);
+            // logger.warn("I bid capacity: {} and price: {}", capacity, mc);
             PpdpAnnual ppdpAnnual = null;
 
             ppdpAnnual = new PpdpAnnual().persist();
