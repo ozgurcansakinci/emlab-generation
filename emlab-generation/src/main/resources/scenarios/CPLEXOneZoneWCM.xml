@@ -24,7 +24,7 @@
 		p:name="Decarbonization Model" p:simulationLength="${simulationLength}"
 		p:co2TradingImplemented="false" p:realRenewableDataImplemented="true"
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
-		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
+		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="false"
 		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
 		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
@@ -158,7 +158,7 @@
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
 		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
-		p:storageImplemented="true">
+		p:storageImplemented="false">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
@@ -405,20 +405,20 @@
 
 <bean id="targetInvestmentRole" class="emlab.gen.role.investment.TargetInvestmentRole"/>
 	
-	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
-		p:name="Regulator A" p:capacityMarketPriceCap="58940"
-		p:reserveMargin="0.156" p:targetPeriod="0"
-		p:reserveDemandLowerMargin="0.025" p:reserveDemandUpperMargin="0.025"
-		p:numberOfYearsLookingBackToForecastDemand="4"> 
-		<property name="zone" ref="nl" />
-	</bean>
+<!-- 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator" -->
+<!-- 		p:name="Regulator A" p:capacityMarketPriceCap="58940" -->
+<!-- 		p:reserveMargin="0.156" p:targetPeriod="0" -->
+<!-- 		p:reserveDemandLowerMargin="0.025" p:reserveDemandUpperMargin="0.025" -->
+<!-- 		p:numberOfYearsLookingBackToForecastDemand="4">  -->
+<!-- 		<property name="zone" ref="nl" /> -->
+<!-- 	</bean> -->
 		
-	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false">
-		<property name="regulator" ref="regulatorA"/>
-		<property name="consumer" ref="energyConsumer"/>
-		<property name="zone" ref="nl" />
-	</bean>
+<!-- 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket" -->
+<!-- 		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false"> -->
+<!-- 		<property name="regulator" ref="regulatorA"/> -->
+<!-- 		<property name="consumer" ref="energyConsumer"/> -->
+<!-- 		<property name="zone" ref="nl" /> -->
+<!-- 	</bean> -->
 	
 	<bean id="capitalCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
 		p:filename="/data/Kaveri/CapitalCosts.csv" p:startingYear="0"
@@ -438,15 +438,15 @@
 		
 	<!-- Storage Energy technologies -->
 	
-	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology"
-		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
-		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
-		<property name="ownerStorageUnit" ref="energyProducerA"/>
-		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
-		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
-		<property name="efficiencyInFlowTimeSeries" ref="inflowEfficiency" />
-		<property name="efficiencyOutFlowTimeSeries" ref="outflowEfficiency" />
-	</bean>
+<!-- 	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology" -->
+<!-- 		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000"  -->
+<!-- 		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" > -->
+<!-- 		<property name="ownerStorageUnit" ref="energyProducerA"/> -->
+<!-- 		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/> -->
+<!-- 		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" /> -->
+<!-- 		<property name="efficiencyInFlowTimeSeries" ref="inflowEfficiency" /> -->
+<!-- 		<property name="efficiencyOutFlowTimeSeries" ref="outflowEfficiency" /> -->
+<!-- 	</bean> -->
 
 	<!-- Renewable Targets CWE -->
 	

@@ -22,6 +22,7 @@ import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import emlab.gen.domain.agent.EnergyProducer;
 import emlab.gen.domain.agent.Government;
+import emlab.gen.domain.agent.NationalGovernment;
 import emlab.gen.domain.contract.CashFlow;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.repository.Reps;
@@ -49,12 +50,22 @@ public class PayCO2TaxAnnualRole extends AbstractEnergyProducerRole implements R
         logger.info("Pay the CO2 tax");
 
         Government government = reps.genericRepository.findFirst(Government.class);
+
         for (PpdpAnnual plan : reps.ppdpAnnualRepository.findAllAcceptedPpdpAnnualForGivenProducerAndTime(producer,
                 getCurrentTick())) {
+
             double money = calculateCO2TaxAnnual(plan, false, getCurrentTick());
-            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money,
+            CashFlow cf1 = reps.nonTransactionalCreateRepository.createCashFlow(producer, government, money,
                     CashFlow.CO2TAX, getCurrentTick(), plan.getPowerPlant());
-            logger.info("Cash flow created: {}", cf);
+            logger.info("Cash flow created: {}", cf1);
+
+            double minCO2Money = calculatePaymentEffictiveCO2NationalMinimumPriceCostAnnual(plan, false,
+                    getCurrentTick());
+            NationalGovernment nationalGovernment = reps.nationalGovernmentRepository
+                    .findNationalGovernmentByPowerPlant(plan.getPowerPlant());
+            CashFlow cf2 = reps.nonTransactionalCreateRepository.createCashFlow(producer, nationalGovernment,
+                    minCO2Money, CashFlow.NATIONALMINCO2, getCurrentTick(), plan.getPowerPlant());
+            logger.info("Cash flow created: {}", cf2);
         }
     }
 

@@ -421,9 +421,11 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             //////////////////////////////////////////////////////////////////
             // electricitySpotMarket.act(processAcceptedPowerPlantDispatchRole);
         }
+
         for (StrategicReserveOperator strategicReserveOperator : reps.strategicReserveOperatorRepository.findAll()) {
             acceptedPowerPlantDispatchRoleinSR.act(strategicReserveOperator);
         }
+
         // logger.warn(" 4. Processing Strategic Reserve Payment ");
         timerMarket.stop();
         logger.warn("        paying took: {} seconds.", timerMarket.seconds());
@@ -446,7 +448,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             /////////////////////////////////////////////////////////
             // producer.act(payCO2TaxRole);
             // pay for CO2 auction only if CO2 trading
-            if (model.isCo2TradingImplemented()) {
+            if (model.isCo2TradingImplemented() || model.isCo2BankingIsImplemented()) {
                 payCO2AuctionRole.act(producer);
                 // producer.act(payCO2AuctionRole);
             }

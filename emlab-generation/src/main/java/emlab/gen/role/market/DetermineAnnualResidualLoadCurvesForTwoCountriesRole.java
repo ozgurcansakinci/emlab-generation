@@ -470,7 +470,7 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // reps.marketRepository.findElectricitySpotMarketForZone(zone)
             // .getDemandGrowthTrend().getValue(clearingTick);
 
-            segmentLoad.setResidualGLDC(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean());
+            segmentLoad.setResidualGLDC(Math.abs(segmentRloadBinsByZone.get(zone)[segment.getSegmentID() - 1].mean()));
 
             // segmentLoad
             // .setResidualGLDCSegmentPrice(segmentPriceBinsByZone.get(zone)[segment.getSegmentID()

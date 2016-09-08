@@ -238,12 +238,14 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
     }
 
     public double calculateCO2MarketCostAnnual(PowerPlant powerPlant, boolean forecast, long clearingTick) {
-        double co2Intensity = powerPlant.calculateEmissionIntensity();
 
+        Government government = reps.genericRepository.findFirst(Government.class);
+        double co2Intensity = powerPlant.calculateEmissionIntensity();
         double co2Price = findCO2PriceOnAnnualMarket(clearingTick);
+        double co2tax = government.getCO2Tax(getCurrentTick());
         double electricityOutput = reps.ppdpAnnualRepository
                 .findPPDPAnnualforPlantForCurrentTick(powerPlant, clearingTick).getYearlySupply();
-        return co2Intensity * co2Price * electricityOutput;
+        return co2Intensity * (co2Price + co2tax) * electricityOutput;
     }
 
     /**
@@ -262,6 +264,25 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
         double electricityOutput = powerPlant.calculateElectricityOutputAtTime(getCurrentTick(), forecast);
         double nationalMinCo2price = reps.nationalGovernmentRepository.findNationalGovernmentByPowerPlant(powerPlant)
                 .getMinNationalCo2PriceTrend().getValue(getCurrentTick());
+        double paymentEffectivePartOfNationalCO2;
+        if (nationalMinCo2price > co2Price)
+            paymentEffectivePartOfNationalCO2 = nationalMinCo2price - co2Price;
+        else
+            paymentEffectivePartOfNationalCO2 = 0;
+        return co2Intensity * paymentEffectivePartOfNationalCO2 * electricityOutput;
+    }
+
+    public double calculatePaymentEffictiveCO2NationalMinimumPriceCostAnnual(PpdpAnnual plan, boolean forecast,
+            long clearingTick) {
+        double co2Intensity = plan.getPowerPlant().calculateEmissionIntensity();
+        YearlySegmentClearingPointMarketInformation info = reps.yearlySegmentClearingPointMarketInformationRepository
+                .findMarketInformationForPPDPAndTime(clearingTick, plan);
+        double co2Price = info.getCO2Price();
+        double electricityOutput = reps.ppdpAnnualRepository
+                .findPPDPAnnualforPlantForCurrentTick(plan.getPowerPlant(), clearingTick).getYearlySupply();
+        double nationalMinCo2price = reps.nationalGovernmentRepository
+                .findNationalGovernmentByPowerPlant(plan.getPowerPlant()).getMinNationalCo2PriceTrend()
+                .getValue(getCurrentTick());
         double paymentEffectivePartOfNationalCO2;
         if (nationalMinCo2price > co2Price)
             paymentEffectivePartOfNationalCO2 = nationalMinCo2price - co2Price;
@@ -620,7 +641,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
                 expectedFuelPrices.put(substance,
                         reps.clearingPointRepositoryOld.findClearingPointForMarketAndTime(
                                 reps.marketRepository.findFirstMarketBySubstance(substance), getCurrentTick(), false)
-                                .getPrice());
+                        .getPrice());
             } else {
                 expectedFuelPrices.put(substance, forecast);
             }
