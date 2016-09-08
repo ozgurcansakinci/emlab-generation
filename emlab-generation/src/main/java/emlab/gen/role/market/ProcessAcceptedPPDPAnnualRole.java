@@ -48,7 +48,7 @@ public class ProcessAcceptedPPDPAnnualRole extends AbstractMarketRole<Electricit
         for (PpdpAnnual plan : reps.ppdpAnnualRepository.findAllAcceptedPpdpAnnualForGivenMarketAndTime(esm,
                 getCurrentTick())) {
             double cash = calculateYearlyPowerPlantRevenue(info, plan);
-
+            plan.setYearlyEmissions();
             // logger.warn("Revenue for Plant: " +
             // plan.getPowerPlant().getName().toString() + " is: " + cash);
 
