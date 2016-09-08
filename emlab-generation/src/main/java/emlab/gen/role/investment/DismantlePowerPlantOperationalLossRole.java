@@ -66,37 +66,12 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
     @Transactional
     public void act(ElectricitySpotMarket market) {
-
-        // if (getCurrentTick() == 0) {
-        // for (PowerPlant plant :
-        // reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
-        // getCurrentTick())) {
-        // int max = -8;
-        // int min = -12;
-        // double n = Math.random() * (max - min) + min;
-        // plant.setConstructionStartTime((long) n);
-        // }
-        // }
-
         if (getCurrentTick() > 0) {
             for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
                     getCurrentTick())) {
 
                 double age = 0;
                 long currentLiftime = 0;
-
-                // if (getCurrentTick() == 1) {
-                // int max = -8;
-                // int min = -12;
-                // double n = Math.random() * (max - min) + min;
-                // plant.setConstructionStartTime((long) n);
-                // }
-
-                // logger.warn(plant.getName() + " & " +
-                // plant.getConstructionStartTime() + " & "
-                // + plant.getTechnology().getExpectedLeadtime() + " & "
-                // + plant.getTechnology().getExpectedPermittime());
-
                 currentLiftime = getCurrentTick() - plant.getConstructionStartTime()
                         - plant.getTechnology().getExpectedLeadtime() - plant.getTechnology().getExpectedPermittime();
 
@@ -237,19 +212,12 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                 // (plant.getOwner().equals(reps.targetInvestorRepository.findTargetInvestorByMarket(market)))
                 // {
 
-                // logger.warn(" *********************In target investor
-                // loop");
-
                 double prolongYearsOfDismantlng = plant.getTechnology().getMaximumLifeExtension()
                         + plant.getTechnology().getExpectedLifetime();
 
-                // logger.warn(" Plant Actual Life time: " +
-                // plant.getActualLifetime() + " prolongYearsOfDismantlng: "
-                // + prolongYearsOfDismantlng);
+                if ((double) (plant.getActualLifetime()) > (prolongYearsOfDismantlng)) {
 
-                if (plant.getActualLifetime() > (prolongYearsOfDismantlng)) {
-
-                    logger.warn(" **********************  OLD PLANT DISMANTLED: " + plant.getName() + " Age "
+                    logger.warn(" **********************  TARGET INVESTOR DISMANTLED: " + plant.getName() + " Age "
                             + plant.getActualLifetime());
                     plant.dismantlePowerPlant(getCurrentTick());
 
@@ -259,7 +227,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                 // .getDismantlingProlongingYearsAfterTechnicalLifetime();
                 // if (!plant.isWithinTechnicalLifetime(getCurrentTick() +
                 // prolongYearsOfDismantlng)) {
-                // logger.warn(
+                // logger.info(
                 // " Dismantling power plant because the technical life time has
                 // passed: " + plant);
                 // plant.dismantlePowerPlant(getCurrentTick());
@@ -301,7 +269,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
                 // logger.warn("profitability " + plant.getProfitability());
 
-                if (plant.getProfitability() < 0 && plant.getActualLifetime() > 3) {
+                if ((plant.getProfitability() < 0) && plant.getActualLifetime() > 3) {
                     // double totalInvestment =
                     // plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime())
                     // * plant.getActualNominalCapacity();
@@ -675,7 +643,6 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                 }
             }
         }
-
     }
 
     public double calculateMarginalCostExclCO2MarketCost(PowerPlant powerPlant, long clearingTick) {
