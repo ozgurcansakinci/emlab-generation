@@ -120,42 +120,42 @@
 	</bean>
 	
 	<bean id="photovoltaicNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile" 
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
-		p:variableName="PHVT">
+		p:filename="/data/wind-node1.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="photovoltaicPGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="WindNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile" 
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:filename="/data/wind-node1.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windPGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="WindoffNodeBL" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:filename="/data/wind-node1.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windOffshorePGT"></property>
 		<property name="intermittentProductionNode" ref="beneluxNode"></property>
 	</bean>
 	
 	<bean id="photovoltaicNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
-		p:variableName="PHVT">
+		p:filename="/data/wind-node2.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="photovoltaicPGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>
 	</bean>
 	
 	<bean id="WindNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:filename="/data/wind-node2.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windPGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>
 	</bean>
 	
 	<bean id="WindoffNodeDE" class="emlab.gen.domain.technology.IntermittentResourceProfile"
-		p:filename="/data/Wind_Speed_AA.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
+		p:filename="/data/wind-node2.csv" p:timeSeriesAreInDifferentColumns="true" p:lengthInHours="${lengthInHours}" p:delimiter=","
 		p:variableName="RESV">
 		<property name="intermittentTechnology" ref="windOffshorePGT"></property>
 		<property name="intermittentProductionNode" ref="germanNode"></property>

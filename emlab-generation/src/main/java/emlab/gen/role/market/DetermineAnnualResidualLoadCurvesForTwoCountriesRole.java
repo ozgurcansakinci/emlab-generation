@@ -56,7 +56,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
         long clearingTick = getCurrentTick();
 
-        logger.warn("0. Determining the residual load duration curve");
+        // for zonlogger.warn("0. Determining the residual load duration
+        // curve");
 
         // 1. Create big matrix which contains columns for the information later
         // used.
@@ -363,11 +364,13 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
                 averageSegmentDeviation = averageSegmentDeviation * 1000;
                 averageSegmentDeviation = Math.round(averageSegmentDeviation);
                 averageSegmentDeviation = averageSegmentDeviation / 1000;
-                logger.warn("For " + zone + ", " + hoursInDifferentSegment
-                        + " hours would have been in different segments, and on average " + averageSegmentDeviation
-                        + " Segments away from the segment they were in.");
+                // logger.warn("For " + zone + ", " + hoursInDifferentSegment
+                // + " hours would have been in different segments, and on
+                // average " + averageSegmentDeviation
+                // + " Segments away from the segment they were in.");
             } else {
-                logger.warn("For " + zone + ", all hours were in the same segment, as for combined sorting!");
+                // logger.warn("For " + zone + ", all hours were in the same
+                // segment, as for combined sorting!");
             }
 
         }
@@ -481,10 +484,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // + priceClearingPoint.getPrice() +
             // segmentLoad.getElectricitySpotMarket().toString());
 
-            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--"
-                    + " Segment Price " + priceClearingPoint.getPrice() + " Eur/MWh--" + "Hours in Seg: "
-                    + segment.getLengthInHoursGLDCForInvestmentRole() + " "
-                    + segmentLoad.getElectricitySpotMarket().toString());
+            // logger.warn("Segment " + segment.getSegmentID() + ": " +
+            // segmentLoad.getResidualGLDC() + " MW--"
+            // + " Segment Price " + priceClearingPoint.getPrice() + "
+            // Eur/MWh--" + "Hours in Seg: "
+            // + segment.getLengthInHoursGLDCForInvestmentRole() + " "
+            // + segmentLoad.getElectricitySpotMarket().toString());
         }
     }
 

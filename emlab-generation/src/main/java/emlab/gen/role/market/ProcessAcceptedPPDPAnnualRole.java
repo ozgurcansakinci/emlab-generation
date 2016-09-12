@@ -29,7 +29,9 @@ import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInfor
 import emlab.gen.repository.Reps;
 
 /**
- * @author asmkhan
+ * Accept PpdpAnnual's, make necessary payments
+ * 
+ * @author Ozgur & Salman
  *
  */
 @RoleComponent

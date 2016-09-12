@@ -301,7 +301,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
                 // logger.warn("profitability " + plant.getProfitability());
 
-                if (plant.getProfitability() < 0 && plant.getActualLifetime() > 5) {
+                if (plant.getProfitability() < 0 && plant.getActualLifetime() > 4) {
                     // double totalInvestment =
                     // plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime())
                     // * plant.getActualNominalCapacity();

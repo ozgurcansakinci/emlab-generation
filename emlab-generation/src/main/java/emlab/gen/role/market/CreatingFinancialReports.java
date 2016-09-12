@@ -55,7 +55,7 @@ public class CreatingFinancialReports extends AbstractClearElectricitySpotMarket
         for (Substance substance : template.findAll(Substance.class)) {
             fuelPriceMap.put(substance, findLastKnownPriceForSubstance(substance));
         }
-        logger.warn(fuelPriceMap.toString());
+        // logger.warn(fuelPriceMap.toString());
 
         createFinancialReportsForPowerPlantsAndTick(
                 reps.powerPlantRepository.findAllPowerPlantsWhichAreNotDismantledBeforeTick(getCurrentTick() - 2),

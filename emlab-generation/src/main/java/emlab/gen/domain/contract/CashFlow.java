@@ -43,6 +43,7 @@ public class CashFlow {
     public static final int STORAGE_OM = 14;
     public static final int INC_STORAGE_CC = 15;// Incremental capital cost for
                                                 // storage
+    public static final int STORAGE_INV = 16;
 
     @RelatedTo(type = "FROM_AGENT", elementClass = DecarbonizationAgent.class, direction = Direction.OUTGOING)
     private DecarbonizationAgent from;
