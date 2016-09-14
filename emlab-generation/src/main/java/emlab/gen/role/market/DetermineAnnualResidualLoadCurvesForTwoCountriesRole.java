@@ -486,8 +486,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
 
             // logger.warn("Segment " + segment.getSegmentID() + ": " +
             // segmentLoad.getResidualGLDC() + " MW--"
-            // + " Segment Price " + priceClearingPoint.getPrice() + "
-            // Eur/MWh--" + "Hours in Seg: "
+            // + " Segment Price " + priceClearingPoint.getPrice() + "Eur/MWh--"
+            // + "Hours in Seg: "
             // + segment.getLengthInHoursGLDCForInvestmentRole() + " "
             // + segmentLoad.getElectricitySpotMarket().toString());
         }
