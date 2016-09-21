@@ -114,7 +114,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
         // CO2
         Map<ElectricitySpotMarket, Double> expectedCO2Price = determineExpectedCO2PriceInclTaxAndFundamentalForecast(
 
-        futureTimePoint, agent.getNumberOfYearsBacklookingForForecasting(), 0, getCurrentTick());
+                futureTimePoint, agent.getNumberOfYearsBacklookingForForecasting(), 0, getCurrentTick());
 
         // logger.warn("{} expects CO2 prices {}", agent.getName(),
         // expectedCO2Price);
@@ -226,7 +226,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                 if ((expectedInstalledCapacityOfTechnology + plant.getActualNominalCapacity())
                         / (marketInformation.maxExpectedLoad + plant.getActualNominalCapacity()) > technology
 
-                .getMaximumInstalledCapacityFractionInCountry()) {
+                                .getMaximumInstalledCapacityFractionInCountry()) {
 
                     // logger.warn(agent +
                     // " will not invest in {} technology because there's too
@@ -678,6 +678,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
         double maxExpectedLoad = 0d;
         Map<PowerPlant, Double> meritOrder;
         double capacitySum;
+        DecarbonizationModel model = reps.genericRepository.findAll(DecarbonizationModel.class).iterator().next();
 
         MarketInformation(ElectricitySpotMarket market, Map<ElectricitySpotMarket, Double> expectedDemand,
                 Map<Substance, Double> fuelPrices, double co2price, long time) {
@@ -763,8 +764,11 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
 
             // find expected prices per segment given merit order
             for (SegmentLoad segmentLoad : market.getLoadDurationCurve()) {
-
-                double expectedSegmentLoad = segmentLoad.getResidualGLDC() * demandFactor;
+                double expectedSegmentLoad;
+                if (model.isNoPrivateIntermittentRESInvestment())
+                    expectedSegmentLoad = segmentLoad.getResidualGLDC() * demandFactor;
+                else
+                    expectedSegmentLoad = segmentLoad.getGenerationLDC() * demandFactor;
 
                 if (expectedSegmentLoad > maxExpectedLoad) {
                     maxExpectedLoad = expectedSegmentLoad;

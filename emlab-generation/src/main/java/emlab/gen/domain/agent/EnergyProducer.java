@@ -51,6 +51,7 @@ public class EnergyProducer extends DecarbonizationAgent implements Agent {
     @SimulationParameter(label = "Debt ratio in investments", from = 0, to = 1)
     private double debtRatioOfInvestments;
     private boolean willingToInvest;
+    private boolean investmentRequired;
 
     @SimulationParameter(label = "Simple Capacity Market")
     private boolean simpleCapacityMarketEnabled;
@@ -127,7 +128,8 @@ public class EnergyProducer extends DecarbonizationAgent implements Agent {
         return dismantlingProlongingYearsAfterTechnicalLifetime;
     }
 
-    public void setDismantlingProlongingYearsAfterTechnicalLifetime(int dismantlingProlongingYearsAfterTechnicalLifetime) {
+    public void setDismantlingProlongingYearsAfterTechnicalLifetime(
+            int dismantlingProlongingYearsAfterTechnicalLifetime) {
         this.dismantlingProlongingYearsAfterTechnicalLifetime = dismantlingProlongingYearsAfterTechnicalLifetime;
     }
 
@@ -251,5 +253,13 @@ public class EnergyProducer extends DecarbonizationAgent implements Agent {
     public void setHistoricalCvarCreateDummyPowerPlantsForNewTechnologies(
             boolean historicalCvarCreateDummyPowerPlantsForNewTechnologies) {
         this.historicalCvarCreateDummyPowerPlantsForNewTechnologies = historicalCvarCreateDummyPowerPlantsForNewTechnologies;
+    }
+
+    public boolean isInvestmentRequired() {
+        return investmentRequired;
+    }
+
+    public void setInvestmentRequired(boolean investmentRequired) {
+        this.investmentRequired = investmentRequired;
     }
 }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package emlab.gen.role.capacitymarket;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +33,7 @@ import emlab.gen.repository.Reps;
  * 
  */
 @RoleComponent
-public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<Regulator> {
+public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<Regulator> {
 
     @Autowired
     Reps reps;
@@ -110,10 +112,22 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
             }
             expectedDemandFactor = Math.pow(avgGrowthFactor / iteration, (double) capabilityYear);
         } else
-            // expectedDemandFactor =
-            // market.getDemandGrowthTrend().getValue(getCurrentTick());
-            expectedDemandFactor = 1;
+            expectedDemandFactor = market.getDemandGrowthTrend().getValue(getCurrentTick());
+        // expectedDemandFactor = 1;
+        double peakLoadforMarketNOtrend;
+        double peakExpectedDemand;
+        if (getCurrentTick() == 0) {
+            peakLoadforMarketNOtrend = reps.capacityMarketRepository.findCapacityMarketForZone(regulator.getZone())
+                    .getBaseCapacityMarketDemand();
+            peakExpectedDemand = peakLoadforMarketNOtrend;
 
+        } else {
+            double[] demands = reps.yearlySegmentClearingPointMarketInformationRepository
+                    .findMarketInformationForMarketAndTime(getCurrentTick() - 1, market).getMarketDemand();
+            Arrays.sort(demands);
+            peakLoadforMarketNOtrend = demands[demands.length - 1];
+            peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
+        }
         logger.warn("ExpectedDemandFactor for this tick: " + expectedDemandFactor);
 
         // logger.warn("demand factor " +
@@ -124,13 +138,12 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         // double peakLoadforMarketNOtrend =
         // reps.segmentLoadRepository.peakLoadbyZoneMarketandTime(zone, market);
 
-        double peakLoadforMarketNOtrend = reps.segmentLoadRepository.nonAdjustedPeakLoadbyMarketAnnual(market);
+        // peakLoadforMarketNOtrend =
+        // reps.segmentLoadRepository.nonAdjustedPeakLoadbyMarketAnnual(market);
 
         logger.warn("peakLoadforMarketNOtrend " + peakLoadforMarketNOtrend);
 
         // this is 69918 for esm A
-
-        double peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
 
         logger.warn("peakExpectedDemand " + peakExpectedDemand);
 
