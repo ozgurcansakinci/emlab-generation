@@ -433,7 +433,7 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false"
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true"
 		p:baseCapacityMarketDemand="75000">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
