@@ -26,7 +26,7 @@
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="true"
 		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
-		p:noPrivateIntermittentRESInvestment="false">
+		p:noPrivateIntermittentRESInvestment="true">
 	</bean>
 		
 	<bean id="demandGrowthTrendNL" class="emlab.gen.trend.TimeSeriesCSVReader"

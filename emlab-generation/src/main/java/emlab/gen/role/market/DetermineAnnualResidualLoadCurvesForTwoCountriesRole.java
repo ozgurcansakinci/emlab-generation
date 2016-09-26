@@ -119,6 +119,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
         int RLOADTOTAL = columnIterator;
         columnIterator++;
 
+        int DEMANDTOTAL = columnIterator;
+        columnIterator++;
+
+        int GENTOTAL = columnIterator;
+        columnIterator++;
+
         // int INTERCONNECTOR = columnIterator;
         // columnIterator++;
 
@@ -198,7 +204,8 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
             m.viewColumn(DEMANDINZONE.get(zone)).assign(hourlyDemand, Functions.plus);
-
+            m.viewColumn(DEMANDTOTAL).assign(hourlyDemand, Functions.plus);
+            m.viewColumn(GENTOTAL).assign(hourlyArray, Functions.plus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
 
             // }
@@ -299,6 +306,21 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             }
             upperBoundSplit[noSegments - 1] = 0;
         }
+
+        double minDemand = m.viewColumn(DEMANDTOTAL).aggregate(Functions.min, Functions.identity);
+        double maxDemand = m.viewColumn(DEMANDTOTAL).aggregate(Functions.max, Functions.identity);
+        double[] upperBoundSplitForDemand = new double[noSegments];
+        for (int i = 0; i < noSegments; i++) {
+            upperBoundSplitForDemand[i] = maxDemand - (((double) (i)) / noSegments * (maxDemand - minDemand));
+        }
+
+        double minSupply = m.viewColumn(GENTOTAL).aggregate(Functions.min, Functions.identity);
+        double maxSupply = m.viewColumn(GENTOTAL).aggregate(Functions.max, Functions.identity);
+        double[] upperBoundSplitForGeneration = new double[noSegments];
+        for (int i = 0; i < noSegments; i++) {
+            upperBoundSplitForGeneration[i] = maxSupply - (((double) (i)) / noSegments * (maxSupply - minSupply));
+        }
+
         Map<Zone, DoubleMatrix1D> spillFactorMap = new HashMap<Zone, DoubleMatrix1D>();
         for (Zone zone : zoneList) {
             spillFactorMap.put(zone, m.viewColumn(IGEN.get(zone)).copy());
@@ -331,6 +353,16 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
         DynamicBin1D[] segmentRloadBins = new DynamicBin1D[noSegments];
         for (int i = 0; i < noSegments; i++) {
             segmentRloadBins[i] = new DynamicBin1D();
+        }
+
+        DynamicBin1D[] segmentDemandBins = new DynamicBin1D[noSegments];
+        for (int i = 0; i < noSegments; i++) {
+            segmentDemandBins[i] = new DynamicBin1D();
+        }
+
+        DynamicBin1D[] segmentGenerationBins = new DynamicBin1D[noSegments];
+        for (int i = 0; i < noSegments; i++) {
+            segmentGenerationBins[i] = new DynamicBin1D();
         }
 
         Map<Zone, DynamicBin1D[]> segmentRloadBinsByZone = new HashMap<Zone, DynamicBin1D[]>();
@@ -387,16 +419,56 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             segmentRloadBins[currentSegmentID - 1].add(m.get(row, RLOADTOTAL));
             for (Zone zone : zoneList) {
                 segmentRloadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, RLOADINZONE.get(zone)));
-                segmentLoadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, LOADINZONE.get(zone)));
+                // segmentLoadBinsByZone.get(zone)[currentSegmentID -
+                // 1].add(m.get(row, LOADINZONE.get(zone)));
                 segmentPriceBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, PRICEFORZONE.get(zone)));
-                segmentDemandBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, DEMANDINZONE.get(zone)));
+                // segmentDemandBinsByZone.get(zone)[currentSegmentID -
+                // 1].add(m.get(row, DEMANDINZONE.get(zone)));
             }
-
-            // segmentInterConnectorBins[currentSegmentID - 1].add(m.get(row,
-            // INTERCONNECTOR));
-
             hoursAssignedToCurrentSegment++;
         }
+        // Assign rows to bins for the demand LDC(capacity market)
+        currentSegmentID = 1;
+        hoursAssignedToCurrentSegment = 0;
+        m = m.viewSorted(DEMANDTOTAL).viewRowFlip();
+        for (int row = 0; row < m.rows() && currentSegmentID <= noSegments; row++) {
+            // IMPORTANT: since [] is zero-based index, it checks one index
+            // ahead of current segment.
+            while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment > 0
+                    && m.get(row, DEMANDTOTAL) <= upperBoundSplitForDemand[currentSegmentID]) {
+                currentSegmentID++;
+                hoursAssignedToCurrentSegment = 0;
+            }
+            // m.set(row, SEGMENT, currentSegmentID);
+            segmentDemandBins[currentSegmentID - 1].add(m.get(row, DEMANDTOTAL));
+            for (Zone zone : zoneList) {
+                segmentDemandBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, DEMANDINZONE.get(zone)));
+            }
+            hoursAssignedToCurrentSegment++;
+        }
+        m = m.viewSorted(RLOADTOTAL).viewRowFlip();
+
+        // Assign rows to bins for the generation LDC(investment role, private
+        // investment enabled)
+        currentSegmentID = 1;
+        hoursAssignedToCurrentSegment = 0;
+        m = m.viewSorted(GENTOTAL).viewRowFlip();
+        for (int row = 0; row < m.rows() && currentSegmentID <= noSegments; row++) {
+            // IMPORTANT: since [] is zero-based index, it checks one index
+            // ahead of current segment.
+            while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment > 0
+                    && m.get(row, GENTOTAL) <= upperBoundSplitForGeneration[currentSegmentID]) {
+                currentSegmentID++;
+                hoursAssignedToCurrentSegment = 0;
+            }
+            // m.set(row, SEGMENT, currentSegmentID);
+            segmentGenerationBins[currentSegmentID - 1].add(m.get(row, GENTOTAL));
+            for (Zone zone : zoneList) {
+                segmentLoadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row, LOADINZONE.get(zone)));
+            }
+            hoursAssignedToCurrentSegment++;
+        }
+        m = m.viewSorted(RLOADTOTAL).viewRowFlip();
 
         for (Zone zone : zoneList) {
             for (PowerGridNode node : zoneToNodeList.get(zone)) {
@@ -565,8 +637,10 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
                         mean = mean / 1000000.0;
                         loadFactorString = loadFactorString.concat(" " + mean);
                         it++;
-                        logger.warn(technology + " node load factor is "
-                                + intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(it - 1));
+                        // logger.warn(technology + " node load factor is "
+                        // +
+                        // intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(it
+                        // - 1));
                     }
                     logger.warn(loadFactorString);
                 }
@@ -583,6 +657,9 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // segment.setLengthInHours(segmentRloadBins[segment.getSegmentID()
             // - 1].size());
             segment.setLengthInHoursGLDCForInvestmentRole(segmentRloadBins[segment.getSegmentID() - 1].size());
+            segment.setLengthInHoursDLDCForCapacityMarket(segmentDemandBins[segment.getSegmentID() - 1].size());
+            segment.setLengthInHoursTotalGLDCForInvestmentRole(
+                    segmentGenerationBins[segment.getSegmentID() - 1].size());
             // logger.warn("Segment " + segment.getSegmentID() + ": " +
             // segment.getLengthInHoursGLDCForInvestmentRole()
             // + "hours");
@@ -626,10 +703,12 @@ public class DetermineAnnualResidualLoadCurvesForTwoCountriesRole extends Abstra
             // + priceClearingPoint.getPrice() +
             // segmentLoad.getElectricitySpotMarket().toString());
 
-            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--" + "Demand "
-                    + segmentLoad.getDemandLDC() + "Generation " + segmentLoad.getGenerationLDC() + " Segment Price "
-                    + priceClearingPoint.getPrice() + "Eur/MWh--" + "Hours in Seg: "
-                    + segment.getLengthInHoursGLDCForInvestmentRole() + " "
+            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--"
+                    + "Hours in Seg: " + segment.getLengthInHoursGLDCForInvestmentRole() + "Demand "
+                    + segmentLoad.getDemandLDC() + "Hours for Demand" + segment.getLengthInHoursDLDCForCapacityMarket()
+                    + "Generation " + segmentLoad.getGenerationLDC() + "Hours for Generation"
+                    + segment.getLengthInHoursTotalGLDCForInvestmentRole() + " Segment Price "
+                    + priceClearingPoint.getPrice() + "Eur/MWh--" + " "
                     + segmentLoad.getElectricitySpotMarket().toString());
         }
     }

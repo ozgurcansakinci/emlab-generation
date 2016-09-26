@@ -294,6 +294,7 @@ public class DetermineAnnualResidualLoadCurveTest {
         marketInformation1.setValueOfLostLoad(vollTimeSeries.getHourlyArray(0));
         // marketInformation2.setElectricitySpotMarket(market2);
         marketInformation1.setMarketSupply(load1TimeSeries.getHourlyArray(0));
+        marketInformation1.setMarketDemand(load1TimeSeries.getHourlyArray(0));
         marketInformation1.persist();
         // marketInformation2.setMarketSupply(load2TimeSeries.getHourlyArray(0));
 

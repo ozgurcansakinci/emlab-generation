@@ -26,6 +26,10 @@ public class Segment {
 
     private double lengthInHoursGLDCForInvestmentRole;
 
+    private double lengthInHoursDLDCForCapacityMarket;
+
+    private double lengthInHoursTotalGLDCForInvestmentRole;
+
     /**
      * Should be 8760 hours long, and only one TRUE value for each index over
      * all segments.
@@ -38,6 +42,22 @@ public class Segment {
 
     public void setLengthInHoursGLDCForInvestmentRole(double lengthInHoursGLDCForInvestmentRole) {
         this.lengthInHoursGLDCForInvestmentRole = lengthInHoursGLDCForInvestmentRole;
+    }
+
+    public double getLengthInHoursDLDCForCapacityMarket() {
+        return lengthInHoursDLDCForCapacityMarket;
+    }
+
+    public void setLengthInHoursDLDCForCapacityMarket(double lengthInHoursDLDCForCapacityMarket) {
+        this.lengthInHoursDLDCForCapacityMarket = lengthInHoursDLDCForCapacityMarket;
+    }
+
+    public double getLengthInHoursTotalGLDCForInvestmentRole() {
+        return lengthInHoursTotalGLDCForInvestmentRole;
+    }
+
+    public void setLengthInHoursTotalGLDCForInvestmentRole(double lengthInHoursTotalGLDCForInvestmentRole) {
+        this.lengthInHoursTotalGLDCForInvestmentRole = lengthInHoursTotalGLDCForInvestmentRole;
     }
 
     public double getLengthInHours() {
