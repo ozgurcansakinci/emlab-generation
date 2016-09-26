@@ -44,7 +44,8 @@ import emlab.gen.trend.HourlyCSVTimeSeries;
 
 /**
  * {@link EnergyProducer} submits offers to the {@link ElectricitySpotMarket}.
- * One {@link Bid} per {@link PowerPlant}.
+ * One {@link Bid} per {@link PowerPlant}. Producers submits PpdpAnnuals, which
+ * contain the available hourly generation information
  *
  * @author <a href="mailto:A.Chmieliauskas@tudelft.nl">Alfredas
  *         Chmieliauskas</a> @author

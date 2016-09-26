@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2013 the original author or authors.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 package emlab.gen.role;
 
 import static org.junit.Assert.assertEquals;
@@ -39,11 +24,13 @@ import emlab.gen.domain.market.CO2Auction;
 import emlab.gen.domain.market.ClearingPoint;
 import emlab.gen.domain.market.CommodityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
+import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.Segment;
+import emlab.gen.domain.market.electricity.SegmentClearingPoint;
 import emlab.gen.domain.market.electricity.SegmentLoad;
-import emlab.gen.domain.market.electricity.YearlySegmentClearingPointMarketInformation;
+import emlab.gen.domain.market.electricity.YearlySegment;
+import emlab.gen.domain.market.electricity.YearlySegmentLoad;
 import emlab.gen.domain.technology.Interconnector;
-import emlab.gen.domain.technology.IntermittentResourceProfile;
 import emlab.gen.domain.technology.PowerGeneratingTechnology;
 import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.domain.technology.PowerPlant;
@@ -54,25 +41,22 @@ import emlab.gen.repository.PowerPlantDispatchPlanRepository;
 import emlab.gen.repository.Reps;
 import emlab.gen.repository.SegmentLoadRepository;
 import emlab.gen.repository.ZoneRepository;
+import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
-import emlab.gen.role.market.DetermineAnnualResidualLoadCurvesForTwoCountriesRole;
-import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
+import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketAnnualRole;
 import emlab.gen.role.market.SubmitOffersToElectricitySpotMarketRole;
 import emlab.gen.role.operating.DetermineFuelMixRole;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.trend.LinearTrend;
+import emlab.gen.trend.TimeSeriesCSVReader;
 import emlab.gen.trend.TriangularTrend;
 
-/**
- * @author asmkhan
- *
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/emlab-gen-test-context.xml" })
 @Transactional
-public class DetermineAnnuaResidualLoadCurveTest {
+public class ElectricityMarketSubmittingAndClearingTestWithCPLEX {
 
-    Logger logger = Logger.getLogger(DetermineAnnuaResidualLoadCurveTest.class);
+    Logger logger = Logger.getLogger(ElectricityMarketSubmittingAndClearingTestWithCPLEX.class);
 
     @Autowired
     Reps reps;
@@ -99,30 +83,35 @@ public class DetermineAnnuaResidualLoadCurveTest {
     SubmitOffersToElectricitySpotMarketRole submitOffersToElectricitySpotMarketRole;
 
     @Autowired
-    DetermineFuelMixRole determineFuelMixRole;
+    SubmitOffersToElectricitySpotMarketAnnualRole submitOffersToElectricitySpotMarketAnnualRole;
 
     @Autowired
-    DetermineResidualLoadCurvesForTwoCountriesRole determineResidualLoadCurvesForTwoCountriesRole;
-    DetermineAnnualResidualLoadCurvesForTwoCountriesRole determineAnnualLoadCurvesRole;
+    ClearHourlyElectricityMarketRole clearHourlyElectricityMarketRole;
 
-    // 6 power plants in two markets, one intermittent power plant in each.
+    @Autowired
+    DetermineFuelMixRole determineFuelMixRole;
+
+    // 4 power plants in two markets
     @Before
     @Transactional
     public void setUp() throws Exception {
         DecarbonizationModel model = new DecarbonizationModel();
         model.setCo2TradingImplemented(false);
-        model.setRealRenewableDataImplemented(true);
+        model.setRealRenewableDataImplemented(false);
         model.setIterationSpeedFactor(3);
         model.setIterationSpeedCriterion(0.005);
         model.setCapDeviationCriterion(0.03);
         model.persist();
-        model.setNoPrivateIntermittentRESInvestment(true);
 
         Government gov = new Government().persist();
         LinearTrend co2TaxTrend = new LinearTrend().persist();
         co2TaxTrend.setStart(0);
         co2TaxTrend.setIncrement(0);
         gov.setCo2TaxTrend(co2TaxTrend);
+        LinearTrend co2CapTrend = new LinearTrend().persist();
+        co2CapTrend.setStart(62000000);
+        co2CapTrend.setIncrement(0);
+        gov.setCo2CapTrend(co2CapTrend);
 
         CO2Auction co2Auction = new CO2Auction().persist();
 
@@ -151,16 +140,6 @@ public class DetermineAnnuaResidualLoadCurveTest {
         minCo2TaxTrend2.setIncrement(0);
         natGov2.setMinNationalCo2PriceTrend(minCo2TaxTrend2);
 
-        HourlyCSVTimeSeries load1TimeSeries = new HourlyCSVTimeSeries();
-        load1TimeSeries.setFilename("/data/ZoneALoad.csv");
-        load1TimeSeries.setLengthInHours(8760);
-
-        HourlyCSVTimeSeries load2TimeSeries = new HourlyCSVTimeSeries();
-        load2TimeSeries.setFilename("/data/ZoneBLoad.csv");
-        load2TimeSeries.setLengthInHours(8760);
-        load1TimeSeries.persist();
-        load2TimeSeries.persist();
-
         PowerGridNode node1 = new PowerGridNode();
         PowerGridNode node2 = new PowerGridNode();
         node1.setCapacityMultiplicationFactor(1);
@@ -169,8 +148,6 @@ public class DetermineAnnuaResidualLoadCurveTest {
         node2.setZone(zone2);
         node1.setName("Node1");
         node2.setName("Node2");
-        node1.setHourlyDemand(load1TimeSeries);
-        node2.setHourlyDemand(load2TimeSeries);
         node1.persist();
         node2.persist();
 
@@ -178,9 +155,21 @@ public class DetermineAnnuaResidualLoadCurveTest {
         intNodes.add(node1);
         intNodes.add(node2);
 
+        YearlySegment YS = new YearlySegment();
+        YS.setYearlySegmentLengthInHours(8760);
+        YS.persist();
+
+        // TimeSeriesImpl intCapacity = new TimeSeriesImpl().persist();
+        TimeSeriesCSVReader interconnectorCapacity = new TimeSeriesCSVReader().persist();
+        interconnectorCapacity.setFilename("/data/ICCapacityNL.csv");
+        interconnectorCapacity.setDelimiter(",");
+        interconnectorCapacity.setVariableName("IC");
+
         Interconnector interconnector = new Interconnector().persist();
         interconnector.setConnections(intNodes);
-        interconnector.setCapacity(0);
+        interconnector.setInterconnectorCapacity(interconnectorCapacity);
+        // interconnector.setCapacity(time, capacity);
+        interconnector.setYearlySegment(YS);
 
         Segment S1 = new Segment();
         S1.setLengthInHours(10);
@@ -192,58 +181,45 @@ public class DetermineAnnuaResidualLoadCurveTest {
         S2.setSegmentID(2);
         S2.persist();
 
-        Segment S3 = new Segment();
-        S3.setLengthInHours(20);
-        S3.setSegmentID(3);
-        S3.persist();
+        HourlyCSVTimeSeries hourlyDemand = new HourlyCSVTimeSeries();
+        hourlyDemand.setLengthInHours(8760);
+        hourlyDemand.setFilename("data/ZoneALoad.csv");
+        // hourlyDemand.setVariableName("nl");
+        // hourlyDemand.setDelimiter(",");
+        // hourlyDemand.setTimeSeriesAreInDifferentColumns(true);
+        hourlyDemand.persist();
 
-        Segment S4 = new Segment();
-        S4.setLengthInHours(20);
-        S4.setSegmentID(4);
-        S4.persist();
+        HourlyCSVTimeSeries dailyDemand = new HourlyCSVTimeSeries();
+        dailyDemand.setLengthInHours(365);
+        dailyDemand.setFilename("data/NodeDemandDailySeriesData.csv");
+        dailyDemand.setVariableName("nl");
+        dailyDemand.setDelimiter(",");
+        dailyDemand.setTimeSeriesAreInDifferentColumns(true);
+        dailyDemand.persist();
 
         SegmentLoad segmentLoadMarket1S2 = new SegmentLoad().persist();
         segmentLoadMarket1S2.setSegment(S2);
-        // segmentLoadMarket1S2.setBaseLoad(500.01);
+        segmentLoadMarket1S2.setBaseLoad(500.01);
 
         SegmentLoad segmentLoadMarket2S2 = new SegmentLoad().persist();
         segmentLoadMarket2S2.setSegment(S2);
-        // segmentLoadMarket2S2.setBaseLoad(399.99);
+        segmentLoadMarket2S2.setBaseLoad(399.99);
 
         SegmentLoad segmentLoadMarket1S1 = new SegmentLoad().persist();
         segmentLoadMarket1S1.setSegment(S1);
-        // segmentLoadMarket1S1.setBaseLoad(790);
+        segmentLoadMarket1S1.setBaseLoad(790);
 
         SegmentLoad segmentLoadMarket2S1 = new SegmentLoad().persist();
         segmentLoadMarket2S1.setSegment(S1);
-        // segmentLoadMarket2S1.setBaseLoad(600);
-
-        SegmentLoad segmentLoadMarket1S3 = new SegmentLoad().persist();
-        segmentLoadMarket1S3.setSegment(S3);
-        // segmentLoadMarket1S1.setBaseLoad(790);
-
-        SegmentLoad segmentLoadMarket2S3 = new SegmentLoad().persist();
-        segmentLoadMarket2S3.setSegment(S3);
-
-        SegmentLoad segmentLoadMarket1S4 = new SegmentLoad().persist();
-        segmentLoadMarket1S4.setSegment(S4);
-        // segmentLoadMarket1S1.setBaseLoad(790);
-
-        SegmentLoad segmentLoadMarket2S4 = new SegmentLoad().persist();
-        segmentLoadMarket2S4.setSegment(S4);
-        // segmentLoadMarket2S1.setBaseLoad(600);
+        segmentLoadMarket2S1.setBaseLoad(600);
 
         Set<SegmentLoad> segmentLoads1 = new HashSet<SegmentLoad>();
         segmentLoads1.add(segmentLoadMarket1S1);
         segmentLoads1.add(segmentLoadMarket1S2);
-        segmentLoads1.add(segmentLoadMarket1S3);
-        segmentLoads1.add(segmentLoadMarket1S4);
 
         Set<SegmentLoad> segmentLoads2 = new HashSet<SegmentLoad>();
         segmentLoads2.add(segmentLoadMarket2S1);
         segmentLoads2.add(segmentLoadMarket2S2);
-        segmentLoads2.add(segmentLoadMarket2S3);
-        segmentLoads2.add(segmentLoadMarket2S4);
 
         TriangularTrend demandGrowthTrend = new TriangularTrend();
         demandGrowthTrend.setMax(1);
@@ -252,10 +228,14 @@ public class DetermineAnnuaResidualLoadCurveTest {
         demandGrowthTrend.setTop(1);
 
         demandGrowthTrend.persist();
+        YearlySegmentLoad yearlySegmentLoad1 = new YearlySegmentLoad().persist();
+        YearlySegmentLoad yearlySegmentLoad2 = new YearlySegmentLoad().persist();
 
         ElectricitySpotMarket market1 = new ElectricitySpotMarket();
         market1.setName("Market1");
         market1.setZone(zone1);
+        market1.setYearlySegment(YS);
+        market1.setYearlySegmentLoad(yearlySegmentLoad1);
         market1.setLoadDurationCurve(segmentLoads1);
         market1.setDemandGrowthTrend(demandGrowthTrend);
         market1.setValueOfLostLoad(2000);
@@ -263,18 +243,27 @@ public class DetermineAnnuaResidualLoadCurveTest {
 
         ElectricitySpotMarket market2 = new ElectricitySpotMarket();
         market2.setZone(zone2);
+        market2.setYearlySegment(YS);
+        market2.setYearlySegmentLoad(yearlySegmentLoad2);
         market2.setName("Market2");
         market2.setLoadDurationCurve(segmentLoads2);
         market2.setDemandGrowthTrend(demandGrowthTrend);
         market2.setValueOfLostLoad(2000);
         market2.persist();
 
-        YearlySegmentClearingPointMarketInformation marketInformation1 = new YearlySegmentClearingPointMarketInformation();
-        YearlySegmentClearingPointMarketInformation marketInformation2 = new YearlySegmentClearingPointMarketInformation();
-        marketInformation1.setElectricitySpotMarket(market1);
-        marketInformation2.setElectricitySpotMarket(market2);
-        marketInformation1.setMarketSupply(load1TimeSeries.getHourlyArray(0));
-        marketInformation2.setMarketSupply(load2TimeSeries.getHourlyArray(0));
+        yearlySegmentLoad1.setElectricitySpotMarket(market1);
+        yearlySegmentLoad1.setHourlyInElasticCurrentDemandForYearlySegment(hourlyDemand);
+        yearlySegmentLoad1.setDailyElasticCurrentDemandForYearlySegment(dailyDemand);
+        yearlySegmentLoad1.setHourlyInElasticBaseDemandForYearlySegment(hourlyDemand);
+        yearlySegmentLoad1.setDailyElasticBaseDemandForYearlySegment(dailyDemand);
+        yearlySegmentLoad1.setYearlySegment(YS);
+
+        yearlySegmentLoad2.setElectricitySpotMarket(market2);
+        yearlySegmentLoad2.setHourlyInElasticCurrentDemandForYearlySegment(hourlyDemand);
+        yearlySegmentLoad2.setDailyElasticCurrentDemandForYearlySegment(dailyDemand);
+        yearlySegmentLoad2.setHourlyInElasticBaseDemandForYearlySegment(hourlyDemand);
+        yearlySegmentLoad2.setDailyElasticBaseDemandForYearlySegment(dailyDemand);
+        yearlySegmentLoad2.setYearlySegment(YS);
 
         Substance coal = new Substance().persist();
         coal.setName("Coal");
@@ -313,28 +302,8 @@ public class DetermineAnnuaResidualLoadCurveTest {
         gasTech.setPeakSegmentDependentAvailability(1);
         gasTech.setBaseSegmentDependentAvailability(1);
 
-        PowerGeneratingTechnology windTech = new PowerGeneratingTechnology();
-        windTech.setName("WindTech");
-        windTech.setIntermittent(true);
-
         coalTech.persist();
         gasTech.persist();
-        windTech.persist();
-
-        IntermittentResourceProfile windIntermittentResourceProfile1 = new IntermittentResourceProfile();
-        windIntermittentResourceProfile1.setIntermittentTechnology(windTech);
-        windIntermittentResourceProfile1.setIntermittentProductionNode(node1);
-        windIntermittentResourceProfile1.setFilename("/data/ResLFA.csv");
-        windIntermittentResourceProfile1.setLengthInHours(8760);
-
-        IntermittentResourceProfile windIntermittentResourceProfile2 = new IntermittentResourceProfile();
-        windIntermittentResourceProfile2.setIntermittentTechnology(windTech);
-        windIntermittentResourceProfile2.setIntermittentProductionNode(node2);
-        windIntermittentResourceProfile2.setFilename("/data/ResLFB.csv");
-        windIntermittentResourceProfile2.setLengthInHours(8760);
-
-        windIntermittentResourceProfile1.persist();
-        windIntermittentResourceProfile2.persist();
 
         EnergyProducer market1Prod1 = new EnergyProducer();
         market1Prod1.setName("market1Prod1");
@@ -407,7 +376,7 @@ public class DetermineAnnuaResidualLoadCurveTest {
         pp1.setOwner(market1Prod1);
         pp1.setActualFixedOperatingCost(99000);
         pp1.setLoan(l1);
-        pp1.setActualNominalCapacity(700);
+        pp1.setActualNominalCapacity(500);
         pp1.setActualEfficiency(0.45);
         pp1.setLocation(node1);
         pp1.setActualPermittime(0);
@@ -423,7 +392,7 @@ public class DetermineAnnuaResidualLoadCurveTest {
         pp2.setOwner(market2Prod1);
         pp2.setActualFixedOperatingCost(99000);
         pp2.setLoan(l2);
-        pp2.setActualNominalCapacity(1300);
+        pp2.setActualNominalCapacity(400);
         pp2.setActualEfficiency(0.40);
         pp2.setLocation(node2);
         pp2.setActualPermittime(0);
@@ -439,7 +408,7 @@ public class DetermineAnnuaResidualLoadCurveTest {
         pp3.setOwner(market1Prod1);
         pp3.setActualFixedOperatingCost(99000);
         pp3.setLoan(l3);
-        pp3.setActualNominalCapacity(650);
+        pp3.setActualNominalCapacity(300);
         pp3.setActualEfficiency(0.60);
         pp3.setLocation(node1);
         pp3.setActualPermittime(0);
@@ -455,7 +424,7 @@ public class DetermineAnnuaResidualLoadCurveTest {
         pp4.setOwner(market2Prod2);
         pp4.setActualFixedOperatingCost(99000);
         pp4.setLoan(l3);
-        pp4.setActualNominalCapacity(1000);
+        pp4.setActualNominalCapacity(200);
         pp4.setActualEfficiency(0.54);
         pp4.setLocation(node2);
         pp4.setActualPermittime(0);
@@ -469,41 +438,6 @@ public class DetermineAnnuaResidualLoadCurveTest {
         pp2.persist();
         pp3.persist();
         pp4.persist();
-
-        // At 6 Eur/GJ has a mc of 36
-        PowerPlant ppRes1 = new PowerPlant();
-        ppRes1.setTechnology(windTech);
-        ppRes1.setOwner(market1Prod1);
-        ppRes1.setActualFixedOperatingCost(99000);
-        ppRes1.setLoan(l5);
-        ppRes1.setActualNominalCapacity(7000);
-        ppRes1.setActualEfficiency(1);
-        ppRes1.setLocation(node1);
-        ppRes1.setActualPermittime(0);
-        ppRes1.setConstructionStartTime(-8);
-        ppRes1.setActualLeadtime(0);
-        ppRes1.setDismantleTime(1000);
-        ppRes1.setExpectedEndOfLife(2);
-        ppRes1.setName("WindInM1");
-
-        // At 6 Eur/GJ has a mc of 40 Eur/MWh
-        PowerPlant ppRes2 = new PowerPlant();
-        ppRes2.setTechnology(windTech);
-        ppRes2.setOwner(market2Prod2);
-        ppRes2.setActualFixedOperatingCost(99000);
-        ppRes2.setLoan(l6);
-        ppRes2.setActualNominalCapacity(17000);
-        ppRes2.setActualEfficiency(1);
-        ppRes2.setLocation(node2);
-        ppRes2.setActualPermittime(0);
-        ppRes2.setConstructionStartTime(-6);
-        ppRes2.setActualLeadtime(0);
-        ppRes2.setDismantleTime(10);
-        ppRes2.setExpectedEndOfLife(10);
-        ppRes2.setName("WindInM2");
-
-        ppRes1.persist();
-        ppRes2.persist();
 
         ClearingPoint coalClearingPoint = new ClearingPoint().persist();
         coalClearingPoint.setAbstractMarket(coalMarket);
@@ -522,40 +456,151 @@ public class DetermineAnnuaResidualLoadCurveTest {
     }
 
     @Test
-    public void determineResidualLoadCurveRoleTest() {
+    public void electricityMarketTestForCurrentTick() {
 
         DecarbonizationModel model = reps.genericRepository.findFirst(DecarbonizationModel.class);
 
-        determineResidualLoadCurvesForTwoCountriesRole.act(model);
-        // determineAnnualLoadCurvesRole.act(model);
+        for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
+            determineFuelMixRole.act(producer);
+            submitOffersToElectricitySpotMarketAnnualRole.act(producer);
+            // submitOffersToElectricitySpotMarketRole.act(producer);
+            // producer.act(determineFuelMixRole);
+        }
 
-        for (SegmentLoad segmentLoad : reps.segmentLoadRepository.findAll()) {
-            if (segmentLoad.getElectricitySpotMarket().getName() == "Market1") {
-                switch (segmentLoad.getSegment().getSegmentID()) {
+        // submitOffersToElectricitySpotMarketRole.createOffersForElectricitySpotMarket(null,
+        // getCurrentTick() + 3, true,
+        // null);
+        // submitOffersToElectricitySpotMarketRole.createOffersForElectricitySpotMarket(null,
+        // getCurrentTick(), false,
+        // null);
+
+        // Iterable<PowerPlantDispatchPlan> ppdps =
+        // reps.powerPlantDispatchPlanRepository.findAll();
+        // for (PowerPlantDispatchPlan ppdp : ppdps) {
+        // logger.warn(ppdp.toString() + " in " + ppdp.getBiddingMarket() +
+        // " accepted: " + ppdp.getAcceptedAmount());
+        // }
+
+        // clearIterativeCO2AndElectricitySpotMarketTwoCountryRole
+        // .clearIterativeCO2AndElectricitySpotMarketTwoCountryForTimestepAndFuelPrices(model,
+        // false,
+        // getCurrentTick(), null, null, 0);
+        clearHourlyElectricityMarketRole.act(model);
+
+        // ppdps = reps.powerPlantDispatchPlanRepository.findAll();
+        // for (PowerPlantDispatchPlan ppdp : ppdps) {
+        // logger.warn(ppdp.toString() + " in " + ppdp.getBiddingMarket() +
+        // " accepted: " + ppdp.getAcceptedAmount());
+        // }
+        //
+        // Iterable<SegmentClearingPoint> scps =
+        // reps.segmentClearingPointRepository.findAll();
+        // for (SegmentClearingPoint scp : scps) {
+        // logger.warn(scp.toString());
+        // }
+
+        // Check that
+        for (PowerPlant plant : reps.powerPlantRepository.findAll()) {
+            // for (Segment s : reps.segmentRepository.findAll()) {
+            // PowerPlantDispatchPlan plan =
+            // reps.powerPlantDispatchPlanRepository
+            // .findOnePowerPlantDispatchPlanForPowerPlantForSegmentForTime(plant,
+            // s, 0, false);
+            PpdpAnnual plan = reps.ppdpAnnualRepository.findPPDPAnnualforPlantForCurrentTick(plant, (long) 0);
+            if (plan.getPowerPlant().getName().equals("CoalInM1")) {
+                // assertEquals("CoalInM1 right price", 24,
+                // plan.getBidWithoutCO2(), 0.001);
+                // assertEquals("CoalInM1 right amount", 500, plan.getAmount(),
+                // 0.001);
+                assertEquals("CoalInM1 right price", 24, plan.getPrice(), 0.001);
+                assertEquals("CoalInM1 right amount", 500, plan.getYearlySupply(), 0.001);
+                // switch (s.getSegmentID()) {
+                // case 1:
+                // assertEquals("CoalInM1 right accepted amount in S1", 500,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // case 2:
+                // assertEquals("CoalInM1 right accepted amount in S2", 500,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // }
+
+            } else if (plan.getPowerPlant().getName().equals("CoalInM2")) {
+                assertEquals("CoalInM2 right price", 27, plan.getPrice(), 0.001);
+                assertEquals("CoalInM2 right amount", 400, plan.getYearlySupply(), 0.001);
+                // switch (s.getSegmentID()) {
+                // case 1:
+                // assertEquals("CoalInM2 right accepted amount in S1", 400,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // case 2:
+                // assertEquals("CoalInM2 right accepted amount in S2", 399.99,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // }
+            } else if (plan.getPowerPlant().getName().equals("GasInM1")) {
+                assertEquals("GasInM1 right price", 36, plan.getPrice(), 0.001);
+                assertEquals("GasInM1 right amount", 300, plan.getYearlySupply(), 0.001);
+                // switch (s.getSegmentID()) {
+                // case 1:
+                // assertEquals("GasInM1 right accepted amount in S1", 290,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // case 2:
+                // assertEquals("GasInM1 right accepted amount in S2", 0.01,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // }
+            } else if (plan.getPowerPlant().getName().equals("GasInM2")) {
+                assertEquals("GasInM2 right price", 40, plan.getPrice(), 0.001);
+                assertEquals("GasInM2 right amount", 200, plan.getYearlySupply(), 0.001);
+                // switch (s.getSegmentID()) {
+                // case 1:
+                // assertEquals("GasInM2 right accepted amount in S1", 200,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // case 2:
+                // assertEquals("GasInM2 right accepted amount in S2", 0,
+                // plan.getAcceptedAmount(), 0.001);
+                // break;
+                // }
+            }
+            // }
+
+        }
+
+        for (SegmentClearingPoint scp : reps.segmentClearingPointRepository.findAll()) {
+            if (scp.getAbstractMarket().getName().equals("Market1")) {
+                switch (scp.getSegment().getSegmentID()) {
                 case 1:
-                    assertEquals("SegmentLoad Market 1, Segment 1", 1156.95, segmentLoad.getBaseLoad(), 0.001);
+                    assertEquals("Clearing Point Market 1, segment1 price", 36, scp.getPrice(), 0.001);
+                    assertEquals("Clearing Point Market 1, segment1 volume", 7900, scp.getVolume(), 0.001);
                     break;
                 case 2:
-                    assertEquals("SegmentLoad Market 1, Segment 2", 718.95, segmentLoad.getBaseLoad(), 0.001);
+                    assertEquals("Clearing Point Market 1, segment2 price", 36, scp.getPrice(), 0.001);
+                    assertEquals("Clearing Point Market 1, segment2 volume", 10000.2, scp.getVolume(), 0.001);
                     break;
                 }
-            } else if (segmentLoad.getElectricitySpotMarket().getName() == "Market2") {
-                switch (segmentLoad.getSegment().getSegmentID()) {
+            } else if (scp.getAbstractMarket().getName().equals("Market2")) {
+                switch (scp.getSegment().getSegmentID()) {
                 case 1:
-                    assertEquals("SegmentLoad Market 2, Segment 1", 2313.9, segmentLoad.getBaseLoad(), 0.001);
+                    assertEquals("Clearing Point Market 2, segment1 price", 40, scp.getPrice(), 0.001);
+                    assertEquals("Clearing Point Market 2, segment1 volume", 6000, scp.getVolume(), 0.001);
                     break;
                 case 2:
-                    assertEquals("SegmentLoad Market 2, Segment 2", 1437.9, segmentLoad.getBaseLoad(), 0.001);
+                    assertEquals("Clearing Point Market 2, segment2 price", 27, scp.getPrice(), 0.001);
+                    assertEquals("Clearing Point Market 2, segment2 volume", 7999.8, scp.getVolume(), 0.001);
                     break;
                 }
             }
         }
+
     }
 
     private long getCurrentTick() {
         return 0;
     }
 
-    // }
-
 }
+
+// }

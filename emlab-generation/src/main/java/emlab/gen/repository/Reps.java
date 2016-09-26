@@ -137,4 +137,7 @@ public class Reps {
     @Autowired
     public EnergyStorageTechnologyRepository energyStorageTechnologyRepository;
 
+    @Autowired
+    public StakeholderRepository stakeholderRepository;
+
 }

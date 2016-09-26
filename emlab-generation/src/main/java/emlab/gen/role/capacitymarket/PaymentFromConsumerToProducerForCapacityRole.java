@@ -83,8 +83,8 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
 
             if (plan.getPlant() == null) {
                 reps.nonTransactionalCreateRepository.createCashFlowStorage(esm, plan.getBidder(),
-                        plan.getAcceptedAmount() * capacityClearingPoint.getPrice(), CashFlow.SIMPLE_CAPACITY_MARKET,
-                        getCurrentTick(), plan.getStorage());
+                        plan.getAcceptedAmount() * capacityClearingPoint.getPrice(),
+                        CashFlow.SIMPLE_CAPACITY_MARKET_STORAGE, getCurrentTick(), plan.getStorage());
 
                 // logger.warn("Storage Payment made");
 

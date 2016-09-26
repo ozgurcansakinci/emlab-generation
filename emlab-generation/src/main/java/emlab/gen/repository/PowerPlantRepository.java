@@ -129,6 +129,10 @@ public interface PowerPlantRepository extends GraphRepository<PowerPlant> {
     @Query(value = "g.v(owner).in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.intermittent==false}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}", type = QueryType.Gremlin)
     Iterable<PowerPlant> findOperationalNonIntermittentPowerPlantsByOwner(@Param("owner") EnergyProducer owner,
             @Param("tick") long tick);
+
+    @Query(value = "g.v(owner).in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.intermittent==true}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}", type = QueryType.Gremlin)
+    Iterable<PowerPlant> findOperationalIntermittentPowerPlantsByOwner(@Param("owner") EnergyProducer owner,
+            @Param("tick") long tick);
     ////////////////////////////////////////////////////////
 
     @Query(value = "g.v(owner).in('POWERPLANT_OWNER').as('x').out('TECHNOLOGY').filter{it.out('FUEL').count()>0}.back('x').filter{(it.dismantleTime > tick) && ((it.constructionStartTime + it.actualPermittime + it.actualLeadtime) <= tick)}", type = QueryType.Gremlin)

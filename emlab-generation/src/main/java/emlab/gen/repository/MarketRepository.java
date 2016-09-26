@@ -24,9 +24,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import emlab.gen.domain.agent.NationalGovernment;
+import emlab.gen.domain.factory.ElectricityProducerFactory;
 import emlab.gen.domain.gis.Zone;
 import emlab.gen.domain.market.CO2Auction;
 import emlab.gen.domain.market.DecarbonizationMarket;
+import emlab.gen.domain.market.capacity.CapacityDispatchPlan;
+import emlab.gen.domain.market.capacity.CapacityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.market.electricity.SegmentLoad;
@@ -111,5 +114,13 @@ public interface MarketRepository extends GraphRepository<DecarbonizationMarket>
      */
     @Query(value = "g.v(substance).in('SUBSTANCE_MARKET').next()", type = QueryType.Gremlin)
     public DecarbonizationMarket findFirstMarketBySubstance(@Param("substance") Substance substance);
+
+    @Query(value = "g.v(market).filter{it.__type__=='emlab.gen.domain.factory.ElectricityProducerFactory'}", type = QueryType.Gremlin)
+    public ElectricityProducerFactory findmaximumBaseLoadForSpotMarketForElectricitySpotMarket(
+            @Param("market") ElectricitySpotMarket market);
+    
+    @Query("START market=node({market}) MATCH (market)<-[:BIDDINGMARKET]-(capacityDispatchPlan) WHERE (capacityDispatchPlan.time = {time}) RETURN capacityDispatchPlan ORDER BY capacityDispatchPlan.price asc")
+    Iterable<CapacityDispatchPlan> findSortedCapacityDispatchPlansForMarketForTime(
+            @Param("market") ElectricitySpotMarket market);
 
 }

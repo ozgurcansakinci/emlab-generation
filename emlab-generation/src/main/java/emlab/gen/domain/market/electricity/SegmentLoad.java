@@ -36,6 +36,10 @@ public class SegmentLoad {
     /// role
     private double residualGLDC;
 
+    private double generationLDC;
+
+    private double demandLDC;
+
     // private double residualGLDCSegmentPrice;
 
     public Segment getSegment() {
@@ -90,6 +94,22 @@ public class SegmentLoad {
     @Override
     public String toString() {
         return "segment: " + segment + " load: " + getBaseLoad();
+    }
+
+    public double getGenerationLDC() {
+        return generationLDC;
+    }
+
+    public void setGenerationLDC(double generationLDC) {
+        this.generationLDC = generationLDC;
+    }
+
+    public double getDemandLDC() {
+        return demandLDC;
+    }
+
+    public void setDemandLDC(double demandLDC) {
+        this.demandLDC = demandLDC;
     }
 
 }

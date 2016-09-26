@@ -52,6 +52,9 @@ public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket
     @Autowired
     PaymentFromConsumerToProducerForCapacityRole paymentFromConsumerToProducerforCapacityRole;
 
+    @Autowired
+    SubmitIRESCapacityBidToMarketRoleMultiNode submitIRESCapacityBidToMarketRoleMultiNode;
+
     @Override
     @Transactional
     public void act(CapacityMarket market) {
@@ -71,6 +74,7 @@ public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket
                     .findAllEnergyProducersIncludingRenewableTargetInvestorsAtRandomForZone(market.getZone())) {
 
                 submitCapacityBidToMarketRoleMultiNode.act(producer);
+                submitIRESCapacityBidToMarketRoleMultiNode.act(producer);
 
             }
         } else {
@@ -78,6 +82,7 @@ public class CapacityMarketMainRoleMultiNode extends AbstractRole<CapacityMarket
                     .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandomForZone(market.getZone())) {
 
                 submitCapacityBidToMarketRoleMultiNode.act(producer);
+                submitIRESCapacityBidToMarketRoleMultiNode.act(producer);
             }
         }
 

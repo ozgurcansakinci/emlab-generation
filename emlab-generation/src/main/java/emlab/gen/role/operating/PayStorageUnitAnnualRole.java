@@ -115,7 +115,7 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
                 double payment = loan.getAmountPerPayment();
 
                 reps.nonTransactionalCreateRepository.createCashFlowStorage(producer, loan.getTo(), payment,
-                        CashFlow.LOAN, getCurrentTick(), storageTech);
+                        CashFlow.STORAGE_INV, getCurrentTick(), storageTech);
 
                 loan.setNumberOfPaymentsDone(loan.getNumberOfPaymentsDone() + 1);
 

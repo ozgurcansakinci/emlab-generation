@@ -321,7 +321,7 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
                 .findMarketInformationForPPDPAndTime(clearingTick, plan);
         Government government = reps.genericRepository.findFirst(Government.class);
         double co2Tax = government.getCO2Tax(clearingTick);
-        return (co2Tax + info.getCO2Price()) * plan.calculateYearlyEmissions();
+        return (co2Tax + info.getCO2Price()) * plan.getYearlyEmissions();
     }
 
     // TODO: needs to be updated and used somewhere

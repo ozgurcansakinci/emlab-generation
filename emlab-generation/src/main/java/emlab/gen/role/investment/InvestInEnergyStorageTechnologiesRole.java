@@ -63,39 +63,54 @@ public class InvestInEnergyStorageTechnologiesRole extends AbstractEnergyProduce
         EnergyStorageTechnology storageTech = reps.energyProducerRepository
                 .findStorageTechnologyForEnergyProducer(agent);
         CashFlow revenue = reps.cashFlowRepository.findAllCashFlowsForStorageRevenueForTime(agent, getCurrentTick());
-        CashFlow omCosts = reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(agent, getCurrentTick());
-        if (revenue != null) {
-            if (revenue.getMoney() > 1.2 * omCosts.getMoney()) {
-                logger.warn("Revenue greater than 20%");
-                double incrementalCapitalCost = storageTech.getCurrentMaxStorageCapacity() * 0.02
-                        * storageTech.getFixedCapitalCostTimeSeriesForStoragePerMWh().getValue(getCurrentTick());
-                CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(agent, null, incrementalCapitalCost,
-                        CashFlow.INC_STORAGE_CC, getCurrentTick(), null);
-                storageTech.setCurrentMaxStorageCapacity(storageTech.getCurrentMaxStorageCapacity() * 1.02);
-                storageTech.setCurrentMaxStorageChargingRate(storageTech.getCurrentMaxStorageChargingRate() * 1.02);
-                storageTech
-                        .setCurrentMaxStorageDischargingRate(storageTech.getCurrentMaxStorageDischargingRate() * 1.02);
-                logger.warn("The amount paid for investment is {}", incrementalCapitalCost);
-                logger.warn("The new current maximum storage capacity is {}",
-                        storageTech.getCurrentMaxStorageCapacity());
+        CashFlow revenueCM = reps.cashFlowRepository.findAllCashFlowsForStorageRevenueForCapacityMarketForTime(agent,
+                getCurrentTick());
 
-            } else if (revenue.getMoney() - omCosts.getMoney() > 0) {
-                logger.warn("Investment in storage!");
-                double incrementalCapitalCost = storageTech.getCurrentMaxStorageCapacity() * 0.02
-                        * storageTech.getFixedCapitalCostTimeSeriesForStoragePerMWh().getValue(getCurrentTick());
-                CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(agent, null, incrementalCapitalCost,
-                        CashFlow.INC_STORAGE_CC, getCurrentTick(), null);
-                storageTech.setCurrentMaxStorageCapacity(storageTech.getCurrentMaxStorageCapacity() * 1.02);
-                storageTech.setCurrentMaxStorageChargingRate(storageTech.getCurrentMaxStorageChargingRate() * 1.02);
-                storageTech
-                        .setCurrentMaxStorageDischargingRate(storageTech.getCurrentMaxStorageDischargingRate() * 1.02);
-                logger.warn("The amount paid for investment is {}", incrementalCapitalCost);
-                logger.warn("The new current maximum storage capacity is {}",
-                        storageTech.getCurrentMaxStorageCapacity());
-            } else {
-                logger.warn("No investment in storage because it was not making enough profit!");
-            }
-        } else
-            logger.warn("No investment in storage because it did not run!");
+        double storageRevenue = reps.cashFlowRepository.findAllStorageRevenuesForTime(agent, getCurrentTick());
+
+        CashFlow omCosts = reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(agent, getCurrentTick());
+
+        // if ((revenue != null) || (revenueCM != null)) {
+        // if ((revenue.getMoney() + revenueCM.getMoney()) > 1.2 *
+        // omCosts.getMoney()) {
+
+        if (storageRevenue > 1.2 * omCosts.getMoney()) {
+
+            logger.warn("Revenue greater than 20%");
+
+            double incrementalCapitalCost = storageTech.getCurrentMaxStorageCapacity() * 0.02
+                    * storageTech.getFixedCapitalCostTimeSeriesForStoragePerMWh().getValue(getCurrentTick());
+
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(agent, null, incrementalCapitalCost,
+                    CashFlow.INC_STORAGE_CC, getCurrentTick(), null);
+
+            storageTech.setCurrentMaxStorageCapacity(storageTech.getCurrentMaxStorageCapacity() * 1.02);
+            storageTech.setCurrentMaxStorageChargingRate(storageTech.getCurrentMaxStorageChargingRate() * 1.02);
+            storageTech.setCurrentMaxStorageDischargingRate(storageTech.getCurrentMaxStorageDischargingRate() * 1.02);
+
+            logger.warn("The amount paid for investment is {}", incrementalCapitalCost);
+            logger.warn("The new current maximum storage capacity is {}", storageTech.getCurrentMaxStorageCapacity());
+
+            // } else if ((revenue.getMoney() + revenueCM.getMoney()) -
+            // omCosts.getMoney() > 0) {
+
+        } else if (storageRevenue - omCosts.getMoney() > 0) {
+
+            logger.warn("Investment in storage!");
+
+            double incrementalCapitalCost = storageTech.getCurrentMaxStorageCapacity() * 0.02
+                    * storageTech.getFixedCapitalCostTimeSeriesForStoragePerMWh().getValue(getCurrentTick());
+            CashFlow cf = reps.nonTransactionalCreateRepository.createCashFlow(agent, null, incrementalCapitalCost,
+                    CashFlow.INC_STORAGE_CC, getCurrentTick(), null);
+            storageTech.setCurrentMaxStorageCapacity(storageTech.getCurrentMaxStorageCapacity() * 1.02);
+            storageTech.setCurrentMaxStorageChargingRate(storageTech.getCurrentMaxStorageChargingRate() * 1.02);
+            storageTech.setCurrentMaxStorageDischargingRate(storageTech.getCurrentMaxStorageDischargingRate() * 1.02);
+            logger.warn("The amount paid for investment is {}", incrementalCapitalCost);
+            logger.warn("The new current maximum storage capacity is {}", storageTech.getCurrentMaxStorageCapacity());
+        } else {
+            logger.warn("No investment in storage because it was not making enough profit!");
+        }
+        // } else
+        // logger.warn("No investment in storage because it did not run!");
     }
 }

@@ -38,7 +38,31 @@ public interface CashFlowRepository extends GraphRepository<CashFlow> {
     CashFlow findAllCashFlowsForStorageRevenueForTime(@Param("producer") EnergyProducer producer,
             @Param("tick") long tick);
 
+    @Query(value = "g.v(producer).in('TO_AGENT').filter{((it.time == tick) && (it.type == 18))}", type = QueryType.Gremlin)
+    CashFlow findAllCashFlowsForStorageRevenueForCapacityMarketForTime(@Param("producer") EnergyProducer producer,
+            @Param("tick") long tick);
+
+    @Query(value = "result=g.v(producer).in('TO_AGENT').filter{it.type==13 || it.type==18}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double findAllStorageRevenuesForTime(@Param("producer") EnergyProducer producer, @Param("tick") long tick);
+
     @Query(value = "g.v(producer).in('FROM_AGENT').filter{((it.time == tick) && (it.type == 14))}", type = QueryType.Gremlin)
     CashFlow findAllCashFlowsForStorageOMCostsForTime(@Param("producer") EnergyProducer producer,
+            @Param("tick") long tick);
+
+    // calculating total O&M, CO2Tax, Fuel and Storage OM payments made by the
+    // energy producer
+    @Query(value = "result=g.v(producer).in('FROM_AGENT').filter{it.type==3 || it.type==4 || it.type==5 || it.type==9 || it.type==14}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double calculateVariableCashOutFlowsForEnergyProducerForTime(@Param("producer") EnergyProducer producer,
+            @Param("tick") long tick);
+
+    // calculating total loans and down payments made by the energy producer
+    @Query(value = "result=g.v(producer).in('FROM_AGENT').filter{it.type==7 || it.type==8 || it.type==15 || it.type==16}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double calculateFixedCashOutFlowsForEnergyProducerForTime(@Param("producer") EnergyProducer producer,
+            @Param("tick") long tick);
+
+    // calculating total payments made to the energy producer from Spot market,
+    // capacity market and storage
+    @Query(value = "result=g.v(producer).in('TO_AGENT').filter{it.type==1 || it.type==11 || it.type==13 || it.type==18}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double calculateVariableCashInFlowsForEnergyProducerForTime(@Param("producer") EnergyProducer producer,
             @Param("tick") long tick);
 }

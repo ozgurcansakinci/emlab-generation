@@ -39,6 +39,8 @@ public class CapacityMarket extends DecarbonizationMarket {
 
     private boolean storageBiddingAllowed;
 
+    private double baseCapacityMarketDemand;
+
     private boolean renewableTargetInvestorCanInvest;
 
     public boolean isStorageBiddingAllowed() {
@@ -71,6 +73,14 @@ public class CapacityMarket extends DecarbonizationMarket {
 
     public void setRegulator(Regulator regulator) {
         this.regulator = regulator;
+    }
+
+    public double getBaseCapacityMarketDemand() {
+        return baseCapacityMarketDemand;
+    }
+
+    public void setBaseCapacityMarketDemand(double baseCapacityMarketDemand) {
+        this.baseCapacityMarketDemand = baseCapacityMarketDemand;
     }
 
 }

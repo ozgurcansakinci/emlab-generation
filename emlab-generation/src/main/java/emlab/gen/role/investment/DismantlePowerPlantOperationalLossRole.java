@@ -301,17 +301,20 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
                 // logger.warn("profitability " + plant.getProfitability());
 
-                if (plant.getProfitability() < 0 && plant.getActualLifetime() > 5) {
+                if (plant.getProfitability() < 0 && plant.getActualLifetime() > 4) {
+
                     // double totalInvestment =
                     // plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime())
                     // * plant.getActualNominalCapacity();
                     // logger.warn("total investment " + totalInvestment);
-                    // if (plant.getProfitability() < (totalInvestment * -0.01))
+                    // if (plant.getProfitability() < (totalInvestment *
+                    // -0.01))
                     // {
                     double totalProfit = 0;
                     long lookforward = 1;
                     long iterator = 0;
-                    // for (iterator = 0; iterator <= lookforward; iterator++) {
+                    // for (iterator = 0; iterator <= lookforward;
+                    // iterator++) {
                     // logger.warn("year" + (getCurrentTick() + iterator));
                     // Marginal cost Map was here earlier
 
@@ -334,7 +337,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     // }
                     if ((getCurrentTick() + iterator) > 0) {
                         // SimpleRegression sr = new SimpleRegression();
-                        // for (long time = (getCurrentTick() + iterator) - 1;
+                        // for (long time = (getCurrentTick() + iterator) -
+                        // 1;
                         // time >= (getCurrentTick() + iterator)
                         // -
                         // market.getBacklookingForDemandForecastinginDismantling()
@@ -353,7 +357,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                             iteration++;
                             if (time >= 0)
                                 avgGrowthFactor += market.getDemandGrowthTrend().getValue(time);
-                            else // TODO:not sure if we should take 0th tick or
+                            else // TODO:not sure if we should take 0th tick
+                                 // or
                                  // current tick
                                 avgGrowthFactor += market.getDemandGrowthTrend().getValue(0);
                         }
@@ -363,7 +368,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                         demandGrowthFactor = (avgGrowthFactor / iteration);
                     }
 
-                    // Could not understand the purpose of the following block,
+                    // Could not understand the purpose of the following
+                    // block,
                     // so commented it out!
                     // double range = 0;
                     //
@@ -387,7 +393,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                     //
                     // if ((getCurrentTick() + iterator) > 1) {
                     // SimpleRegression sr = new SimpleRegression();
-                    // for (long time = (getCurrentTick() + iterator) - 1; time
+                    // for (long time = (getCurrentTick() + iterator) - 1;
+                    // time
                     // >= (getCurrentTick() + iterator)
                     // -
                     // market.getBacklookingForDemandForecastinginDismantling()
@@ -443,7 +450,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                         // reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(
                         // market, getCurrentTick())) {
                         // segmentCapacity = segmentCapacity
-                        // + pplants.getAvailableCapacity((getCurrentTick() +
+                        // + pplants.getAvailableCapacity((getCurrentTick()
+                        // +
                         // iterator), currentSegment,
                         // reps.segmentRepository.count());
                         // }
@@ -644,7 +652,9 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                 loan.setNumberOfPaymentsDone(loan.getNumberOfPaymentsDone()
                                         + (loan.getTotalNumberOfPayments() - loan.getNumberOfPaymentsDone()));
 
-                                logger.info("DISMANTLING: Paying {} (euro) for remaining loan {}", payment, loan);
+                                // logger.warn("DISMANTLING: Paying {}
+                                // (euro)
+                                // for remaining loan {}", payment, loan);
                             }
                         }
                         Loan downpayment = plant.getDownpayment();
@@ -663,14 +673,20 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                                         downpayment.getNumberOfPaymentsDone() + (downpayment.getTotalNumberOfPayments()
                                                 - downpayment.getNumberOfPaymentsDone()));
 
-                                logger.info("DISMANTLING: Paying {} (euro) for remaining downpayment {}", payment,
-                                        downpayment);
+                                // logger.warn("DISMANTLING: Paying {}
+                                // (euro)
+                                // for remaining downpayment {}", payment,
+                                // downpayment);
                             }
                         }
-                        logger.warn(" **********************  ENERGY PRODUCER DISMANTLED: " + plant.getName() + " Age "
-                                + plant.getActualLifetime());
-                        plant.dismantlePowerPlant(getCurrentTick());
-
+                        if (getCurrentTick() < 8 && plant.getActualLifetime() < 15) {
+                            logger.info(" **********************  TOO early to dismantle: " + plant.getName() + " Age "
+                                    + plant.getActualLifetime());
+                        } else {
+                            logger.warn(" **********************  ENERGY PRODUCER DISMANTLED: " + plant.getName()
+                                    + " Age " + plant.getActualLifetime());
+                            plant.dismantlePowerPlant(getCurrentTick());
+                        }
                     }
                 }
             }

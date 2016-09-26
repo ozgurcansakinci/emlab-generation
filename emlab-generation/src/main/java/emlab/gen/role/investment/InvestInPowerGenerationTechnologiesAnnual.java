@@ -345,16 +345,18 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                                                 + regulator.getInitialSupplyMargin());
                             }
 
-                            // totalPeakCapacityAtFuturePoint =
-                            // reps.powerPlantRepository
-                            // .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market,
-                            // futureTimePoint);
-                            totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
-                                    .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
-                                            futureTimePoint);
+                            if (model.isNoPrivateIntermittentRESInvestment()) {
+                                totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
+                                        .calculatePeakCapacityOfNonIntermittentOperationalPowerPlantsInMarket(market,
+                                                futureTimePoint);
+                                totalPeakDemandAtFuturePoint = reps.segmentLoadRepository
+                                        .nonAdjustedPeakLoadbyMarketAnnual(market) * expectedDemand.get(market);
+                            } else {
+                                totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
+                                        .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market, futureTimePoint);
+                                totalPeakDemandAtFuturePoint = regulator.getDemandTarget() * expectedDemand.get(market);
+                            }
                             // expectedDemand.get(market).doubleValue();
-                            totalPeakDemandAtFuturePoint = reps.segmentLoadRepository
-                                    .nonAdjustedPeakLoadbyMarketAnnual(market) * expectedDemand.get(market);
 
                             // logger.warn("Difference " +
                             // (totalPeakCapacityAtFuturePoint -
@@ -678,6 +680,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
         double maxExpectedLoad = 0d;
         Map<PowerPlant, Double> meritOrder;
         double capacitySum;
+        DecarbonizationModel model = reps.genericRepository.findAll(DecarbonizationModel.class).iterator().next();
 
         MarketInformation(ElectricitySpotMarket market, Map<ElectricitySpotMarket, Double> expectedDemand,
                 Map<Substance, Double> fuelPrices, double co2price, long time) {
@@ -763,8 +766,11 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
 
             // find expected prices per segment given merit order
             for (SegmentLoad segmentLoad : market.getLoadDurationCurve()) {
-
-                double expectedSegmentLoad = segmentLoad.getResidualGLDC() * demandFactor;
+                double expectedSegmentLoad;
+                if (model.isNoPrivateIntermittentRESInvestment())
+                    expectedSegmentLoad = segmentLoad.getResidualGLDC() * demandFactor;
+                else
+                    expectedSegmentLoad = segmentLoad.getGenerationLDC() * demandFactor;
 
                 if (expectedSegmentLoad > maxExpectedLoad) {
                     maxExpectedLoad = expectedSegmentLoad;

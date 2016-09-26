@@ -50,7 +50,7 @@ import emlab.gen.role.market.ClearHourlyElectricityMarketRole;
 import emlab.gen.role.market.ClearIterativeCO2AndElectricitySpotMarketTwoCountryRole;
 import emlab.gen.role.market.CreatingFinancialReports;
 import emlab.gen.role.market.DetermineAnnualDemandGrowthRole;
-import emlab.gen.role.market.DetermineAnnualResidualLoadCurvesForTwoCountriesRole;
+import emlab.gen.role.market.DetermineAnnualResidualLoadCurvesRole;
 import emlab.gen.role.market.DetermineResidualLoadCurvesForTwoCountriesRole;
 import emlab.gen.role.market.ProcessAcceptedBidsRole;
 import emlab.gen.role.market.ProcessAcceptedPPDPAnnualRole;
@@ -71,6 +71,7 @@ import emlab.gen.role.operating.PayCO2TaxRole;
 import emlab.gen.role.operating.PayForLoansRole;
 import emlab.gen.role.operating.PayOperatingAndMaintainanceCostsRole;
 import emlab.gen.role.operating.PayStorageUnitAnnualRole;
+import emlab.gen.role.operating.PayToStakeholderRole;
 
 /**
  * Main model role.
@@ -126,6 +127,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     private PayForLoansRole payForLoansRole;
     @Autowired
+    private PayToStakeholderRole payToStakeholderRole;
+    @Autowired
     private PayOperatingAndMaintainanceCostsRole payOperatingAndMaintainanceCostsRole;
     @Autowired
     private PayStorageUnitAnnualRole payStorageUnitAnnualRole;
@@ -148,7 +151,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
     @Autowired
     private ExportLimiterRole exportLimiterRole;
     @Autowired
-    private DetermineAnnualResidualLoadCurvesForTwoCountriesRole determineAnnualResidualLoadCurve;
+    private DetermineAnnualResidualLoadCurvesRole determineAnnualResidualLoadCurve;
     @Autowired
     private InvestInEnergyStorageTechnologiesRole investInEnergyStorageTechnologiesRole;
     @Autowired
@@ -183,8 +186,8 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         Timer timer = new Timer();
         timer.start();
 
-        ////////////// Commented out for annual optimization
-
+        // ////////////// Commented out for annual optimization
+        //
         // logger.warn(" 0a. Determing load duration curves.");
         // if (model.isRealRenewableDataImplemented())
         // determineResidualLoadCurve.act(model);
@@ -225,7 +228,26 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
-        logger.warn("  0b. Determining hourly demand growth");
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
+            timerMarket.reset();
+            timerMarket.start();
+            logger.warn(" 0b. Run Simple Capacity Market");
+
+            for (CapacityMarket cmarket : reps.capacityMarketRepository.findAll()) {
+                // simpleCapacityMarketMainRole.act(cmarket);
+                capacityMarketMainRoleMultiNode.act(cmarket);
+            }
+
+            // exportLimiterRole.act(model);
+
+            timerMarket.stop();
+            logger.warn("        took: {} seconds.", timerMarket.seconds());
+        }
+        ///////////////////////////////////////////////////////////////////////////////////
+
+        logger.warn("  0c. Determining hourly demand growth");
         timerMarket.reset();
         timerMarket.start();
         for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarketsAsList()) {
@@ -267,7 +289,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         if (model.isLongTermContractsImplemented()) {
             timerMarket.reset();
             timerMarket.start();
-            logger.warn("  2b. Submit and select long-term electricity contracts");
+            logger.warn("  2a. Submit and select long-term electricity contracts");
             for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
                 submitLongTermElectricityContractsRole.act(producer);
                 // producer.act(submitLongTermElectricityContractsRole);
@@ -304,7 +326,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
          */
         timerMarket.reset();
         timerMarket.start();
-        logger.warn("  2. Submitting offers to market");
+        logger.warn("  2b. Submitting offers to market");
 
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
 
@@ -354,7 +376,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.reset();
         timerMarket.start();
 
-        logger.warn(" 3. Clearing Hourly electricity spot and CO2 markets using CPLEX optimization role");
+        logger.warn(" 3c. Clearing Hourly electricity spot and CO2 markets using CPLEX optimization role");
         clearHourlyElectricityMarketRole.act(model);
 
         // clearHourlyElectricityMarketRole.populate_plantValue(pl);
@@ -375,24 +397,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {
-            timerMarket.reset();
-            timerMarket.start();
-            logger.warn(" 5. Run Simple Capacity Market");
-
-            for (CapacityMarket cmarket : reps.capacityMarketRepository.findAll()) {
-                // simpleCapacityMarketMainRole.act(cmarket);
-                capacityMarketMainRoleMultiNode.act(cmarket);
-            }
-
-            // exportLimiterRole.act(model);
-
-            timerMarket.stop();
-            logger.warn("        took: {} seconds.", timerMarket.seconds());
-        }
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////
         ////////////// Commented out for annual optimization
         // timerMarket.reset();
         // timerMarket.start();
@@ -432,7 +437,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         /*
          * Maintenance and CO2
          */
-        logger.warn("  6. Paying for maintenance & co2");
+        logger.warn("  5. Paying for maintenance & co2");
         timerMarket.reset();
         timerMarket.start();
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
@@ -465,7 +470,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         /*
          * COMMODITY MARKETS
          */
-        logger.warn("  7. Purchasing commodities");
+        logger.warn("  6. Purchasing commodities");
         timerMarket.reset();
         timerMarket.start();
 
@@ -496,7 +501,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
-        logger.warn(" 7.b) Creating power plant financial reports.");
+        logger.warn(" 7.a) Creating power plant financial reports.");
         Timer financialReports = new Timer();
         financialReports.start();
 
@@ -504,8 +509,20 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         financialReports.stop();
         logger.warn(" took: {} seconds.", financialReports.seconds());
-
-        logger.warn("  8. Investing");
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (getCurrentTick() > 0) {
+            logger.warn("  7b. Paying Stakeholder");
+            timerMarket.reset();
+            timerMarket.start();
+            for (EnergyProducer producer : reps.energyProducerRepository
+                    .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom()) {
+                payToStakeholderRole.act(producer);
+            }
+            timerMarket.stop();
+            logger.warn("        took: {} seconds.", timerMarket.seconds());
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        logger.warn("  7c. Investing");
         Timer timerInvest = new Timer();
         timerInvest.start();
 
@@ -517,7 +534,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
                 for (EnergyProducer producer : reps.energyProducerRepository
                         .findAllEnergyProducersExceptForRenewableTargetInvestorsAtRandom()) {
                     // invest in new plants
-                    if (producer.isWillingToInvest()) {
+                    if (producer.isWillingToInvest() && producer.isInvestmentRequired()) {
                         genericInvestmentRole.act(producer);
                         // producer.act(investInPowerGenerationTechnologiesRole);
                         someOneStillWillingToInvest = true;
@@ -552,7 +569,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
             // agentspring.simulation.Schedule.getSchedule().stop();
             // }
 
-            logger.warn("  7. Reassign LTCs");
+            logger.warn("  8. Reassign LTCs");
             timerMarket.reset();
             timerMarket.start();
             for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {

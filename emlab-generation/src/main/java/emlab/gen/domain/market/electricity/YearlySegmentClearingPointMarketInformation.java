@@ -22,11 +22,13 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 
 /**
- * The SegmentClearingPoint is used to store informationr regarding the clearing
- * of national electricity markets. All volumes (including interconnector flows)
- * are given in electrical MWh.
+ * 
+ * The YearlySegmentClearingPointMarketInformation class is used to store the
+ * outcome of the CPLEX optimization role.
+ * Generation,demand(elastic&static),storage variables and prices are stored in
+ * this class.
  *
- * @author JCRichstein
+ * @author Ozgur & Salman
  *
  */
 @NodeEntity
@@ -53,6 +55,7 @@ public class YearlySegmentClearingPointMarketInformation {// extends
     private double[] storageDischargingInMW;
     private double[] stateOfChargeInMWh;
     private double[] elasticDemand;
+    private double[] co2EmissionsPerHour;
 
     private double CO2Price;
 
@@ -74,6 +77,14 @@ public class YearlySegmentClearingPointMarketInformation {// extends
 
     public double getCO2Price() {
         return CO2Price;
+    }
+
+    public double[] getCo2EmissionsPerHour() {
+        return co2EmissionsPerHour;
+    }
+
+    public void setCo2EmissionsPerHour(double[] co2EmissionsPerHour) {
+        this.co2EmissionsPerHour = co2EmissionsPerHour;
     }
 
     public double[] getMarketPrice() {

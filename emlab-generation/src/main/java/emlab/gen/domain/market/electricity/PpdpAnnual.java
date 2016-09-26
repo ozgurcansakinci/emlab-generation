@@ -26,6 +26,8 @@ import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 
 /**
+ * PpdpAnnual class contain the information about hourly generation
+ * 
  * @author kaveri
  *
  */
