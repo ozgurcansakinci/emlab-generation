@@ -34,7 +34,7 @@ import emlab.gen.domain.technology.Interconnector;
 public interface YearlySegmentClearingPointInterconnectorInformationRepository
         extends GraphRepository<YearlySegmentClearingPointInterconnectorInformation> {
 
-    @Query(value = "g.v(interconnector).out('INTERCONNECTOR_INFORMATION_POINT').propertyFilter('time', FilterPipe.Filter.EQUAL, time).as('x').in('INTERCONNECTOR_INFORMATION_POINT').idFilter(market, FilterPipe.Filter.EQUAL).back('x')", type = QueryType.Gremlin)
+    @Query(value = "g.v(interconnector).out('INTERCONNECTOR_INFORMATION_POINT').propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
     YearlySegmentClearingPointInterconnectorInformation findInterconnectorInformationForTime(@Param("time") long time,
             @Param("interconnector") Interconnector interconnector);
 

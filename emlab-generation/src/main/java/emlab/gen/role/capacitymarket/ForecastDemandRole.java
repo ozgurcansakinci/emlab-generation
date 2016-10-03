@@ -15,8 +15,6 @@
  ******************************************************************************/
 package emlab.gen.role.capacitymarket;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +31,7 @@ import emlab.gen.repository.Reps;
  * 
  */
 @RoleComponent
-public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<Regulator> {
+public class ForecastDemandRole extends AbstractRole<Regulator> implements Role<Regulator> {
 
     @Autowired
     Reps reps;
@@ -116,6 +114,9 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         // expectedDemandFactor = 1;
         double peakLoadforMarketNOtrend;
         double peakExpectedDemand;
+        double crossBorderCapacity = 0;
+        double peakDemand;
+        double peakGeneration;
         if (getCurrentTick() == 0) {
             peakLoadforMarketNOtrend = reps.capacityMarketRepository.findCapacityMarketForZone(regulator.getZone())
                     .getBaseCapacityMarketDemand();
@@ -124,12 +125,48 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         } else {
             double[] demands = reps.yearlySegmentClearingPointMarketInformationRepository
                     .findMarketInformationForMarketAndTime(getCurrentTick() - 1, market).getMarketDemand();
-            Arrays.sort(demands);
-            peakLoadforMarketNOtrend = demands[demands.length - 1];
+            // DoubleMatrix1D demandArray = new DenseDoubleMatrix1D(demands);
+            // double maxDemand = demandArray.aggregate(Functions.max,
+            // Functions.identity);
+            // int maxInd = getMaxIndex(demandArray);
+
+            // Arrays.sort(demands);
+            double[] maxDemand = getMaxIndex(demands);
+            // peakDemand = demands[demands.length - 1];
+            logger.warn("Max value demand" + maxDemand[1]);
+            logger.warn("Max demand hour" + maxDemand[0]);
+
+            double[] gens = reps.yearlySegmentClearingPointMarketInformationRepository
+                    .findMarketInformationForMarketAndTime(getCurrentTick() - 1, market).getMarketSupply();
+            double[] voll = reps.yearlySegmentClearingPointMarketInformationRepository
+                    .findMarketInformationForMarketAndTime(getCurrentTick() - 1, market).getValueOfLostLoad();
+            // Arrays.sort(gens);
+            // peakGeneration = gens[gens.length - 1];
+            double[] maxGen = getMaxIndex(gens);
+            // peakDemand = demands[demands.length - 1];
+            logger.warn("Max value generation" + maxGen[1]);
+            logger.warn("Max generation hour" + maxGen[0]);
+            // logger.warn("Max value gen" + gens[gens.length - 1]);
+            // peakDemand =
+            // reps.segmentLoadRepository.nonAdjustedPeakDemandbyMarketAnnual(market);
+            // logger.warn("Max demand from query" + peakDemand);
+            // peakGeneration =
+            // reps.segmentLoadRepository.nonAdjustedPeakGenerationbyMarketAnnual(market);
+            // logger.warn("Max gen from query" + peakGeneration);
+
+            // if (reps.marketRepository.countAllElectricitySpotMarkets() != 1)
+            // {
+            peakGeneration = gens[(int) maxDemand[0]] - voll[(int) maxDemand[0]];
+            crossBorderCapacity = peakGeneration - maxDemand[1];
+            // } else {
+            // peakGeneration=
+            // }
+            logger.warn("Cross border cap:" + crossBorderCapacity);
+            peakLoadforMarketNOtrend = peakGeneration;
             peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
         }
         logger.warn("ExpectedDemandFactor for this tick: " + expectedDemandFactor);
-
+        regulator.setCrossBorderContractedCapacity(crossBorderCapacity);
         // logger.warn("demand factor " +
         // market.getDemandGrowthTrend().getValue(getCurrentTick()));
 
@@ -157,6 +194,21 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
 
         regulator.setDemandTarget(demandTarget);
 
+    }
+
+    public double[] getMaxIndex(double[] v) {
+        double maxIndex = -1;
+        double maxValue = -Double.MAX_VALUE;
+        for (int i = 0; i < v.length; i++) {
+            if (v[i] > maxValue) {
+                maxIndex = i;
+                maxValue = v[i];
+            }
+        }
+        double[] output = new double[2];
+        output[0] = maxIndex;
+        output[1] = maxValue;
+        return output;
     }
 
 }

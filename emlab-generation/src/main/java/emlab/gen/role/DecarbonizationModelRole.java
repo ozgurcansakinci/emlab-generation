@@ -80,7 +80,7 @@ import emlab.gen.role.operating.PayToStakeholderRole;
  *
  */
 @ScriptComponent
-public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>implements Role<DecarbonizationModel> {
+public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel> implements Role<DecarbonizationModel> {
 
     @Autowired
     private PayCO2TaxRole payCO2TaxRole;
@@ -258,7 +258,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
-        logger.warn("  0c. Paying loans");
+        logger.warn("  0d. Paying loans");
         timerMarket.reset();
         timerMarket.start();
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
@@ -389,7 +389,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.reset();
         timerMarket.start();
         // if (getCurrentTick() >= 1) {
-        logger.warn(" 4. Determining residual load duration curve for investment role");
+        logger.warn(" 4a. Determining residual load duration curve for investment role");
         determineAnnualResidualLoadCurve.act(model);
         // }
         timerMarket.stop();
@@ -417,7 +417,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         for (ElectricitySpotMarket electricitySpotMarket : reps.marketRepository.findAllElectricitySpotMarkets()) {
 
             //////////////////////////////////////////////////////////////////
-            logger.warn("Processing accepted hourly bids using optimization");
+            logger.warn(" 4b. Processing accepted hourly bids using optimization");
             /// Commented out for annual optimization
             //////////////////////////////////////////////////////////////////
             // processAcceptedPowerPlantDispatchRole.act(electricitySpotMarket);
@@ -433,11 +433,11 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         // logger.warn(" 4. Processing Strategic Reserve Payment ");
         timerMarket.stop();
-        logger.warn("        paying took: {} seconds.", timerMarket.seconds());
+        logger.warn("        processing bids and creating LDC took: {} seconds.", timerMarket.seconds());
         /*
          * Maintenance and CO2
          */
-        logger.warn("  5. Paying for maintenance & co2");
+        logger.warn("  5a. Paying for maintenance & co2");
         timerMarket.reset();
         timerMarket.start();
         for (EnergyProducer producer : reps.genericRepository.findAllAtRandom(EnergyProducer.class)) {
@@ -460,12 +460,12 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
 
         }
         // payments for storage
-        logger.warn(" Paying for storage units");
+        logger.warn(" 5b. Paying for storage units");
         for (EnergyProducer producer : reps.energyProducerRepository.findStorageUnitOwners()) {
             payStorageUnitAnnualRole.act(producer);
         }
         timerMarket.stop();
-        logger.warn("        took: {} seconds.", timerMarket.seconds());
+        logger.warn("        paying took: {} seconds.", timerMarket.seconds());
 
         /*
          * COMMODITY MARKETS
@@ -501,7 +501,7 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
         timerMarket.stop();
         logger.warn("        took: {} seconds.", timerMarket.seconds());
 
-        logger.warn(" 7.a) Creating power plant financial reports.");
+        logger.warn(" 7a. Creating power plant financial reports.");
         Timer financialReports = new Timer();
         financialReports.start();
 

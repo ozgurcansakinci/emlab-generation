@@ -151,11 +151,11 @@
 	
 	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
 		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" 
-		p:lengthInHours="8760" p:delimiter="," />
+		p:lengthInHours="8760" p:delimiter=";" />
 		
 	<bean id="InElasticDemandDE" class="emlab.gen.trend.HourlyCSVTimeSeries" 
 		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="de" p:timeSeriesAreInDifferentColumns="true" 
-		p:lengthInHours="8760" p:delimiter="," />
+		p:lengthInHours="8760" p:delimiter=";" />
 		
 	<!-- Elastic daily demand for ESM for NL and DE -->
 	
@@ -506,7 +506,7 @@
 
 		<bean id="energyProducerA" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer A" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="false"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="false"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -519,7 +519,7 @@
 		
 	<bean id="energyProducerB" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer B" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -532,7 +532,7 @@
 		
 	<bean id="energyProducerC" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer C" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -545,7 +545,7 @@
 		
 	<bean id="energyProducerD" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer D" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -558,7 +558,7 @@
 		
 	<bean id="energyProducerE" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer E" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -571,7 +571,7 @@
 		
 	<bean id="energyProducerF" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer F" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="false"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="false"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -584,7 +584,7 @@
 		
 	<bean id="energyProducerG" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer G" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -596,7 +596,7 @@
 		
 	<bean id="energyProducerH" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer H" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -608,7 +608,7 @@
 		p:investorMarket-ref="germanElectricitySpotMarket"/>
 		
 	<bean id="energyProducerI" class="emlab.gen.domain.agent.EnergyProducer"
-		p:name="Energy Producer I" p:cash="${startCash}" p:investmentrequired="true"
+		p:name="Energy Producer I" p:cash="${startCash}" p:investmentRequired="true"
 		p:investmentRole-ref="standardInvestmentRole" p:simpleCapacityMarketEnabled="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
@@ -622,7 +622,7 @@
 		
 	<bean id="energyProducerJ" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer J" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -637,6 +637,46 @@
 
 <bean id="targetInvestmentRole" class="emlab.gen.role.investment.TargetInvestmentRole"/>
 	
+	<bean id="StakeholderA" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder A">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerA" />
+	</bean>
+	
+	<bean id="StakeholderB" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder B">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerB" />
+	</bean>
+	
+	<bean id="StakeholderC" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder C">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerC" />
+	</bean>
+	
+	<bean id="StakeholderD" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder D">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerD" />
+	</bean>
+	
+	<bean id="StakeholderE" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder E">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerE" />
+	</bean>
+	
+	<bean id="StakeholderF" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder F">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerF" />
+	</bean>
+	
+	<bean id="StakeholderG" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder G">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerG" />
+	</bean>
+	
+	<bean id="StakeholderH" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder H">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerH" />
+	</bean>
+	
+	<bean id="StakeholderI" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder I">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerI" />
+	</bean>
+	
+	<bean id="StakeholderJ" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder J">
+		<property name="energyProducerForPaymentOfDividents" ref="energyProducerJ" />
+	</bean>
+	
 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
 		p:name="Regulator A" p:capacityMarketPriceCap="58940"
 		p:reserveMargin="0.156" p:targetPeriod="0"
@@ -646,7 +686,8 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false">
+		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false"
+		p:baseCapacityMarketDemand="75000">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="nl" />
@@ -662,7 +703,8 @@
 	</bean>
 		
 	<bean id="capacityMarketB" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market B" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false">
+		p:name="Capacity Market B" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false"
+		p:baseCapacityMarketDemand="75000">
 		<property name="regulator" ref="regulatorB"/>
 		<property name="consumer" ref="energyConsumer"/>
 		<property name="zone" ref="de" />

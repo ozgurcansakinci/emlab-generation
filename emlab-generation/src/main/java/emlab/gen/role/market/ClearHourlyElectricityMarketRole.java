@@ -557,10 +557,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             if (cplex.solve()) {
                 int ppdpIndex = 0;
-                System.out.println("----------------------------------------------------------");
-                System.out.println("Objective = " + cplex.getObjValue());
-                System.out.println("Objective = " + cplex.getStatus());
-                System.out.println("---------------------Market Cleared-------------------------");
+                logger.warn("----------------------------------------------------------");
+                logger.warn("Objective = " + cplex.getObjValue());
+                logger.warn("Objective = " + cplex.getStatus());
+                logger.warn("---------------------Market Cleared-----------------------");
 
                 double[] Dual2 = null;
                 double[] Dual3 = null;

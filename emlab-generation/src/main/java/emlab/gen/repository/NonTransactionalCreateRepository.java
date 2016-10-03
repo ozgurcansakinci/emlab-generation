@@ -58,7 +58,8 @@ public class NonTransactionalCreateRepository extends AbstractRepository<CashFlo
         cashFlow.setType(type);
         cashFlow.setTime(time);
         cashFlow.setRegardingPowerPlant(plant);
-        from.setCash(from.getCash() - amount);
+        if (from != null)
+            from.setCash(from.getCash() - amount);
         if (to != null) {
             to.setCash(to.getCash() + amount);
         }

@@ -81,6 +81,12 @@ public interface SegmentLoadRepository extends GraphRepository<SegmentLoad> {
     @Query(value = "topsegments = g.v(market).out('SEGMENT_LOAD').max{it.residualGLDC}.residualGLDC;", type = QueryType.Gremlin)
     double nonAdjustedPeakLoadbyMarketAnnual(@Param("market") ElectricitySpotMarket market);
 
+    @Query(value = "topsegments = g.v(market).out('SEGMENT_LOAD').max{it.demandLDC}.demandLDC;", type = QueryType.Gremlin)
+    double nonAdjustedPeakDemandbyMarketAnnual(@Param("market") ElectricitySpotMarket market);
+
+    @Query(value = "topsegments = g.v(market).out('SEGMENT_LOAD').max{it.generationLDC}.generationLDC;", type = QueryType.Gremlin)
+    double nonAdjustedPeakGenerationbyMarketAnnual(@Param("market") ElectricitySpotMarket market);
+
     // @Query(value =
     // "g.v(market).out('SEGMENT_LOAD').residualGLDCSegmentPrice[tick]", type =
     // QueryType.Gremlin)
