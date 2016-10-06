@@ -95,7 +95,7 @@
 	
 	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
 		p:filename="/data/NodeDemandTimeSeriesData.csv" p:variableName="nl" p:timeSeriesAreInDifferentColumns="true" 
-		p:lengthInHours="8760" p:delimiter="," />
+		p:lengthInHours="8760" p:delimiter=";" />
 
 	<!-- Elastic daily demand for ESM for NL-->
 	

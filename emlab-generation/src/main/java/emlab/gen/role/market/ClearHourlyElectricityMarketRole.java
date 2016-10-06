@@ -68,6 +68,8 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             IloCplex cplex = new IloCplex();
             double co2Cap = gov.getCo2Cap(getCurrentTick());
             List<Zone> zoneList = Utils.asList(reps.template.findAll(Zone.class));
+            List<Interconnector> interconnectorList = Utils
+                    .asList(reps.interconnectorRepository.findAllInterconnectors());
 
             // Get a random market, in order to access the YearlySegment object
             ElectricitySpotMarket market1 = null;
@@ -114,7 +116,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             if (numberofInterconnectors == 3) {
                 int interconnectorIndex = 0;
                 logger.warn("Number of interconnectors are: " + numberofInterconnectors);
-                for (Interconnector interconnector : reps.interconnectorRepository.findAllInterconnectors()) {
+
+                // for (Interconnector interconnector :
+                // reps.interconnectorRepository.findAllInterconnectors()) {
+                for (Interconnector interconnector : interconnectorList) {
                     logger.warn("Name of interconnector: " + interconnector.getName());
                     linesSusceptances[interconnectorIndex] = interconnector.getTransmissionLineSusceptance();
                     interconnectorIndex++;
@@ -229,8 +234,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                     if (marketIndex == 0 && numberofInterconnectors != 0) {
                         switch ((int) numberofInterconnectors) {
                         case 1:
-                            for (Interconnector interconnector : reps.interconnectorRepository
-                                    .findAllInterconnectors()) {
+                            // for (Interconnector interconnector :
+                            // reps.interconnectorRepository
+                            // .findAllInterconnectors()) {
+                            for (Interconnector interconnector : interconnectorList) {
                                 crossBorderFlowVariablesForAllInterconnectors[0][i] = cplex.numVar(
                                         -interconnector.getInterconnectorCapacity().getValue(getCurrentTick()),
                                         interconnector.getInterconnectorCapacity().getValue(getCurrentTick()));
@@ -239,8 +246,10 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                             break;
                         case 3:
                             int interconnectorIndex = 0;
-                            for (Interconnector interconnector : reps.interconnectorRepository
-                                    .findAllInterconnectors()) {
+                            // for (Interconnector interconnector :
+                            // reps.interconnectorRepository
+                            // .findAllInterconnectors()) {
+                            for (Interconnector interconnector : interconnectorList) {
 
                                 if (i == 0) {
                                     logger.warn("Interconnector name: " + interconnector.getName().toString()
@@ -735,7 +744,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                 System.out.println("Something went wrong");
             }
             cplex.end();
-            System.out.println("------------------------------------------------------");
 
         } catch (
 
