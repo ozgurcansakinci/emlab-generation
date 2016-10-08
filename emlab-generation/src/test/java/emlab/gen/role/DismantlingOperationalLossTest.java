@@ -54,9 +54,9 @@ import emlab.gen.trend.TriangularTrend;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/emlab-gen-test-context.xml" })
 @Transactional
-public class ElectricityMarketSubmittingAndClearingTestWithCPLEX {
+public class DismantlingOperationalLossTest {
 
-    Logger logger = Logger.getLogger(ElectricityMarketSubmittingAndClearingTestWithCPLEX.class);
+    Logger logger = Logger.getLogger(DismantlingOperationalLossTest.class);
 
     @Autowired
     Reps reps;
@@ -166,6 +166,7 @@ public class ElectricityMarketSubmittingAndClearingTestWithCPLEX {
         interconnectorCapacity.setVariableName("IC");
 
         Interconnector interconnector = new Interconnector().persist();
+        interconnector.setName("TestConnector");
         interconnector.setConnections(intNodes);
         interconnector.setInterconnectorCapacity(interconnectorCapacity);
         // interconnector.setCapacity(time, capacity);
@@ -183,15 +184,15 @@ public class ElectricityMarketSubmittingAndClearingTestWithCPLEX {
 
         HourlyCSVTimeSeries hourlyDemand = new HourlyCSVTimeSeries();
         hourlyDemand.setLengthInHours(8760);
-        hourlyDemand.setFilename("data/ZoneALoad.csv");
+        hourlyDemand.setFilename("/data/ZoneALoad.csv");
         // hourlyDemand.setVariableName("nl");
-        // hourlyDemand.setDelimiter(",");
+        hourlyDemand.setDelimiter(",");
         // hourlyDemand.setTimeSeriesAreInDifferentColumns(true);
         hourlyDemand.persist();
 
         HourlyCSVTimeSeries dailyDemand = new HourlyCSVTimeSeries();
         dailyDemand.setLengthInHours(365);
-        dailyDemand.setFilename("data/NodeDemandDailySeriesData.csv");
+        dailyDemand.setFilename("/data/NodeDemandDailySeriesData.csv");
         dailyDemand.setVariableName("nl");
         dailyDemand.setDelimiter(",");
         dailyDemand.setTimeSeriesAreInDifferentColumns(true);

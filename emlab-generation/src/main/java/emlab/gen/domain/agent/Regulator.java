@@ -44,6 +44,8 @@ public class Regulator extends DecarbonizationAgent implements Agent {
 
     private double demandTarget;
 
+    private double crossBorderContractedCapacity;
+
     @SimulationParameter(label = "Capacity Market Target Period", from = 0, to = 10)
     private int targetPeriod; // number of years in the future that the capacity
     // is being planned for - set to zero
@@ -137,6 +139,14 @@ public class Regulator extends DecarbonizationAgent implements Agent {
 
     public void setZone(Zone zone) {
         this.zone = zone;
+    }
+
+    public double getCrossBorderContractedCapacity() {
+        return crossBorderContractedCapacity;
+    }
+
+    public void setCrossBorderContractedCapacity(double crossBorderContractedCapacity) {
+        this.crossBorderContractedCapacity = crossBorderContractedCapacity;
     }
 
 }

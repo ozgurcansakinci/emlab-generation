@@ -144,7 +144,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                 iteration++;
                 if (time >= 0)
                     avgGrowthFactor += elm.getDemandGrowthTrend().getValue(time);
-                else // TODO:not sure if we should take 0th tick or current tick
+                else
                     avgGrowthFactor += elm.getDemandGrowthTrend().getValue(0);
             }
             expectedDemand.put(elm, (Math.pow(avgGrowthFactor / iteration, (double) futureTimePoint)));
@@ -288,7 +288,11 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
 
                         // double hours =
                         // segmentLoad.getSegment().getLengthInHours();
-                        double hours = segmentLoad.getSegment().getLengthInHoursGLDCForInvestmentRole();
+                        double hours = 0d;
+                        if (model.isNoPrivateIntermittentRESInvestment())
+                            hours = segmentLoad.getSegment().getLengthInHoursGLDCForInvestmentRole();
+                        else
+                            hours = segmentLoad.getSegment().getLengthInHoursTotalGLDCForInvestmentRole();
                         if (expectedMarginalCost <= expectedElectricityPrice) {
                             runningHours += hours;
                             if (technology.isIntermittent())
@@ -354,7 +358,9 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                             } else {
                                 totalPeakCapacityAtFuturePoint = reps.powerPlantRepository
                                         .calculatePeakCapacityOfOperationalPowerPlantsInMarket(market, futureTimePoint);
-                                totalPeakDemandAtFuturePoint = regulator.getDemandTarget() * expectedDemand.get(market);
+                                totalPeakDemandAtFuturePoint = (regulator.getDemandTarget()
+                                        / (1 + regulator.getReserveMargin() - phaseInPeriod))
+                                        * expectedDemand.get(market);
                             }
                             // expectedDemand.get(market).doubleValue();
 
@@ -693,11 +699,20 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
             // for (PowerPlant plant :
             // reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(market,
             // time)) {
-            for (PowerPlant plant : reps.powerPlantRepository
-                    .findExpectedOperationalNonIntermittentPowerPlantsInMarket(market, time)) {
-                double plantMarginalCost = determineExpectedMarginalCost(plant, fuelPrices, co2price);
-                marginalCostMap.put(plant, plantMarginalCost);
-                capacitySum += plant.getActualNominalCapacity();
+            if (model.isNoPrivateIntermittentRESInvestment()) {
+                for (PowerPlant plant : reps.powerPlantRepository
+                        .findExpectedOperationalNonIntermittentPowerPlantsInMarket(market, time)) {
+                    double plantMarginalCost = determineExpectedMarginalCost(plant, fuelPrices, co2price);
+                    marginalCostMap.put(plant, plantMarginalCost);
+                    capacitySum += plant.getActualNominalCapacity();
+                }
+            } else {
+                for (PowerPlant plant : reps.powerPlantRepository.findExpectedOperationalPowerPlantsInMarket(market,
+                        time)) {
+                    double plantMarginalCost = determineExpectedMarginalCost(plant, fuelPrices, co2price);
+                    marginalCostMap.put(plant, plantMarginalCost);
+                    capacitySum += plant.getActualNominalCapacity();
+                }
             }
 
             // get difference between technology target and expected

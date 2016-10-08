@@ -405,23 +405,23 @@
 <bean id="targetInvestmentRole" class="emlab.gen.role.investment.TargetInvestmentRole"/>
 
 	<bean id="StakeholderA" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder A">
-		<property name="energyProducerForPaymentOfDividents" ref="energyProducerA" />
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerA" />
 	</bean>
 	
 	<bean id="StakeholderB" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder B">
-		<property name="energyProducerForPaymentOfDividents" ref="energyProducerB" />
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerB" />
 	</bean>
 	
 	<bean id="StakeholderC" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder C">
-		<property name="energyProducerForPaymentOfDividents" ref="energyProducerC" />
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerC" />
 	</bean>
 	
 	<bean id="StakeholderD" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder D">
-		<property name="energyProducerForPaymentOfDividents" ref="energyProducerD" />
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerD" />
 	</bean>
 	
 	<bean id="StakeholderE" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder E">
-		<property name="energyProducerForPaymentOfDividents" ref="energyProducerE" />
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerE" />
 	</bean>
 	
 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
@@ -433,7 +433,7 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="false"
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true"
 		p:baseCapacityMarketDemand="75000">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>

@@ -186,12 +186,25 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             YearlySegmentClearingPointMarketInformation info = reps.yearlySegmentClearingPointMarketInformationRepository
                     .findMarketInformationForMarketAndTime(getCurrentTick(),
                             reps.marketRepository.findElectricitySpotMarketForZone(zone));
+            // DoubleMatrix1D interconnectorFlow = null;
+            // for (Interconnector inter :
+            // reps.interconnectorRepository.findAllInterconnectors()) {
+            // // Interconnector
+            // // inter=reps.interconnectorRepository.findAllInterconnectors()
+            // YearlySegmentClearingPointInterconnectorInformation interInfo =
+            // reps.yearlySegmentClearingPointInterconnectorInformationRepository
+            // .findInterconnectorInformationForTime(getCurrentTick(), inter);
+            // interconnectorFlow = new
+            // DenseDoubleMatrix1D(interInfo.getYearlyInterconnectorFlow());
+            // }
             ///////////////////////////////////////////////////////////////////////////////////////////////
             // We changed the hourlyArray from demand to supply. We need to find
             // a way to make generation growing
             ////////////////////////////////////////////////////////////////////////////////////////////////
             DoubleMatrix1D hourlyArray = new DenseDoubleMatrix1D(info.getMarketSupply());
             DoubleMatrix1D hourlyDemand = new DenseDoubleMatrix1D(info.getMarketDemand());
+            // DoubleMatrix1D elasticDemand = new
+            // DenseDoubleMatrix1D(info.getElasticDemand());
             DoubleMatrix1D priceArray = new DenseDoubleMatrix1D(info.getMarketPrice());
             DoubleMatrix1D valueOfLostLoad = new DenseDoubleMatrix1D(info.getValueOfLostLoad());
             // double growthRate =
@@ -201,13 +214,30 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             // growthFactors.assign(growthRate);
             // hourlyArray.assign(growthFactors, Functions.mult);
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
-            m.viewColumn(RLOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
+            m.viewColumn(LOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
+            m.viewColumn(RLOADINZONE.get(zone)).assign(m.viewColumn(LOADINZONE.get(zone)), Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
             m.viewColumn(DEMANDINZONE.get(zone)).assign(hourlyDemand, Functions.plus);
-            m.viewColumn(DEMANDTOTAL).assign(hourlyDemand, Functions.plus);
-            m.viewColumn(GENTOTAL).assign(hourlyArray, Functions.plus);
-            m.viewColumn(RLOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
+            m.viewColumn(DEMANDTOTAL).assign(m.viewColumn(DEMANDINZONE.get(zone)), Functions.plus);
+            // m.viewColumn(DEMANDTOTAL).assign(valueOfLostLoad,
+            // Functions.plus);
+            // m.viewColumn(DEMANDTOTAL).assign(elasticDemand, Functions.minus);
+            m.viewColumn(GENTOTAL).assign(m.viewColumn(LOADINZONE.get(zone)), Functions.plus);
+            // m.viewColumn(DEMANDTOTAL).assign(hourlyDemand, Functions.plus);
+            // m.viewColumn(GENTOTAL).assign(hourlyArray, Functions.plus);
+            // m.viewColumn(RLOADINZONE.get(zone)).assign(valueOfLostLoad,
+            // Functions.minus);
+            // m.viewColumn(GENTOTAL).assign(valueOfLostLoad, Functions.minus);
+            // m.viewColumn(LOADINZONE.get(zone)).assign(valueOfLostLoad,
+            // Functions.minus);
 
+            // Subtract interconnector flow from everything(trial)
+            // m.viewColumn(RLOADINZONE.get(zone)).assign(interconnectorFlow,
+            // Functions.minus);
+            // m.viewColumn(LOADINZONE.get(zone)).assign(interconnectorFlow,
+            // Functions.minus);
+            // m.viewColumn(GENTOTAL).assign(interconnectorFlow,
+            // Functions.minus);
             // }
 
         }
@@ -280,6 +310,7 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
         // 6. Find values, so that each segments has approximately equal
         // capacity
         // needs.
+        int noSegments = (int) reps.segmentRepository.count();
 
         double min = m.viewColumn(RLOADTOTAL).aggregate(Functions.min, Functions.identity);
         double max = m.viewColumn(RLOADTOTAL).aggregate(Functions.max, Functions.identity);
@@ -292,13 +323,12 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             }
         }
 
-        int noSegments = (int) reps.segmentRepository.count();
-
         double[] upperBoundSplit = new double[noSegments];
 
         if (hoursWithoutZeroRLoad > 8750) {
             for (int i = 0; i < noSegments; i++) {
                 upperBoundSplit[i] = max - (((double) (i)) / noSegments * (max - min));
+                // logger.warn("Split for rload" + upperBoundSplit[i]);
             }
         } else {
             for (int i = 0; i < (noSegments - 1); i++) {
@@ -307,18 +337,23 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             upperBoundSplit[noSegments - 1] = 0;
         }
 
+        m = m.viewSorted(DEMANDTOTAL).viewRowFlip();
         double minDemand = m.viewColumn(DEMANDTOTAL).aggregate(Functions.min, Functions.identity);
         double maxDemand = m.viewColumn(DEMANDTOTAL).aggregate(Functions.max, Functions.identity);
         double[] upperBoundSplitForDemand = new double[noSegments];
         for (int i = 0; i < noSegments; i++) {
             upperBoundSplitForDemand[i] = maxDemand - (((double) (i)) / noSegments * (maxDemand - minDemand));
+            // logger.warn("Split for demand" + upperBoundSplitForDemand[i]);
         }
 
+        m = m.viewSorted(GENTOTAL).viewRowFlip();
         double minSupply = m.viewColumn(GENTOTAL).aggregate(Functions.min, Functions.identity);
         double maxSupply = m.viewColumn(GENTOTAL).aggregate(Functions.max, Functions.identity);
         double[] upperBoundSplitForGeneration = new double[noSegments];
         for (int i = 0; i < noSegments; i++) {
             upperBoundSplitForGeneration[i] = maxSupply - (((double) (i)) / noSegments * (maxSupply - minSupply));
+            // logger.warn("Split for generation" +
+            // upperBoundSplitForGeneration[i]);
         }
 
         Map<Zone, DoubleMatrix1D> spillFactorMap = new HashMap<Zone, DoubleMatrix1D>();
@@ -404,7 +439,151 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             loadFactorBinMap.put(zone, NODETOTECHNOLOGY);
         }
 
-        // Assign hours and load to bins and segments
+        // for (Zone zone : zoneList) {
+        // // double minRLoadInZone =
+        // // m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.min,
+        // // Functions.identity);
+        // // double maxRLoadInZone =
+        // // m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.max,
+        // // Functions.identity);
+        // double minDemandInZone =
+        // m.viewColumn(DEMANDINZONE.get(zone)).aggregate(Functions.min,
+        // Functions.identity);
+        // double maxDemandInZone =
+        // m.viewColumn(DEMANDINZONE.get(zone)).aggregate(Functions.max,
+        // Functions.identity);
+        // double minGenerationInZone =
+        // m.viewColumn(LOADINZONE.get(zone)).aggregate(Functions.min,
+        // Functions.identity);
+        // double maxGenerationInZone =
+        // m.viewColumn(LOADINZONE.get(zone)).aggregate(Functions.max,
+        // Functions.identity);
+        // // double[] upperBoundSplitInZoneForRLoad = new double[noSegments];
+        // double[] upperBoundSplitInZoneForDemand = new double[noSegments];
+        // double[] upperBoundSplitInZoneForGeneration = new double[noSegments];
+        // // double[] upperBoundPriceSplitInZone = new double[noSegments];
+        //
+        // for (int i = 0; i < noSegments; i++) {
+        // // upperBoundSplitInZoneForRLoad[i] = maxRLoadInZone
+        // // - (((double) (i)) / noSegments * (maxRLoadInZone -
+        // // minRLoadInZone));
+        // upperBoundSplitInZoneForDemand[i] = maxDemandInZone
+        // - (((double) (i)) / noSegments * (maxDemandInZone -
+        // minDemandInZone));
+        // upperBoundSplitInZoneForGeneration[i] = maxGenerationInZone
+        // - (((double) (i)) / noSegments * (maxGenerationInZone -
+        // minGenerationInZone));
+        // logger.warn("Demand split in " + zone +
+        // upperBoundSplitInZoneForDemand[i]);
+        // logger.warn("Supply split in " + zone +
+        // upperBoundSplitInZoneForGeneration[i]);
+        // }
+        //
+        // // m = m.viewSorted(RLOADINZONE.get(zone)).viewRowFlip();
+        // // int currentSegmentID = 1;
+        // // int hoursAssignedToCurrentSegment = 0;
+        // // for (int row = 0; row < m.rows() && currentSegmentID <=
+        // // noSegments; row++) {
+        // // // IMPORTANT: since [] is zero-based index, it checks one index
+        // // // ahead of current segment.
+        // // while (currentSegmentID < noSegments &&
+        // // hoursAssignedToCurrentSegment > 0
+        // // && m.get(row, RLOADINZONE.get(zone)) <=
+        // // upperBoundSplitInZoneForRLoad[currentSegmentID]) {
+        // // currentSegmentID++;
+        // // hoursAssignedToCurrentSegment = 0;
+        // // }
+        // // m.set(row, SEGMENT, currentSegmentID);
+        // // // segmentRloadBins[currentSegmentID - 1].add(m.get(row,
+        // // // RLOADINZONE.get(zone)));
+        // // segmentRloadBinsByZone.get(zone)[currentSegmentID -
+        // // 1].add(m.get(row, RLOADINZONE.get(zone)));
+        // // // segmentLoadBinsByZone.get(zone)[currentSegmentID -
+        // // // 1].add(m.get(row, LOADINZONE.get(zone)));
+        // // segmentPriceBinsByZone.get(zone)[currentSegmentID -
+        // // 1].add(m.get(row, PRICEFORZONE.get(zone)));
+        // // // segmentDemandBinsByZone.get(zone)[currentSegmentID -
+        // // // 1].add(m.get(row, DEMANDINZONE.get(zone)));
+        // // hoursAssignedToCurrentSegment++;
+        // // }
+        //
+        // // for (PowerGridNode node : zoneToNodeList.get(zone)) {
+        // // for (PowerGeneratingTechnology technology :
+        // // reps.powerGeneratingTechnologyRepository
+        // // .findAllIntermittentPowerGeneratingTechnologies()) {
+        // // DynamicBin1D[] currentBinArray =
+        // // loadFactorBinMap.get(zone).get(node).get(technology);
+        // // int columnNumber =
+        // //
+        // TECHNOLOGYLOADFACTORSFORZONEANDNODE.get(zone).get(node).get(technology);
+        // // currentSegmentID = 1;
+        // // hoursAssignedToCurrentSegment = 0;
+        // // for (int row = 0; row < m.rows() && currentSegmentID <=
+        // // noSegments; row++) {
+        // // // IMPORTANT: since [] is zero-based index, it checks
+        // // // one index
+        // // // ahead of current segment.
+        // // while (currentSegmentID < noSegments &&
+        // // hoursAssignedToCurrentSegment > 0 && m.get(row,
+        // // RLOADINZONE.get(zone)) <=
+        // // upperBoundSplitInZoneForRLoad[currentSegmentID]) {
+        // // currentSegmentID++;
+        // // hoursAssignedToCurrentSegment = 0;
+        // // }
+        // // currentBinArray[currentSegmentID - 1].add(m.get(row,
+        // // columnNumber));
+        // // hoursAssignedToCurrentSegment++;
+        // // }
+        // // loadFactorBinMap.get(zone).get(node).put(technology,
+        // // currentBinArray);
+        // // }
+        // // }
+        //
+        // int currentSegmentID = 1;
+        // int hoursAssignedToCurrentSegment = 0;
+        // m = m.viewSorted(DEMANDINZONE.get(zone)).viewRowFlip();
+        // for (int row = 0; row < m.rows() && currentSegmentID <= noSegments;
+        // row++) {
+        // // IMPORTANT: since [] is zero-based index, it checks one index
+        // // ahead of current segment.
+        // while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment
+        // > 0
+        // && m.get(row, DEMANDINZONE.get(zone)) <=
+        // upperBoundSplitInZoneForDemand[currentSegmentID]) {
+        // currentSegmentID++;
+        // hoursAssignedToCurrentSegment = 0;
+        // }
+        // segmentDemandBinsByZone.get(zone)[currentSegmentID -
+        // 1].add(m.get(row, DEMANDINZONE.get(zone)));
+        // hoursAssignedToCurrentSegment++;
+        // }
+        //
+        // currentSegmentID = 1;
+        // hoursAssignedToCurrentSegment = 0;
+        // m = m.viewSorted(LOADINZONE.get(zone)).viewRowFlip();
+        // for (int row = 0; row < m.rows() && currentSegmentID <= noSegments;
+        // row++) {
+        // // IMPORTANT: since [] is zero-based index, it checks one index
+        // // ahead of current segment.
+        // while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment
+        // > 0
+        // && m.get(row, LOADINZONE.get(zone)) <=
+        // upperBoundSplitInZoneForGeneration[currentSegmentID]) {
+        // currentSegmentID++;
+        // hoursAssignedToCurrentSegment = 0;
+        // }
+        // // m.set(row, SEGMENT, currentSegmentID);
+        // // segmentGenerationBins[currentSegmentID - 1].add(m.get(row,
+        // // GENTOTAL));
+        // segmentLoadBinsByZone.get(zone)[currentSegmentID - 1].add(m.get(row,
+        // LOADINZONE.get(zone)));
+        // hoursAssignedToCurrentSegment++;
+        // }
+        //
+        // }
+
+        m = m.viewSorted(RLOADTOTAL).viewRowFlip();
+        // // Assign hours and load to bins and segments
         int currentSegmentID = 1;
         int hoursAssignedToCurrentSegment = 0;
         for (int row = 0; row < m.rows() && currentSegmentID <= noSegments; row++) {
@@ -446,9 +625,10 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             }
             hoursAssignedToCurrentSegment++;
         }
-        m = m.viewSorted(RLOADTOTAL).viewRowFlip();
+        // m = m.viewSorted(RLOADTOTAL).viewRowFlip();
 
-        // Assign rows to bins for the generation LDC(investment role, private
+        // Assign rows to bins for the generation LDC(investment role,
+        // private
         // investment enabled)
         currentSegmentID = 1;
         hoursAssignedToCurrentSegment = 0;
@@ -498,63 +678,73 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
         // Assign hours to segments according to residual load in this country.
         // Only for error estimation purposes
 
-        for (Zone zone : zoneList) {
-            currentSegmentID = 1;
-            double minInZone = m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.min, Functions.identity);
-            double maxInZone = m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.max, Functions.identity);
-
-            // double minPriceInZone =
-            // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.min,
-            // Functions.identity);
-            // double maxPriceInZone =
-            // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.max,
-            // Functions.identity);
-
-            double[] upperBoundSplitInZone = new double[noSegments];
-            // double[] upperBoundPriceSplitInZone = new double[noSegments];
-
-            for (int i = 0; i < noSegments; i++) {
-                upperBoundSplitInZone[i] = maxInZone - (((double) (i)) / noSegments * (maxInZone - minInZone));
-                // upperBoundPriceSplitInZone[i] = maxPriceInZone - (((double)
-                // (i)) / noSegments * (maxPriceInZone - minPriceInZone));
-            }
-
-            m = m.viewSorted(RLOADINZONE.get(zone)).viewRowFlip();
-            int hoursInDifferentSegment = 0;
-            double averageSegmentDeviation = 0;
-            hoursAssignedToCurrentSegment = 0;
-            for (int row = 0; row < m.rows() && currentSegmentID <= noSegments; row++) {
-                while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment > 0
-                        && m.get(row, RLOADINZONE.get(zone)) <= upperBoundSplitInZone[currentSegmentID]) {
-                    currentSegmentID++;
-                    hoursAssignedToCurrentSegment = 0;
-                }
-                m.set(row, SEGMENTFORZONE.get(zone), currentSegmentID);
-                if (currentSegmentID != m.get(row, SEGMENT)) {
-                    hoursInDifferentSegment++;
-                    averageSegmentDeviation += Math.abs(currentSegmentID - m.get(row, SEGMENT));
-                }
-                hoursAssignedToCurrentSegment++;
-            }
-            if (hoursInDifferentSegment != 0) {
-                averageSegmentDeviation = averageSegmentDeviation / hoursInDifferentSegment;
-                averageSegmentDeviation = averageSegmentDeviation * 1000;
-                averageSegmentDeviation = Math.round(averageSegmentDeviation);
-                averageSegmentDeviation = averageSegmentDeviation / 1000;
-                // logger.warn("For " + zone + ", " + hoursInDifferentSegment
-                // + " hours would have been in different segments, and on
-                // average " + averageSegmentDeviation
-                // + " Segments away from the segment they were in.");
-            } else {
-                // logger.warn("For " + zone + ", all hours were in the same
-                // segment, as for combined sorting!");
-            }
-
-        }
-
-        // m = m.viewSorted(RLOADTOTAL).viewRowFlip();
+        // for (Zone zone : zoneList) {
+        // currentSegmentID = 1;
+        // double minInZone =
+        // m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.min,
+        // Functions.identity);
+        // double maxInZone =
+        // m.viewColumn(RLOADINZONE.get(zone)).aggregate(Functions.max,
+        // Functions.identity);
         //
-        // logger.debug("First 30 values of matrix: \n " + m.viewPart(0, 0, 30,
+        // // double minPriceInZone =
+        // // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.min,
+        // // Functions.identity);
+        // // double maxPriceInZone =
+        // // m.viewColumn(PRICEFORZONE.get(zone)).aggregate(Functions.max,
+        // // Functions.identity);
+        //
+        // double[] upperBoundSplitInZone = new double[noSegments];
+        // // double[] upperBoundPriceSplitInZone = new double[noSegments];
+        //
+        // for (int i = 0; i < noSegments; i++) {
+        // upperBoundSplitInZone[i] = maxInZone - (((double) (i)) / noSegments *
+        // (maxInZone - minInZone));
+        // // upperBoundPriceSplitInZone[i] = maxPriceInZone - (((double)
+        // // (i)) / noSegments * (maxPriceInZone - minPriceInZone));
+        // }
+        //
+        // m = m.viewSorted(RLOADINZONE.get(zone)).viewRowFlip();
+        // int hoursInDifferentSegment = 0;
+        // double averageSegmentDeviation = 0;
+        // hoursAssignedToCurrentSegment = 0;
+        // for (int row = 0; row < m.rows() && currentSegmentID <= noSegments;
+        // row++) {
+        // while (currentSegmentID < noSegments && hoursAssignedToCurrentSegment
+        // > 0
+        // && m.get(row, RLOADINZONE.get(zone)) <=
+        // upperBoundSplitInZone[currentSegmentID]) {
+        // currentSegmentID++;
+        // hoursAssignedToCurrentSegment = 0;
+        // }
+        // m.set(row, SEGMENTFORZONE.get(zone), currentSegmentID);
+        // if (currentSegmentID != m.get(row, SEGMENT)) {
+        // hoursInDifferentSegment++;
+        // averageSegmentDeviation += Math.abs(currentSegmentID - m.get(row,
+        // SEGMENT));
+        // }
+        // hoursAssignedToCurrentSegment++;
+        // }
+        // if (hoursInDifferentSegment != 0) {
+        // averageSegmentDeviation = averageSegmentDeviation /
+        // hoursInDifferentSegment;
+        // averageSegmentDeviation = averageSegmentDeviation * 1000;
+        // averageSegmentDeviation = Math.round(averageSegmentDeviation);
+        // averageSegmentDeviation = averageSegmentDeviation / 1000;
+        // logger.warn("For " + zone + ", " + hoursInDifferentSegment
+        // + " hours would have been in different segments, and on average " +
+        // averageSegmentDeviation
+        // + " Segments away from the segment they were in.");
+        // } else {
+        // // logger.warn("For " + zone + ", all hours were in the same
+        // // segment, as for combined sorting!");
+        // }
+        //
+        // }
+
+        m = m.viewSorted(RLOADTOTAL).viewRowFlip();
+        //
+        // logger.warn("First 30 values of matrix: \n " + m.viewPart(0, 0, 30,
         // m.columns()).toString());
 
         // Printing of segments
@@ -613,7 +803,8 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
 
                 for (PowerGeneratingTechnology technology : technologyList) {
                     String loadFactorString = new String(technology.getName() + " LF in " + node.toString() + ":");
-                    logger.warn("Bins for " + zone + ", " + node + "and " + technology);
+                    // logger.warn("Bins for " + zone + ", " + node + "and " +
+                    // technology);
                     IntermittentTechnologyNodeLoadFactor intTechnologyNodeLoadFactor = reps.intermittentTechnologyNodeLoadFactorRepository
                             .findIntermittentTechnologyNodeLoadFactorForNodeAndTechnology(node, technology);
                     if (intTechnologyNodeLoadFactor == null) {
@@ -642,7 +833,7 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
                         // intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(it
                         // - 1));
                     }
-                    logger.warn(loadFactorString);
+                    // logger.warn(loadFactorString);
                 }
 
             }
@@ -704,12 +895,11 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             // segmentLoad.getElectricitySpotMarket().toString());
 
             logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--"
-                    + "Hours in Seg: " + segment.getLengthInHoursGLDCForInvestmentRole() + "Demand "
-                    + segmentLoad.getDemandLDC() + "Hours for Demand" + segment.getLengthInHoursDLDCForCapacityMarket()
-                    + "Generation " + segmentLoad.getGenerationLDC() + "Hours for Generation"
-                    + segment.getLengthInHoursTotalGLDCForInvestmentRole() + " Segment Price "
-                    + priceClearingPoint.getPrice() + "Eur/MWh--" + " "
-                    + segmentLoad.getElectricitySpotMarket().toString());
+                    + "Hours S: " + segment.getLengthInHoursGLDCForInvestmentRole() + "Demand "
+                    + segmentLoad.getDemandLDC() + "Hours D" + segment.getLengthInHoursDLDCForCapacityMarket()
+                    + "Generation " + segmentLoad.getGenerationLDC() + "Hours G"
+                    + segment.getLengthInHoursTotalGLDCForInvestmentRole() + " Price " + priceClearingPoint.getPrice()
+                    + "Eur/MWh--" + " " + segmentLoad.getElectricitySpotMarket().toString());
         }
     }
 

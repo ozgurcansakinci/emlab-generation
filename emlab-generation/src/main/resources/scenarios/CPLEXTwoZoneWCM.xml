@@ -29,7 +29,7 @@
 		p:iterationSpeedFactor="3" p:iterationSpeedCriterion="0.005" p:longTermContractsImplemented="false"
 		p:capDeviationCriterion="0.03" p:simpleCapacityMarketEnabled="false"
 		p:deletionOldPPDPBidsAndCashFlowsEnabled="false" p:deletionAge="5"
-		p:noPrivateIntermittentRESInvestment="true">
+		p:noPrivateIntermittentRESInvestment="false">
 	</bean>
 		
 	<bean id="demandGrowthTrendNL" class="emlab.gen.trend.TimeSeriesCSVReader"
@@ -506,7 +506,7 @@
 
 		<bean id="energyProducerA" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer A" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -519,7 +519,7 @@
 		
 	<bean id="energyProducerB" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer B" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -532,7 +532,7 @@
 		
 	<bean id="energyProducerC" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer C" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -545,7 +545,7 @@
 		
 	<bean id="energyProducerD" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer D" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -558,7 +558,7 @@
 		
 	<bean id="energyProducerE" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer E" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -571,7 +571,7 @@
 		
 	<bean id="energyProducerF" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer F" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -584,7 +584,7 @@
 		
 	<bean id="energyProducerG" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer G" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -596,7 +596,7 @@
 		
 	<bean id="energyProducerH" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer H" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -608,7 +608,7 @@
 		p:investorMarket-ref="germanElectricitySpotMarket"/>
 		
 	<bean id="energyProducerI" class="emlab.gen.domain.agent.EnergyProducer"
-		p:name="Energy Producer I" p:cash="${startCash}" p:investmentrequired="true"
+		p:name="Energy Producer I" p:cash="${startCash}" p:investmentRequired="true"
 		p:investmentRole-ref="standardInvestmentRole" p:simpleCapacityMarketEnabled="false"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
@@ -622,7 +622,7 @@
 		
 	<bean id="energyProducerJ" class="emlab.gen.domain.agent.EnergyProducer"
 		p:name="Energy Producer J" p:cash="${startCash}"
-		p:investmentRole-ref="standardInvestmentRole" p:investmentrequired="true"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:longTermContractMargin="0.1" p:longTermContractPastTimeHorizon="3"
 		p:investmentFutureTimeHorizon="${investmentFutureTimeHorizon}" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
@@ -636,6 +636,46 @@
 <bean id="standardInvestmentRole" class="emlab.gen.role.investment.InvestInPowerGenerationTechnologiesAnnual"/>
 
 <bean id="targetInvestmentRole" class="emlab.gen.role.investment.TargetInvestmentRole"/>
+
+	<bean id="StakeholderA" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder A">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerA" />
+	</bean>
+	
+	<bean id="StakeholderB" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder B">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerB" />
+	</bean>
+	
+	<bean id="StakeholderC" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder C">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerC" />
+	</bean>
+	
+	<bean id="StakeholderD" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder D">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerD" />
+	</bean>
+	
+	<bean id="StakeholderE" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder E">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerE" />
+	</bean>
+	
+	<bean id="StakeholderF" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder F">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerF" />
+	</bean>
+	
+	<bean id="StakeholderG" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder G">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerG" />
+	</bean>
+	
+	<bean id="StakeholderH" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder H">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerH" />
+	</bean>
+	
+	<bean id="StakeholderI" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder I">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerI" />
+	</bean>
+	
+	<bean id="StakeholderJ" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder J">
+		<property name="energyProducerForPaymentOfDividends" ref="energyProducerJ" />
+	</bean>
 	
 	<!-- Renewable Targets NL -->
 	
@@ -1193,7 +1233,7 @@
 		p:maximumInstalledCapacityFractionInCountry="1"
 		p:maximumInstalledCapacityFractionPerAgent="1"
 		p:baseSegmentDependentAvailability="0.40"
-		p:peakSegmentDependentAvailability="0.05" p:intermittent="true"
+		p:peakSegmentDependentAvailability="0.13" p:intermittent="true"
 		p:applicableForLongTermContract="true">
 	</bean>
 	
@@ -1220,7 +1260,7 @@
 		p:maximumInstalledCapacityFractionInCountry="1"
 		p:maximumInstalledCapacityFractionPerAgent="1"
 		p:baseSegmentDependentAvailability="0.65"
-		p:peakSegmentDependentAvailability="0.08" p:intermittent="true"
+		p:peakSegmentDependentAvailability="0.13" p:intermittent="true"
 		p:applicableForLongTermContract="true">
 	</bean>
 	
@@ -1246,8 +1286,8 @@
 		p:expectedLeadtime="1" p:expectedPermittime="0" p:minimumFuelQuality="1"
 		p:maximumInstalledCapacityFractionInCountry="1"
 		p:maximumInstalledCapacityFractionPerAgent="1"
-		p:baseSegmentDependentAvailability="0.16"
-		p:peakSegmentDependentAvailability="0.08" p:intermittent="true"
+		p:baseSegmentDependentAvailability="0.45"
+		p:peakSegmentDependentAvailability="0.38" p:intermittent="true"
 		p:applicableForLongTermContract="true">
 	</bean>
 	

@@ -45,8 +45,9 @@ public class CashFlow {
     // Incremental capital cost for storage
     public static final int INC_STORAGE_CC = 15;
     public static final int STORAGE_INV = 16;
-    public static final int STAKEHOLDER_DIVIDENT = 17;
+    public static final int STAKEHOLDER_DIVIDEND = 17;
     public static final int SIMPLE_CAPACITY_MARKET_STORAGE = 18;
+    public static final int CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT = 19;
 
     @RelatedTo(type = "FROM_AGENT", elementClass = DecarbonizationAgent.class, direction = Direction.OUTGOING)
     private DecarbonizationAgent from;

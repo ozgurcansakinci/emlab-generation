@@ -25,14 +25,13 @@ import agentspring.agent.Agent;
 public class Stakeholder extends DecarbonizationAgent implements Agent {
 
     @RelatedTo(type = "STAKEHOLDER_ENERGYPRODUCER", elementClass = EnergyProducer.class, direction = Direction.OUTGOING)
-    private EnergyProducer energyProducerForPaymentOfDividents;
+    private EnergyProducer energyProducerForPaymentOfDividends;
 
-    public EnergyProducer getEnergyProducerForPaymentOfDividents() {
-        return energyProducerForPaymentOfDividents;
+    public EnergyProducer getEnergyProducerForPaymentOfDividends() {
+        return energyProducerForPaymentOfDividends;
     }
 
-    public void setEnergyProducerForPaymentOfDividents(EnergyProducer energyProducerForPaymentOfDividents) {
-        this.energyProducerForPaymentOfDividents = energyProducerForPaymentOfDividents;
+    public void setEnergyProducerForPaymentOfDividends(EnergyProducer energyProducerForPaymentOfDividends) {
+        this.energyProducerForPaymentOfDividends = energyProducerForPaymentOfDividends;
     }
-
 }

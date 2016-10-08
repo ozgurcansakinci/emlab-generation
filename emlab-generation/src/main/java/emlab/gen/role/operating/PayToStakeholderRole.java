@@ -73,9 +73,13 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
 
         if (netProfit > 0 && returnOnInvestments > 20) {
 
-            double shareOfNetProfitForEnergyProducer = 20 / returnOnInvestments;
+            // double shareOfNetProfitForEnergyProducer = 20 /
+            // returnOnInvestments;
 
-            logger.warn("shareOfNetProfitForEnergyProducer " + shareOfNetProfitForEnergyProducer);
+            double shareOfNetProfitForEnergyProducer = 0.3;
+
+            // logger.warn("shareOfNetProfitForEnergyProducer " +
+            // shareOfNetProfitForEnergyProducer);
 
             double shareOfNetProfitForStakeholder = 1 - shareOfNetProfitForEnergyProducer;
 
@@ -85,7 +89,7 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
             double amountOfDividentsPayableToStakeholder = shareOfNetProfitForStakeholder * netProfit;
 
             CashFlow cf_ToStakeholder = reps.nonTransactionalCreateRepository.createCashFlowStorage(producer,
-                    stakeholder, amountOfDividentsPayableToStakeholder, CashFlow.STAKEHOLDER_DIVIDENT, getCurrentTick(),
+                    stakeholder, amountOfDividentsPayableToStakeholder, CashFlow.STAKEHOLDER_DIVIDEND, getCurrentTick(),
                     null);
 
             logger.warn("amountOfDividentsPayableToStakeholder " + cf_ToStakeholder.getMoney() + " for " + stakeholder);
