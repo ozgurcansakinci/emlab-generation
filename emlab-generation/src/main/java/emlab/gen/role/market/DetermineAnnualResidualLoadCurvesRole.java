@@ -289,8 +289,10 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             spillVector.assign(oneVector, Functions.min);
             for (PowerGridNode node : zoneToNodeList.get(zone)) {
                 for (PowerGeneratingTechnology technology : technologyList) {
+
                     m.viewColumn(TECHNOLOGYLOADFACTORSFORZONEANDNODE.get(zone).get(node).get(technology))
                             .assign(spillVector, Functions.mult);
+
                 }
             }
 
@@ -372,12 +374,17 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
 
         for (Zone zone : zoneList) {
             for (PowerGridNode node : zoneToNodeList.get(zone)) {
+
                 for (PowerGeneratingTechnology technology : technologyList) {
+
                     m.viewColumn(TECHNOLOGYLOADFACTORSFORZONEANDNODE.get(zone).get(node).get(technology))
                             .assign(spillFactorMap.get(zone), Functions.div);
+
                 }
+
             }
         }
+
         // 7. Create DynamicBins as representation for segments and for later
         // calculation of means, no etc. Per bin one sort of information (e.g.
         // residual
@@ -828,7 +835,8 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
                         mean = mean / 1000000.0;
                         loadFactorString = loadFactorString.concat(" " + mean);
                         it++;
-                        // logger.warn(technology + " node load factor is "
+                        // logger.warn(technology + " node load factor for
+                        // segment " + (it - 1) + "is"
                         // +
                         // intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(it
                         // - 1));

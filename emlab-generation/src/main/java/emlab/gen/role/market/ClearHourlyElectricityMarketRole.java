@@ -283,10 +283,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                             storageChargingInMW[marketIndex][i] = cplex.numVar(0,
                                     storageTechnologyInMarket.getCurrentMaxStorageChargingRate());
                             storageContentExpressionsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
-                        }
-
-                        if (i != 0) {
-
                             storageContentExpressionsForAllMarkets[marketIndex][i].addTerm(1,
                                     stateOfChargeInMWh[marketIndex][i - 1]);
 
@@ -300,6 +296,22 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                                     .getValue(getCurrentTick()),
                                             storageDischargingInMW[marketIndex][i]);
                         }
+
+                        // if (i != 0) {
+                        //
+                        // storageContentExpressionsForAllMarkets[marketIndex][i].addTerm(1,
+                        // stateOfChargeInMWh[marketIndex][i - 1]);
+                        //
+                        // storageContentExpressionsForAllMarkets[marketIndex][i].addTerm(storageTechnologyInMarket
+                        // .getEfficiencyInFlowTimeSeries().getValue(getCurrentTick()),
+                        // storageChargingInMW[marketIndex][i]);
+                        //
+                        // storageContentExpressionsForAllMarkets[marketIndex][i]
+                        // .addTerm(
+                        // -storageTechnologyInMarket.getEfficiencyOutFlowTimeSeries()
+                        // .getValue(getCurrentTick()),
+                        // storageDischargingInMW[marketIndex][i]);
+                        // }
                     }
 
                     generationEquationsForAllMarkets[marketIndex][i] = cplex.linearNumExpr();
@@ -327,20 +339,6 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                         elasticDemandForAllMarkets[marketIndex][i] = cplex.numVar(0, Double.MAX_VALUE);
                         demandEquationsForAllMarkets[marketIndex][i].addTerm(1,
                                 elasticDemandForAllMarkets[marketIndex][i]);
-                    }
-
-                    generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);
-
-                    if (market.isStorageImplemented()) {
-                        generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
-                                storageDischargingInMW[marketIndex][i]);
-                        demandEquationsForAllMarkets[marketIndex][i].addTerm(1, storageChargingInMW[marketIndex][i]);
-                    }
-
-                    objective.addTerm(market.getValueOfLostLoad(), valueOfLostLoadInMWH[marketIndex][i]);
-
-                    if (market.isDailyDemandResponseImplemented()) {
-
                         int demandShiftFactor = (int) market.getYearlySegmentLoad()
                                 .getDailyElasticBaseDemandForYearlySegment().getElasticDemandShift();
 
@@ -354,6 +352,36 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                                         + j]);
                         }
                     }
+
+                    generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);
+
+                    if (market.isStorageImplemented()) {
+                        generationEquationsForAllMarkets[marketIndex][i].addTerm(1,
+                                storageDischargingInMW[marketIndex][i]);
+                        demandEquationsForAllMarkets[marketIndex][i].addTerm(1, storageChargingInMW[marketIndex][i]);
+                    }
+
+                    objective.addTerm(market.getValueOfLostLoad(), valueOfLostLoadInMWH[marketIndex][i]);
+
+                    // if (market.isDailyDemandResponseImplemented()) {
+                    //
+                    // int demandShiftFactor = (int)
+                    // market.getYearlySegmentLoad()
+                    // .getDailyElasticBaseDemandForYearlySegment().getElasticDemandShift();
+                    //
+                    // if ((i + 1) % demandShiftFactor == 0 && i != 0) {
+                    // accumulativeElasticDemandPerDayForAllMarkets[marketIndex][((i
+                    // + 1) / demandShiftFactor)
+                    // - 1] = cplex.linearNumExpr();
+                    // for (int j = 0; j < demandShiftFactor; j++)
+                    // accumulativeElasticDemandPerDayForAllMarkets[marketIndex][((i
+                    // + 1) / demandShiftFactor)
+                    // - 1].addTerm(1,
+                    // elasticDemandForAllMarkets[marketIndex][i -
+                    // (demandShiftFactor - 1)
+                    // + j]);
+                    // }
+                    // }
 
                     if (marketIndex == 0)
                         carbonEmissionsEquationsForAllMarkets[i] = cplex.linearNumExpr();

@@ -17,7 +17,10 @@ package emlab.gen.role;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -39,6 +42,7 @@ import emlab.gen.domain.market.CO2Auction;
 import emlab.gen.domain.market.ClearingPoint;
 import emlab.gen.domain.market.CommodityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
+import emlab.gen.domain.market.electricity.IntermittentTechnologyNodeLoadFactor;
 import emlab.gen.domain.market.electricity.PpdpAnnual;
 import emlab.gen.domain.market.electricity.Segment;
 import emlab.gen.domain.market.electricity.SegmentLoad;
@@ -61,6 +65,7 @@ import emlab.gen.role.operating.DetermineFuelMixRole;
 import emlab.gen.trend.HourlyCSVTimeSeries;
 import emlab.gen.trend.LinearTrend;
 import emlab.gen.trend.TriangularTrend;
+import emlab.gen.util.Utils;
 
 /**
  * @author asmkhan
@@ -580,6 +585,31 @@ public class DetermineAnnualResidualLoadCurveTest {
                 break;
             }
         }
+        List<Zone> zoneList = Utils.asList(reps.template.findAll(Zone.class));
+        List<PowerGeneratingTechnology> technologyList = Utils
+                .asList(reps.powerGeneratingTechnologyRepository.findAllIntermittentPowerGeneratingTechnologies());
+        Map<Zone, List<PowerGridNode>> zoneToNodeList = new HashMap<Zone, List<PowerGridNode>>();
+        for (Zone zone : zoneList) {
+            List<PowerGridNode> nodeList = Utils.asList(reps.powerGridNodeRepository.findAllPowerGridNodesByZone(zone));
+            zoneToNodeList.put(zone, nodeList);
+        }
+        double[] actualNodeLoadFactors = { 0.042, 0.1438, 0.0716, 0.09026 };
+        for (Zone zone : zoneList) {
+            for (PowerGridNode node : zoneToNodeList.get(zone)) {
+                for (PowerGeneratingTechnology tech : technologyList) {
+                    IntermittentTechnologyNodeLoadFactor intTechnologyNodeLoadFactor = reps.intermittentTechnologyNodeLoadFactorRepository
+                            .findIntermittentTechnologyNodeLoadFactorForNodeAndTechnology(node, tech);
+                    for (int i = 0; i < 4; i++) {
+                        logger.warn("Node load factor for " + tech.toString() + " : "
+                                + intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(i + 1));
+                        assertEquals("NL Factor", intTechnologyNodeLoadFactor.getLoadFactorForSegmentId(i + 1),
+                                actualNodeLoadFactors[i], 0.001);
+                    }
+
+                }
+            }
+        }
+
     }
 
     private long getCurrentTick() {

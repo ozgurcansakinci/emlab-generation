@@ -67,35 +67,12 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
     @Transactional
     public void act(ElectricitySpotMarket market) {
 
-        // if (getCurrentTick() == 0) {
-        // for (PowerPlant plant :
-        // reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
-        // getCurrentTick())) {
-        // int max = -8;
-        // int min = -12;
-        // double n = Math.random() * (max - min) + min;
-        // plant.setConstructionStartTime((long) n);
-        // }
-        // }
-
         // if (getCurrentTick() > 0) {
         for (PowerPlant plant : reps.powerPlantRepository.findOperationalPowerPlantsInMarket(market,
                 getCurrentTick())) {
-            // logger.warn("operational power plant found");
+
             double age = 0;
             long currentLiftime = 0;
-
-            // if (getCurrentTick() == 1) {
-            // int max = -8;
-            // int min = -12;
-            // double n = Math.random() * (max - min) + min;
-            // plant.setConstructionStartTime((long) n);
-            // }
-
-            // logger.warn(plant.getName() + " & " +
-            // plant.getConstructionStartTime() + " & "
-            // + plant.getTechnology().getExpectedLeadtime() + " & "
-            // + plant.getTechnology().getExpectedPermittime());
 
             currentLiftime = getCurrentTick() - plant.getConstructionStartTime()
                     - plant.getTechnology().getExpectedLeadtime() - plant.getTechnology().getExpectedPermittime();
@@ -131,7 +108,6 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                 double calculatedOM = 0;
                 // logger.warn("Tick:" + getCurrentTick());
                 if ((getCurrentTick() - yearIterator) >= 0) {
-                    // logger.warn("inside if statement");
 
                     // for (Segment currentSegment :
                     // reps.segmentRepository.findAll()) {
