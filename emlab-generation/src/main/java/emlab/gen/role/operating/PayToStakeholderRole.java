@@ -33,7 +33,7 @@ import emlab.gen.repository.Reps;
  * 
  */
 @RoleComponent
-public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements Role<EnergyProducer> {
+public class PayToStakeholderRole extends AbstractRole<EnergyProducer> implements Role<EnergyProducer> {
 
     @Autowired
     Reps reps;
@@ -73,7 +73,10 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
 
         if (netProfit > 0 && returnOnInvestments > 20) {
 
-            double shareOfNetProfitForEnergyProducer = 20 / returnOnInvestments;
+            // double shareOfNetProfitForEnergyProducer = 20 /
+            // returnOnInvestments;
+
+            double shareOfNetProfitForEnergyProducer = 0.3;
 
             logger.warn("shareOfNetProfitForEnergyProducer " + shareOfNetProfitForEnergyProducer);
 

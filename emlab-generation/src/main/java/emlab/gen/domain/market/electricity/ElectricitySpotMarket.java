@@ -82,6 +82,8 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     private double valueOfLostLoad;
 
+    private double demandShiftCost;
+
     @SimulationParameter(label = "Lookback for dismantling", from = 0, to = 10)
     private long lookback;
 
@@ -126,6 +128,14 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     public void setDemandGrowthTrend(TimeSeriesImpl demandGrowthTrend) {
         this.demandGrowthTrend = demandGrowthTrend;
+    }
+
+    public double getDemandShiftCost() {
+        return demandShiftCost;
+    }
+
+    public void setDemandShiftCost(double demandShiftCost) {
+        this.demandShiftCost = demandShiftCost;
     }
 
 }

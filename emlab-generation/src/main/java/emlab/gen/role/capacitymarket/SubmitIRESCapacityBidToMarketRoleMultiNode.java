@@ -92,9 +92,9 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
                             * plant.getTechnology().getPeakSegmentDependentAvailability();
 
                 } else {
-                    double[] gens = reps.yearlySegmentClearingPointMarketInformationRepository
-                            .findMarketInformationForMarketAndTime(getCurrentTick() - 1, eMarket).getMarketSupply();
-                    double[] max = getMaxIndex(gens);
+                    double[] demand = reps.yearlySegmentClearingPointMarketInformationRepository
+                            .findMarketInformationForMarketAndTime(getCurrentTick() - 1, eMarket).getMarketDemand();
+                    double[] max = getMaxIndex(demand);
                     IntermittentResourceProfile availability = reps.intermittentResourceProfileRepository
                             .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(),
                                     plant.getLocation());

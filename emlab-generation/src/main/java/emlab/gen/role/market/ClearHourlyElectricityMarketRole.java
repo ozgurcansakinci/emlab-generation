@@ -351,6 +351,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                                                 elasticDemandForAllMarkets[marketIndex][i - (demandShiftFactor - 1)
                                                         + j]);
                         }
+                        objective.addTerm(market.getDemandShiftCost(), elasticDemandForAllMarkets[marketIndex][i]);
                     }
 
                     generationEquationsForAllMarkets[marketIndex][i].addTerm(1, valueOfLostLoadInMWH[marketIndex][i]);

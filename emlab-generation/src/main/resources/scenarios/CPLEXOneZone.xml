@@ -157,7 +157,7 @@
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
 		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
-		p:storageImplemented="true">
+		p:storageImplemented="true" p:demandShiftCost="5">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
