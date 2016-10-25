@@ -26,6 +26,7 @@ import emlab.gen.domain.market.Bid;
 import emlab.gen.domain.market.capacity.CapacityDispatchPlan;
 import emlab.gen.domain.market.capacity.CapacityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
+import emlab.gen.domain.technology.IntermittentResourceProfile;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.repository.Reps;
 import emlab.gen.role.AbstractEnergyProducerRole;
@@ -84,10 +85,24 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
                 // }
 
                 double bidPrice = 0;
+                double capacity = 0;
 
-                double capacity = plant.getActualNominalCapacity()
-                        * plant.getTechnology().getPeakSegmentDependentAvailability();
+                if (getCurrentTick() == 0) {
+                    capacity = plant.getActualNominalCapacity()
+                            * plant.getTechnology().getPeakSegmentDependentAvailability();
 
+                } else {
+                    double[] demand = reps.yearlySegmentClearingPointMarketInformationRepository
+                            .findMarketInformationForMarketAndTime(getCurrentTick() - 1, eMarket).getMarketDemand();
+                    double[] max = getMaxIndex(demand);
+                    IntermittentResourceProfile availability = reps.intermittentResourceProfileRepository
+                            .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(),
+                                    plant.getLocation());
+                    capacity = plant.getActualNominalCapacity() * availability.getHourlyArray(0)[(int) max[0]];
+                    // double []
+
+                }
+                logger.warn(plant.getTechnology().toString() + "RES bids " + capacity + "for the capacity market");
                 CapacityDispatchPlan plan = new CapacityDispatchPlan().persist();
 
                 plan.specifyAndPersist(plant, producer, market, getCurrentTick(), bidPrice, capacity, Bid.SUBMITTED);
@@ -100,5 +115,20 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
 
             }
         }
+    }
+
+    public double[] getMaxIndex(double[] v) {
+        double maxIndex = -1;
+        double maxValue = -Double.MAX_VALUE;
+        for (int i = 0; i < v.length; i++) {
+            if (v[i] > maxValue) {
+                maxIndex = i;
+                maxValue = v[i];
+            }
+        }
+        double[] output = new double[2];
+        output[0] = maxIndex;
+        output[1] = maxValue;
+        return output;
     }
 }

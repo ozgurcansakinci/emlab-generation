@@ -58,6 +58,16 @@ public class ProcessAcceptedPPDPAnnualRole extends AbstractMarketRole<Electricit
                     getCurrentTick(), plan.getPowerPlant());
         }
 
+        if (esm.isDailyDemandResponseImplemented()) {
+
+            double elasticDemandPayment = esm.getDemandShiftCost() * calculateTotalElasticDemand(info);
+
+            logger.warn("Total demand shifted is: " + calculateTotalElasticDemand(info));
+            logger.warn("Total demand shift cost is: " + elasticDemandPayment);
+
+            reps.nonTransactionalCreateRepository.createCashFlow(null, esm, elasticDemandPayment,
+                    CashFlow.DEMAND_SHIFTING_PAYMENT, getCurrentTick(), null);
+        }
     }
 
     public double calculateYearlyPowerPlantRevenue(YearlySegmentClearingPointMarketInformation info, PpdpAnnual plan) {
@@ -65,6 +75,15 @@ public class ProcessAcceptedPPDPAnnualRole extends AbstractMarketRole<Electricit
         DoubleMatrix1D marginalCostOfGenerationForMarket = new DenseDoubleMatrix1D(info.getMarketPrice());
         DoubleMatrix1D suppliedYearlyElectricityByPowerPlant = new DenseDoubleMatrix1D(plan.getAcceptedHourlyAmount());
         return marginalCostOfGenerationForMarket.zDotProduct(suppliedYearlyElectricityByPowerPlant);
+    }
+
+    public double calculateTotalElasticDemand(YearlySegmentClearingPointMarketInformation info) {
+        double[] elasticDemand = info.getElasticDemand();
+        double totalElasticDemand = 0;
+        for (int i = 0; i < elasticDemand.length; i++) {
+            totalElasticDemand += elasticDemand[i];
+        }
+        return totalElasticDemand;
     }
 
     @Override

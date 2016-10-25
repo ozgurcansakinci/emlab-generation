@@ -313,6 +313,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                     // "expects technology {} to have {} running", technology,
                     // runningHours);
                     // expect to meet minimum running hours?
+                    // logger.warn("Running Hours: " + runningHours);
                     if (runningHours < plant.getTechnology().getMinimumRunningHours()) {
                         // logger.warn(agent+
                         // " will not invest in {} technology as he expect to
@@ -528,6 +529,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                             highestValue = projectValue / plant.getActualNominalCapacity();
                             bestTechnology = plant.getTechnology();
                             bestNode = node;
+                            logger.warn("Running Hours: " + runningHours);
                         }
                     }
 

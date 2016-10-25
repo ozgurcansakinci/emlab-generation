@@ -68,6 +68,8 @@ public class InvestInEnergyStorageTechnologiesRole extends AbstractEnergyProduce
 
         double storageRevenue = reps.cashFlowRepository.findAllStorageRevenuesForTime(agent, getCurrentTick());
 
+        // logger.warn("REV: " + storageRevenue);
+
         CashFlow omCosts = reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(agent, getCurrentTick());
 
         // if ((revenue != null) || (revenueCM != null)) {

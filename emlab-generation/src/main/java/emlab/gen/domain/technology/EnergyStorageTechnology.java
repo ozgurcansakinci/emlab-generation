@@ -62,6 +62,26 @@ public class EnergyStorageTechnology {
 
     private double initialStateOfChargeInStorage;
 
+    private double marginalCostOfCharging;
+
+    private double marginalCostOfDischarging;
+
+    public double getMarginalCostOfCharging() {
+        return marginalCostOfCharging;
+    }
+
+    public void setMarginalCostOfCharging(double marginalCostOfCharging) {
+        this.marginalCostOfCharging = marginalCostOfCharging;
+    }
+
+    public double getMarginalCostOfDischarging() {
+        return marginalCostOfDischarging;
+    }
+
+    public void setMarginalCostOfDischarging(double marginalCostOfDischarging) {
+        this.marginalCostOfDischarging = marginalCostOfDischarging;
+    }
+
     public double getInitialStateOfChargeInStorage() {
         return initialStateOfChargeInStorage;
     }

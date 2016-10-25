@@ -229,7 +229,7 @@
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
 		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
-		p:storageImplemented="true">
+		p:storageImplemented="true" p:demandShiftCost="5">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
@@ -325,7 +325,7 @@
 	<bean id="germanElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country B electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
 		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
-		p:storageImplemented="true">
+		p:storageImplemented="true" p:demandShiftCost="5">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendDE" />
 		<property name="zone" ref="de" />
@@ -730,7 +730,8 @@
 	
 	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology"
 		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
-		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
+		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" 
+		p:marginalCostOfCharging="4" p:marginalCostOfDischarging="5">
 		<property name="ownerStorageUnit" ref="energyProducerA"/>
 		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
 		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
@@ -740,7 +741,8 @@
 	
 	<bean id="storageUnitForDE" class="emlab.gen.domain.technology.EnergyStorageTechnology"
 		p:name="Storage Unit for DE ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
-		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
+		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000"
+		p:marginalCostOfCharging="4" p:marginalCostOfDischarging="5">
 		<property name="ownerStorageUnit" ref="energyProducerF"/>
 		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
 		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
@@ -1001,7 +1003,7 @@
 		p:efficiencyTimeSeries-ref="coalPSCEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0" 
 		p:depreciationTime="20"
-		p:minimumRunningHours="5000"
+		p:minimumRunningHours="0"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="40"
 		p:expectedLeadtime="4" p:expectedPermittime="1" p:minimumFuelQuality=".95"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1035,7 +1037,7 @@
 		p:efficiencyTimeSeries-ref="ligniteEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0" 
 		p:depreciationTime="20"
-		p:minimumRunningHours="5000"
+		p:minimumRunningHours="0"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="40"
 		p:expectedLeadtime="5" p:expectedPermittime="1" p:minimumFuelQuality=".95"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1100,7 +1102,7 @@
 		p:fixedOperatingCostTimeSeries-ref="coalPulverizedCSSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="coalPulverizedCSSEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0.875"
-		p:depreciationTime="20" p:minimumRunningHours="5000"
+		p:depreciationTime="20" p:minimumRunningHours="0"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="40"
 		p:expectedLeadtime="4" p:expectedPermittime="1" p:minimumFuelQuality=".9"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1166,7 +1168,7 @@
 		p:fixedOperatingCostTimeSeries-ref="ccgtFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ccgtEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0"
-		p:depreciationTime="15" p:minimumRunningHours="0"
+		p:depreciationTime="15" p:minimumRunningHours="5000"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="30"
 		p:expectedLeadtime="2" p:expectedPermittime="1" p:minimumFuelQuality="1"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1198,7 +1200,7 @@
 		p:fixedOperatingCostTimeSeries-ref="ccgtCCSFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ccgtCCSEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0.85"
-		p:depreciationTime="15" p:minimumRunningHours="0"
+		p:depreciationTime="15" p:minimumRunningHours="5000"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="30"
 		p:expectedLeadtime="3" p:expectedPermittime="1" p:minimumFuelQuality="1"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1230,7 +1232,7 @@
 		p:fixedOperatingCostTimeSeries-ref="ocgtFixedOperatingCostTimeSeries"
 		p:efficiencyTimeSeries-ref="ocgtEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0"
-		p:depreciationTime="15" p:minimumRunningHours="0"		
+		p:depreciationTime="15" p:minimumRunningHours="5000"		
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="30"
 		p:expectedLeadtime="1" p:expectedPermittime="0" p:minimumFuelQuality="1"
 		p:maximumInstalledCapacityFractionInCountry="1"
@@ -1377,7 +1379,7 @@
 		p:efficiencyTimeSeries-ref="nuclearEfficiencyTimeSeries" 
 		p:co2CaptureEffciency="0"
 		p:depreciationTime="25"
-		p:minimumRunningHours="5000"
+		p:minimumRunningHours="0"
 		p:fixedOperatingCostModifierAfterLifetime="0" p:expectedLifetime="40"
 		p:expectedLeadtime="5" p:expectedPermittime="2" p:minimumFuelQuality="1"
 		p:maximumInstalledCapacityFractionInCountry="1"

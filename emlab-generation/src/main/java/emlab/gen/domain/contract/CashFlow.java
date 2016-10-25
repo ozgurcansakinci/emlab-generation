@@ -48,6 +48,7 @@ public class CashFlow {
     public static final int STAKEHOLDER_DIVIDEND = 17;
     public static final int SIMPLE_CAPACITY_MARKET_STORAGE = 18;
     public static final int CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT = 19;
+    public static final int DEMAND_SHIFTING_PAYMENT = 20;
 
     @RelatedTo(type = "FROM_AGENT", elementClass = DecarbonizationAgent.class, direction = Direction.OUTGOING)
     private DecarbonizationAgent from;

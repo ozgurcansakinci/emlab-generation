@@ -69,6 +69,9 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
         double omCost = storageTech.getFixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh()
                 .getValue(getCurrentTick()) * storageTech.getCurrentMaxStorageCapacity();
 
+        // if (storageTech.getMarginalCostOfCharging() == 0 &&
+        // storageTech.getMarginalCostOfCharging() == 0) {
+
         double money = calculateYearlyStorageRevenue(info) - calculateYearlyStorageExpenses(info);
 
         if (money != 0) {
@@ -79,10 +82,31 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
             logger.info("Cash flow created for storage: {}", cf);
         }
 
+        logger.warn("money={}", money);
+
+        // } else {
+        //
+        // double[] outputStorage = calculateTotalChargingAndDischarging(info);
+        // double money = (storageTech.getMarginalCostOfDischarging() *
+        // outputStorage[1])
+        // - (storageTech.getMarginalCostOfCharging() * outputStorage[0]);
+        //
+        // if (money != 0) {
+        //
+        // CashFlow cf =
+        // reps.nonTransactionalCreateRepository.createCashFlowStorage(operatingMarket,
+        // producer,
+        // money, CashFlow.STORAGE, getCurrentTick(), storageTech);
+        //
+        // logger.info("Cash flow created for storage: {}", cf);
+        // }
+        //
+        // logger.warn("money={}", money);
+        // }
+
         CashFlow cf_om = reps.nonTransactionalCreateRepository.createCashFlowStorage(producer, maintainer, omCost,
                 CashFlow.STORAGE_OM, getCurrentTick(), storageTech);
 
-        logger.warn("money={}", money);
         logger.info("Cash flow created for storage O&M cost: {}", cf_om);
         logger.warn("O&M cost={}", omCost);
 
@@ -137,6 +161,22 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
         DoubleMatrix1D marginalCostOfGenerationForMarket = new DenseDoubleMatrix1D(info.getMarketPrice());
         DoubleMatrix1D storageChargingInMW = new DenseDoubleMatrix1D(info.getStorageChargingInMW());
         return marginalCostOfGenerationForMarket.zDotProduct(storageChargingInMW);
+    }
+
+    public double[] calculateTotalChargingAndDischarging(YearlySegmentClearingPointMarketInformation info) {
+        double[] totalCharging = info.getStorageChargingInMW();
+        double[] totalDischarging = info.getStorageDischargingInMW();
+
+        double totalChar = 0;
+        double totalDischar = 0;
+        for (int i = 0; i < totalCharging.length; i++) {
+            totalChar += totalCharging[i];
+            totalDischar += totalDischarging[i];
+        }
+        double[] output = new double[2];
+        output[0] = totalChar;
+        output[1] = totalDischar;
+        return output;
     }
 
 }

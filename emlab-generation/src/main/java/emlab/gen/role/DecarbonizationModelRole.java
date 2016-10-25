@@ -218,16 +218,16 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
          */
         Timer timerMarket = new Timer();
         timerMarket.start();
-
-        logger.warn("  0a. Dismantling");
-        timerMarket.reset();
-        timerMarket.start();
-        for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarketsAsList()) {
-            dismantlePowerPlantOperationalLossRole.act(market);
+        if (getCurrentTick() > 0) {
+            logger.warn("  0a. Dismantling");
+            timerMarket.reset();
+            timerMarket.start();
+            for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarketsAsList()) {
+                dismantlePowerPlantOperationalLossRole.act(market);
+            }
+            timerMarket.stop();
+            logger.warn("        took: {} seconds.", timerMarket.seconds());
         }
-        timerMarket.stop();
-        logger.warn("        took: {} seconds.", timerMarket.seconds());
-
         /////////////////////////////////////////////////////////////////////////////////////
 
         if ((getCurrentTick() >= 0) && (model.isSimpleCapacityMarketEnabled())) {

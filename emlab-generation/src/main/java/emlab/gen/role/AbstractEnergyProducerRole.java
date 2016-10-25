@@ -544,7 +544,9 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
      */
     protected HashMap<ElectricitySpotMarket, Double> determineExpectedCO2PriceInclTax(long futureTimePoint,
             long yearsLookingBackForRegression, long clearingTick) {
-        return determineExpectedCO2PriceInclTax(futureTimePoint, yearsLookingBackForRegression, 0, clearingTick);
+        // return determineExpectedCO2PriceInclTax(futureTimePoint,
+        // yearsLookingBackForRegression, 0, clearingTick);
+        return determineExpectedCO2PriceInclTaxAnnual(futureTimePoint, yearsLookingBackForRegression, 0, clearingTick);
     }
 
     /**
@@ -603,6 +605,64 @@ public abstract class AbstractEnergyProducerRole<T extends EnergyProducer> exten
             }
             co2PriceInCountry += reps.genericRepository.findFirst(Government.class).getCO2Tax(futureTimePoint);
             co2Prices.put(esm, Double.valueOf(co2PriceInCountry));
+        }
+        return co2Prices;
+    }
+
+    protected HashMap<ElectricitySpotMarket, Double> determineExpectedCO2PriceInclTaxAnnual(long futureTimePoint,
+            long yearsLookingBackForRegression, int adjustmentForDetermineFuelMix, long clearingTick) {
+        HashMap<ElectricitySpotMarket, Double> co2Prices = new HashMap<ElectricitySpotMarket, Double>();
+        Iterable<YearlySegmentClearingPointMarketInformation> cps = null;
+        for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+            cps = reps.yearlySegmentClearingPointMarketInformationRepository
+                    .findAllMarketInformationsForMarketAndTimeRange(market,
+                            clearingTick - yearsLookingBackForRegression - adjustmentForDetermineFuelMix,
+                            clearingTick - adjustmentForDetermineFuelMix);
+        }
+        // Create regression object and calculate average
+        SimpleRegression sr = new SimpleRegression();
+        Government government = reps.template.findAll(Government.class).iterator().next();
+        double lastPrice = 0;
+        double averagePrice = 0;
+        int i = 0;
+        if (getCurrentTick() > 0) {
+            for (YearlySegmentClearingPointMarketInformation clearingPoint : cps) {
+                sr.addData(clearingPoint.getTime(), clearingPoint.getCO2Price());
+                lastPrice = clearingPoint.getCO2Price();
+                averagePrice += lastPrice;
+                i++;
+            }
+            averagePrice = averagePrice / i;
+            double expectedCO2Price;
+            if (i > 1) {
+                expectedCO2Price = sr.predict(futureTimePoint);
+                expectedCO2Price = Math.max(0, expectedCO2Price);
+                expectedCO2Price = Math.min(expectedCO2Price, government.getCo2Penalty(futureTimePoint));
+            } else {
+                expectedCO2Price = lastPrice;
+            }
+            // Calculate average of regression and past average:
+            expectedCO2Price = (expectedCO2Price + averagePrice) / 2;
+            for (ElectricitySpotMarket esm : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                double nationalCo2MinPriceinFutureTick = reps.nationalGovernmentRepository
+                        .findNationalGovernmentByElectricitySpotMarket(esm).getMinNationalCo2PriceTrend()
+                        .getValue(futureTimePoint);
+                double co2PriceInCountry = 0d;
+                if (expectedCO2Price > nationalCo2MinPriceinFutureTick) {
+                    co2PriceInCountry = expectedCO2Price;
+                } else {
+                    co2PriceInCountry = nationalCo2MinPriceinFutureTick;
+                }
+                co2PriceInCountry += reps.genericRepository.findFirst(Government.class).getCO2Tax(futureTimePoint);
+                co2Prices.put(esm, Double.valueOf(co2PriceInCountry));
+                // logger.warn("Co2 price: " +
+                // Double.valueOf(co2PriceInCountry));
+            }
+
+        } else {
+            for (ElectricitySpotMarket market : reps.marketRepository.findAllElectricitySpotMarkets()) {
+                co2Prices.put(market, 0d);
+            }
         }
         return co2Prices;
     }
