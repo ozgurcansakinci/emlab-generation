@@ -102,7 +102,8 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
                     // double []
 
                 }
-                logger.warn(plant.getTechnology().toString() + "RES bids " + capacity + "for the capacity market");
+                // logger.warn(plant.getTechnology().toString() + "RES bids " +
+                // capacity + "for the capacity market");
                 CapacityDispatchPlan plan = new CapacityDispatchPlan().persist();
 
                 plan.specifyAndPersist(plant, producer, market, getCurrentTick(), bidPrice, capacity, Bid.SUBMITTED);

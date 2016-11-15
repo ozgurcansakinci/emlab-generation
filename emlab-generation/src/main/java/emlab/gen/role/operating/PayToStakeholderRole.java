@@ -47,29 +47,30 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
         double varibleCashOutFlows = reps.cashFlowRepository
                 .calculateVariableCashOutFlowsForEnergyProducerForTime(producer, getCurrentTick());
 
-        logger.warn("varibleCashOutFlows " + varibleCashOutFlows + " for " + producer.getName());
+        // logger.warn("varibleCashOutFlows " + varibleCashOutFlows + " for " +
+        // producer.getName());
 
         double fixedCashOutFlows = reps.cashFlowRepository.calculateFixedCashOutFlowsForEnergyProducerForTime(producer,
                 getCurrentTick() - 1);
 
-        logger.warn("fixedCashOutFlows " + fixedCashOutFlows);
+        // logger.warn("fixedCashOutFlows " + fixedCashOutFlows);
 
         double varibleCashInFlows = reps.cashFlowRepository
                 .calculateVariableCashInFlowsForEnergyProducerForTime(producer, getCurrentTick());
 
-        logger.warn("varibleCashInFlows " + varibleCashInFlows);
+        // logger.warn("varibleCashInFlows " + varibleCashInFlows);
 
         double totalCashOutFlows = varibleCashOutFlows + fixedCashOutFlows;
 
-        logger.warn("totalCashOutFlows " + totalCashOutFlows);
+        // logger.warn("totalCashOutFlows " + totalCashOutFlows);
 
         double netProfit = varibleCashInFlows - totalCashOutFlows;
 
-        logger.warn("netProfit " + netProfit);
+        // logger.warn("netProfit " + netProfit);
 
         double returnOnInvestments = (netProfit / fixedCashOutFlows) * 100;
 
-        logger.warn("returnOnInvestments " + returnOnInvestments);
+        // logger.warn("returnOnInvestments " + returnOnInvestments);
 
         if (netProfit > 0 && returnOnInvestments > 20) {
 
@@ -83,8 +84,9 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
 
             double shareOfNetProfitForStakeholder = 1 - shareOfNetProfitForEnergyProducer;
 
-            logger.warn("shareOfNetProfitForStakeholder " + shareOfNetProfitForStakeholder + " for "
-                    + stakeholder.getName());
+            // logger.warn("shareOfNetProfitForStakeholder " +
+            // shareOfNetProfitForStakeholder + " for "
+            // + stakeholder.getName());
 
             double amountOfDividentsPayableToStakeholder = shareOfNetProfitForStakeholder * netProfit;
 
@@ -92,7 +94,7 @@ public class PayToStakeholderRole extends AbstractRole<EnergyProducer>implements
                     stakeholder, amountOfDividentsPayableToStakeholder, CashFlow.STAKEHOLDER_DIVIDEND, getCurrentTick(),
                     null);
 
-            logger.warn("amountOfDividentsPayableToStakeholder " + cf_ToStakeholder.getMoney() + " for " + stakeholder);
+            logger.warn("Payment of: " + cf_ToStakeholder.getMoney() + " for " + stakeholder);
         }
 
     }

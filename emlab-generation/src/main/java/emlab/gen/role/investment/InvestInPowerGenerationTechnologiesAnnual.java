@@ -529,7 +529,7 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                             highestValue = projectValue / plant.getActualNominalCapacity();
                             bestTechnology = plant.getTechnology();
                             bestNode = node;
-                            logger.warn("Running Hours: " + runningHours);
+                            // logger.warn("Running Hours: " + runningHours);
                         }
                     }
 

@@ -61,10 +61,10 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                     - ((((regulator.getReserveMargin() - regulator.getInitialSupplyMargin())
                             / regulator.getImplementationPhaseLength()) * getCurrentTick())
                             + regulator.getInitialSupplyMargin());
-            logger.warn("1 SET phase In " + phaseInPeriod);
+            // logger.warn("1 SET phase In " + phaseInPeriod);
         }
 
-        logger.warn("2 Test phase In " + phaseInPeriod);
+        // logger.warn("2 Test phase In " + phaseInPeriod);
         boolean isTheMarketCleared = false;
 
         double marketCap = regulator.getCapacityMarketPriceCap();
@@ -102,7 +102,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
             // find all capacity dispatch plans and fully accept the capacity
             // they offer and set the price to market cap
             // means that there is a shortage of capacity in the market
-            logger.warn("Capacity Market Condition 1");
+            // logger.warn("Capacity Market Condition 1");
             for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
                     .findSortedCapacityDispatchPlansForMarketForTime(market, getCurrentTick())) {
 
@@ -132,7 +132,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
         if (totalVolumeBid > (demandTarget * (lowerMargin)) && isTheMarketCleared == false) {
 
             // find all capacity dispatch plans and sort them according to price
-            logger.warn("Capacity Market Condition 2");
+            // logger.warn("Capacity Market Condition 2");
             for (CapacityDispatchPlan currentCDP : reps.capacityMarketRepository
                     .findSortedCapacityDispatchPlansForMarketForTime(market, getCurrentTick())) {
 
@@ -165,13 +165,16 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
 
                 if ((totalContractedCapacity + currentCDP.getAmount()) > (demandTarget * (lowerMargin))
                         && isTheMarketCleared == false) {
-                    logger.warn("Capacity Market Condition 3");
+                    // logger.warn("Capacity Market Condition 3");
                     if ((totalContractedCapacity + currentCDP.getAmount()) <= (demandTarget
                             * ((upperMargin) - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap)))) {
-                        logger.warn("3 if condition: " + (demandTarget * ((upperMargin)
-                                - ((currentCDP.getPrice() * (upperMargin - lowerMargin)) / marketCap))));
+                        // logger.warn("3 if condition: " + (demandTarget *
+                        // ((upperMargin) - ((currentCDP.getPrice() *
+                        // (upperMargin - lowerMargin)) / marketCap))));
+
                         // accept all bids
-                        logger.warn("bid price: " + currentCDP.getPrice());
+
+                        // logger.warn("bid price: " + currentCDP.getPrice());
                         currentCDP.setStatus(Bid.ACCEPTED);
                         currentCDP.setAcceptedAmount(currentCDP.getAmount());
                         totalContractedCapacity = totalContractedCapacity + currentCDP.getAmount();
@@ -205,7 +208,7 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                         // - ((currentCDP.getPrice() * (upperMargin -
                         // lowerMargin)) / marketCap))));
                         // logger.warn("bid price: " + currentCDP.getPrice());
-                        logger.warn("Capacity Market Condition 4");
+                        // logger.warn("Capacity Market Condition 4");
                         double tempAcceptedAmount = 0;
                         tempAcceptedAmount = currentCDP.getAmount()
                                 - ((totalContractedCapacity + currentCDP.getAmount()) - (demandTarget * ((upperMargin)
@@ -242,7 +245,8 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                             // capacity
 
                             totalContractedCapacity = totalContractedCapacity + currentCDP.getAcceptedAmount();
-                            logger.warn("total capacity is:" + totalContractedCapacity);
+                            // logger.warn("total capacity is:" +
+                            // totalContractedCapacity);
                             // market cleared
 
                             isTheMarketCleared = true;
@@ -260,11 +264,16 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                             isTheMarketCleared = true;
                         }
 
-                        logger.warn("1 Pre " + (totalContractedCapacity + currentCDP.getAmount()) + " Edit "
-                                + (totalContractedCapacity + currentCDP.getAcceptedAmount()));
+                        // logger.warn("1 Pre " + (totalContractedCapacity +
+                        // currentCDP.getAmount()) + " Edit "
+                        // + (totalContractedCapacity +
+                        // currentCDP.getAcceptedAmount()));
+                        //
+                        // logger.warn("2 true Price " + currentCDP.getPrice() +
+                        // " accepted bid "
+                        // + currentCDP.getAcceptedAmount() + " bid qty " +
+                        // currentCDP.getAmount());
 
-                        logger.warn("2 true Price " + currentCDP.getPrice() + " accepted bid "
-                                + currentCDP.getAcceptedAmount() + " bid qty " + currentCDP.getAmount());
                         continue;
                     }
 
@@ -286,13 +295,16 @@ public class ClearCapacityMarketRoleMultiNode extends AbstractRole<Regulator>imp
                     currentCDP.setStatus(Bid.FAILED);
                     currentCDP.setAcceptedAmount(0);
 
-                    if (currentCDP.getPlant() == null) {
-                        logger.warn("Following bids failed: " + currentCDP.getStorage().getName() + " "
-                                + currentCDP.getPrice() + " " + currentCDP.getBiddingMarket());
-                    } else {
-                        logger.warn("Following bids failed: " + currentCDP.getPlant() + " " + currentCDP.getPrice()
-                                + " " + currentCDP.getBiddingMarket());
-                    }
+                    // if (currentCDP.getPlant() == null) {
+                    // logger.warn("Following bids failed: " +
+                    // currentCDP.getStorage().getName() + " "
+                    // + currentCDP.getPrice() + " " +
+                    // currentCDP.getBiddingMarket());
+                    // } else {
+                    // logger.warn("Following bids failed: " +
+                    // currentCDP.getPlant() + " " + currentCDP.getPrice()
+                    // + " " + currentCDP.getBiddingMarket());
+                    // }
                 }
             }
         }

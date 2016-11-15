@@ -49,6 +49,12 @@ public interface CashFlowRepository extends GraphRepository<CashFlow> {
     CashFlow findAllCashFlowsForStorageOMCostsForTime(@Param("producer") EnergyProducer producer,
             @Param("tick") long tick);
 
+    @Query(value = "result=g.v(producer).in('FROM_AGENT').filter{it.type==14 || it.type==16}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double findAllCurrentStorageCostsForTime(@Param("producer") EnergyProducer producer, @Param("tick") long tick);
+
+    @Query(value = "result=g.v(producer).in('FROM_AGENT').filter{it.type==15}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)
+    double findAllPreviousStorageCostsForTime(@Param("producer") EnergyProducer producer, @Param("tick") long tick);
+
     // calculating total O&M, CO2Tax, Fuel and Storage OM payments made by the
     // energy producer
     @Query(value = "result=g.v(producer).in('FROM_AGENT').filter{it.type==3 || it.type==4 || it.type==5 || it.type==9 || it.type==14}.propertyFilter('time', FilterPipe.Filter.EQUAL, tick).money.sum(); if(result==null){result=0}; return result", type = QueryType.Gremlin)

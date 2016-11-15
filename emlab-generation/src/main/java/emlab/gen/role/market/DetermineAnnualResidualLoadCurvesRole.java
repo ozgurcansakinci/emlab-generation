@@ -902,12 +902,17 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             // + priceClearingPoint.getPrice() +
             // segmentLoad.getElectricitySpotMarket().toString());
 
-            logger.warn("Segment " + segment.getSegmentID() + ": " + segmentLoad.getResidualGLDC() + " MW--"
-                    + "Hours S: " + segment.getLengthInHoursGLDCForInvestmentRole() + "Demand "
-                    + segmentLoad.getDemandLDC() + "Hours D" + segment.getLengthInHoursDLDCForCapacityMarket()
-                    + "Generation " + segmentLoad.getGenerationLDC() + "Hours G"
-                    + segment.getLengthInHoursTotalGLDCForInvestmentRole() + " Price " + priceClearingPoint.getPrice()
-                    + "Eur/MWh--" + " " + segmentLoad.getElectricitySpotMarket().toString());
+            // logger.warn("Segment " + segment.getSegmentID() + ": " +
+            // segmentLoad.getResidualGLDC() + " MW--"
+            // + "Hours S: " + segment.getLengthInHoursGLDCForInvestmentRole() +
+            // "Demand "
+            // + segmentLoad.getDemandLDC() + "Hours D" +
+            // segment.getLengthInHoursDLDCForCapacityMarket()
+            // + "Generation " + segmentLoad.getGenerationLDC() + "Hours G"
+            // + segment.getLengthInHoursTotalGLDCForInvestmentRole() + " Price
+            // " + priceClearingPoint.getPrice()
+            // + "Eur/MWh--" + " " +
+            // segmentLoad.getElectricitySpotMarket().toString());
         }
     }
 

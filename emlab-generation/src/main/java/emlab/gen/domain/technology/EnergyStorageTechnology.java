@@ -62,9 +62,31 @@ public class EnergyStorageTechnology {
 
     private double initialStateOfChargeInStorage;
 
+    private double finalStateOfChargeInStorage;
+
     private double marginalCostOfCharging;
 
     private double marginalCostOfDischarging;
+
+    private double storageInvestmentCalibrator;
+
+    private double percentageCMBidding;
+
+    public double getStorageInvestmentCalibrator() {
+        return storageInvestmentCalibrator;
+    }
+
+    public void setStorageInvestmentCalibrator(double storageInvestmentCalibrator) {
+        this.storageInvestmentCalibrator = storageInvestmentCalibrator;
+    }
+
+    public double getPercentageCMBidding() {
+        return percentageCMBidding;
+    }
+
+    public void setPercentageCMBidding(double percentageCMBidding) {
+        this.percentageCMBidding = percentageCMBidding;
+    }
 
     public double getMarginalCostOfCharging() {
         return marginalCostOfCharging;
@@ -97,8 +119,6 @@ public class EnergyStorageTechnology {
     public void setFinalStateOfChargeInStorage(double finalStateOfChargeInStorage) {
         this.finalStateOfChargeInStorage = finalStateOfChargeInStorage;
     }
-
-    private double finalStateOfChargeInStorage;
 
     public String getName() {
         return name;

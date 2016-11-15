@@ -135,8 +135,8 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
             // Arrays.sort(demands);
             double[] maxDemand = getMaxIndex(demands);
             // peakDemand = demands[demands.length - 1];
-            logger.warn("Max value demand" + maxDemand[1]);
-            logger.warn("Max demand hour" + maxDemand[0]);
+            // logger.warn("Max value demand" + maxDemand[1]);
+            // logger.warn("Max demand hour" + maxDemand[0]);
 
             double[] gens = reps.yearlySegmentClearingPointMarketInformationRepository
                     .findMarketInformationForMarketAndTime(getCurrentTick() - 1, market).getMarketSupply();
@@ -146,8 +146,8 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
             // peakGeneration = gens[gens.length - 1];
             double[] maxGen = getMaxIndex(gens);
             // peakDemand = demands[demands.length - 1];
-            logger.warn("Max value generation" + maxGen[1]);
-            logger.warn("Max generation hour" + maxGen[0]);
+            // logger.warn("Max value generation" + maxGen[1]);
+            // logger.warn("Max generation hour" + maxGen[0]);
             // logger.warn("Max value gen" + gens[gens.length - 1]);
             // peakDemand =
             // reps.segmentLoadRepository.nonAdjustedPeakDemandbyMarketAnnual(market);
@@ -167,12 +167,13 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
                 peakGeneration = gens[(int) maxDemand[0]] - voll[(int) maxDemand[0]];
 
             }
-            logger.warn("Cross border cap:" + crossBorderCapacity);
+            // logger.warn("Cross border cap:" + crossBorderCapacity);
 
             peakLoadforMarketNOtrend = peakGeneration;
             peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
         }
-        logger.warn("ExpectedDemandFactor for this tick: " + expectedDemandFactor);
+        // logger.warn("ExpectedDemandFactor for this tick: " +
+        // expectedDemandFactor);
         regulator.setCrossBorderContractedCapacity(crossBorderCapacity);
         // logger.warn("demand factor " +
         // market.getDemandGrowthTrend().getValue(getCurrentTick()));
@@ -185,11 +186,11 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         // peakLoadforMarketNOtrend =
         // reps.segmentLoadRepository.nonAdjustedPeakLoadbyMarketAnnual(market);
 
-        logger.warn("peakLoadforMarketNOtrend " + peakLoadforMarketNOtrend);
+        // logger.warn("peakLoadforMarketNOtrend " + peakLoadforMarketNOtrend);
 
         // this is 69918 for esm A
 
-        logger.warn("peakExpectedDemand " + peakExpectedDemand);
+        // logger.warn("peakExpectedDemand " + peakExpectedDemand);
 
         // this is 83902 (69918 * 1.2), the expected peak demand for the current
         // year
