@@ -281,7 +281,7 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
 
             // logger.warn("profitability " + plant.getProfitability());
 
-            if (plant.getProfitability() < 0 && plant.getActualLifetime() > 4) {
+            if (plant.getProfitability() < 0 && plant.getActualLifetime() > 6) {
 
                 // double totalInvestment =
                 // plant.getTechnology().getInvestmentCost(plant.getConstructionStartTime())
@@ -654,8 +654,12 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                         }
                     }
                     if (getCurrentTick() < 8 && plant.getActualLifetime() < 15) {
-                        logger.warn(" **********************  TOO early to dismantle: " + plant.getName() + " Age "
-                                + plant.getActualLifetime());
+                        // logger.warn(" ********************** TOO early to
+                        // dismantle: " + plant.getName() + " Age "
+                        // + plant.getActualLifetime());
+                    } else if (market.isDailyDemandResponseImplemented() && plant.getActualLifetime() < 10
+                            && !plant.getOwner().isSimpleCapacityMarketEnabled()) {
+
                     } else {
                         logger.warn(" **********************  ENERGY PRODUCER DISMANTLED: " + plant.getName() + " Age "
                                 + plant.getActualLifetime());
@@ -664,9 +668,8 @@ public class DismantlePowerPlantOperationalLossRole extends AbstractRole<Electri
                 }
             }
         }
-        // }
-
     }
+    // }
 
     public double calculateMarginalCostExclCO2MarketCost(PowerPlant powerPlant, long clearingTick) {
         double mc = 0d;

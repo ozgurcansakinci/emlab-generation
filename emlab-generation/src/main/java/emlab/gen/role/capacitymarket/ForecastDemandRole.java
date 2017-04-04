@@ -117,6 +117,7 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         double crossBorderCapacity = 0;
         double peakDemand;
         double peakGeneration;
+        double peakGenerationMinusImports;
 
         if (getCurrentTick() == 0) {
             peakLoadforMarketNOtrend = reps.capacityMarketRepository.findCapacityMarketForZone(regulator.getZone())
@@ -160,7 +161,12 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
 
                 peakGeneration = gens[(int) maxDemand[0]] - voll[(int) maxDemand[0]];
 
-                crossBorderCapacity = peakGeneration - maxDemand[1];
+                crossBorderCapacity = (peakGeneration - maxDemand[1]) * 1.01;
+
+                // if (crossBorderCapacity < 0) {
+                // peakGenerationMinusImports = peakGeneration -
+                // crossBorderCapacity;
+                // }
 
             } else {
 

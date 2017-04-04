@@ -67,6 +67,7 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
             Government gov = template.findAll(Government.class).iterator().next();
             IloCplex cplex = new IloCplex();
             double co2Cap = gov.getCo2Cap(getCurrentTick());
+            logger.warn("Carbon cap is: " + co2Cap);
             List<Zone> zoneList = Utils.asList(reps.template.findAll(Zone.class));
             List<Interconnector> interconnectorList = Utils
                     .asList(reps.interconnectorRepository.findAllInterconnectors());
@@ -85,8 +86,12 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
 
             int timeSteps = (int) yearlySegment.getYearlySegmentLengthInHours();
 
-            int numberOfDays = (int) market1.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
-                    .getLengthInHours();
+            int numberOfDays = 0;
+
+            if (market1.isDailyDemandResponseImplemented()) {
+                numberOfDays = (int) market1.getYearlySegmentLoad().getDailyElasticBaseDemandForYearlySegment()
+                        .getLengthInHours();
+            }
 
             // double PTDFBtoAB = -0.6666666666666666;
             // double PTDFBtoAC = -0.3333333333333333;

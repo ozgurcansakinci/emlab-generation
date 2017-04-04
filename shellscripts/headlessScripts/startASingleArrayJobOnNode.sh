@@ -66,9 +66,9 @@ echo "Disk usage on Ramdisk: $RAMDU"
 #Execute the job 
 #java -Drun.id=$JOBNAME-$PBS_ARRAYID -Dresults.path=$TEMP/$dir -Dscenario.file=$SCENARIO -jar $PBS_O_WORKDIR/$JARNAME
 if [ -n "$PBS_ARRAYID" ]; then
-java -d64 -server -Xmx3072m -Drun.id=$JOBNAME-$PBS_ARRAYID -DSCENARIO_FOLDER=file://$NODESCENARIOFOLDER -Dresults.path=$TEMP/$dir -Dscenario.file=$SCENARIO -jar $TEMP/$NEWJARNAME > $JOBNAME-$PBS_ARRAYID.elog
+java -d64 -server -Xmx3072m -Drun.id=$JOBNAME-$PBS_ARRAYID -DSCENARIO_FOLDER=file://$NODESCENARIOFOLDER -Dresults.path=$TEMP/$dir -Dscenario.file=$SCENARIO -Djava.library.path=/home/asmkhan/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux -jar $TEMP/$NEWJARNAME > $JOBNAME-$PBS_ARRAYID.elog
 else
-java -d64 -server -Xmx3072m -Drun.id=$JOBNAME -DSCENARIO_FOLDER=file://$NODESCENARIOFOLDER -Dresults.path=$TEMP/$dir -Dscenario.file=$SCENARIO -jar $TEMP/$NEWJARNAME > $JOBNAME.elog
+java -d64 -server -Xmx3072m -Drun.id=$JOBNAME -DSCENARIO_FOLDER=file://$NODESCENARIOFOLDER -Dresults.path=$TEMP/$dir -Dscenario.file=$SCENARIO -Djava.library.path=/home/asmkhan/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux -jar $TEMP/$NEWJARNAME > $JOBNAME.elog
 fi
 
 

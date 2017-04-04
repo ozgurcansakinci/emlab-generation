@@ -54,8 +54,7 @@ public class DetermineAnnualDemandGrowthRole extends AbstractMarketRole<Electric
         // DecarbonizationModel model =
         // reps.genericRepository.findAll(DecarbonizationModel.class).iterator().next();
 
-        // System.out.println("Growth Rate = " +
-        // market.getDemandGrowthTrend().getValue(getCurrentTick()));
+        System.out.println("Growth Rate = " + market.getDemandGrowthTrend().getValue(getCurrentTick()));
 
         //////////// Hourly demand
         if (getCurrentTick() == 0) {

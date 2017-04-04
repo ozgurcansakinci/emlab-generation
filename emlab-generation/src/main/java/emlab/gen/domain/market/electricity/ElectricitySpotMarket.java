@@ -84,6 +84,16 @@ public class ElectricitySpotMarket extends DecarbonizationMarket {
 
     private double demandShiftCost;
 
+    private double totalShiftedDemand;
+
+    public double getTotalShiftedDemand() {
+        return totalShiftedDemand;
+    }
+
+    public void setTotalShiftedDemand(double totalShiftedDemand) {
+        this.totalShiftedDemand = totalShiftedDemand;
+    }
+
     public double getDemandShiftCost() {
         return demandShiftCost;
     }

@@ -72,6 +72,26 @@ public class EnergyStorageTechnology {
 
     private double percentageCMBidding;
 
+    private double totalChargingCycles;
+
+    private double totalDischargingCycles;
+
+    public double getTotalChargingCycles() {
+        return totalChargingCycles;
+    }
+
+    public void setTotalChargingCycles(double totalChargingCycles) {
+        this.totalChargingCycles = totalChargingCycles;
+    }
+
+    public double getTotalDischargingCycles() {
+        return totalDischargingCycles;
+    }
+
+    public void setTotalDischargingCycles(double totalDischargingCycles) {
+        this.totalDischargingCycles = totalDischargingCycles;
+    }
+
     public double getStorageInvestmentCalibrator() {
         return storageInvestmentCalibrator;
     }

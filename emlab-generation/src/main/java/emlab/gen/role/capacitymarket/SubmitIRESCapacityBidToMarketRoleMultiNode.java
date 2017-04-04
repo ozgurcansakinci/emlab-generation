@@ -26,7 +26,9 @@ import emlab.gen.domain.market.Bid;
 import emlab.gen.domain.market.capacity.CapacityDispatchPlan;
 import emlab.gen.domain.market.capacity.CapacityMarket;
 import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
-import emlab.gen.domain.technology.IntermittentResourceProfile;
+import emlab.gen.domain.market.electricity.SegmentLoad;
+import emlab.gen.domain.technology.PowerGeneratingTechnology;
+import emlab.gen.domain.technology.PowerGridNode;
 import emlab.gen.domain.technology.PowerPlant;
 import emlab.gen.repository.Reps;
 import emlab.gen.role.AbstractEnergyProducerRole;
@@ -50,16 +52,13 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
     @Override
     @Transactional
     public void act(EnergyProducer producer) {
-        // logger.warn("***********Submitting Bid Role for Energy Producer
-        // ********"
-        // + producer.getName());
-
-        // for (PowerPlant plant :
-        // reps.powerPlantRepository.findOperationalPowerPlantsByOwner(producer,
-        // getCurrentTick())) {
 
         for (PowerPlant plant : reps.powerPlantRepository.findOperationalIntermittentPowerPlantsByOwner(producer,
                 getCurrentTick())) {
+
+            PowerGridNode node = plant.getLocation();
+
+            PowerGeneratingTechnology technology = plant.getTechnology();
 
             CapacityMarket market = reps.capacityMarketRepository
                     .findCapacityMarketForZone(plant.getLocation().getZone());
@@ -68,42 +67,74 @@ public class SubmitIRESCapacityBidToMarketRoleMultiNode extends AbstractEnergyPr
                 ElectricitySpotMarket eMarket = reps.marketRepository
                         .findElectricitySpotMarketForZone(plant.getLocation().getZone());
 
-                // logger.warn("Bid calculation for PowerPlant " +
-                // plant.getName());
-                // get market for the plant by zone
-
-                // logger.warn("CapacityMarket is " + market.getName());
-
-                // if (getCurrentTick() > 0) {
-                //
-                // CashFlow revenue =
-                // reps.cashFlowRepository.findAnnualRevenueCashFlowsForPowerPlantForTime(plant,
-                // getCurrentTick() - 1);
-                //
-                // logger.warn("Revenue for Plant: " +
-                // plant.getName().toString() + " is: " + revenue);
-                // }
-
                 double bidPrice = 0;
                 double capacity = 0;
+                double expectedElectricityRevenues = 0;
+                double netRevenues = 0;
 
-                if (getCurrentTick() == 0) {
-                    capacity = plant.getActualNominalCapacity()
-                            * plant.getTechnology().getPeakSegmentDependentAvailability();
+                double fixedOnMCost = plant.getActualFixedOperatingCost();
 
-                } else {
-                    double[] demand = reps.yearlySegmentClearingPointMarketInformationRepository
-                            .findMarketInformationForMarketAndTime(getCurrentTick() - 1, eMarket).getMarketDemand();
-                    double[] max = getMaxIndex(demand);
-                    IntermittentResourceProfile availability = reps.intermittentResourceProfileRepository
-                            .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(),
-                                    plant.getLocation());
-                    capacity = plant.getActualNominalCapacity() * availability.getHourlyArray(0)[(int) max[0]];
-                    // double []
+                capacity = plant.getActualNominalCapacity()
+                        * plant.getTechnology().getPeakSegmentDependentAvailability();
 
+                // if (getCurrentTick() == 0) {
+                // capacity = plant.getActualNominalCapacity()
+                // *
+                // plant.getTechnology().getPeakSegmentDependentAvailability();
+                //
+                // } else {
+                // double[] demand =
+                // reps.yearlySegmentClearingPointMarketInformationRepository
+                // .findMarketInformationForMarketAndTime(getCurrentTick() - 1,
+                // eMarket).getMarketDemand();
+                // double[] max = getMaxIndex(demand);
+                // IntermittentResourceProfile availability =
+                // reps.intermittentResourceProfileRepository
+                // .findIntermittentResourceProfileByTechnologyAndNode(plant.getTechnology(),
+                // plant.getLocation());
+                // capacity = plant.getActualNominalCapacity() *
+                // availability.getHourlyArray(0)[(int) max[0]];
+                // }
+
+                for (SegmentLoad segmentLoad : eMarket.getLoadDurationCurve()) {
+
+                    double price = 0;
+                    double plantLoadFactor = 0;
+
+                    if (getCurrentTick() > 0) {
+                        price = reps.timeSeriesToLDCClearingPointRepository
+                                .findOneTimeSeriesToLDCClearingPointForMarketSegmentAndTime(getCurrentTick() - 1,
+                                        segmentLoad.getSegment(), eMarket)
+                                .getPrice();
+
+                        plantLoadFactor = reps.intermittentTechnologyNodeLoadFactorRepository
+                                .findIntermittentTechnologyNodeLoadFactorForNodeAndTechnology(node, technology)
+                                .getLoadFactorForSegment(segmentLoad.getSegment());
+
+                    } else {
+                        price = 0;
+                    }
+
+                    expectedElectricityRevenues = expectedElectricityRevenues
+                            + (price * plant.getActualNominalCapacity() * plantLoadFactor
+                                    * segmentLoad.getSegment().getLengthInHoursGLDCForInvestmentRole());
                 }
+
+                netRevenues = expectedElectricityRevenues - fixedOnMCost;
+
+                if (getCurrentTick() > 0) {
+                    if (netRevenues >= 0) {
+                        bidPrice = 0d;
+                    } else {
+                        bidPrice = (netRevenues * (-1)) / capacity;
+                    }
+                } else {
+                    bidPrice = 0;
+                }
+
                 // logger.warn(plant.getTechnology().toString() + "RES bids " +
                 // capacity + "for the capacity market");
+
                 CapacityDispatchPlan plan = new CapacityDispatchPlan().persist();
 
                 plan.specifyAndPersist(plant, producer, market, getCurrentTick(), bidPrice, capacity, Bid.SUBMITTED);

@@ -22,11 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import agentspring.role.Role;
 import agentspring.role.RoleComponent;
 import emlab.gen.domain.agent.EnergyProducer;
-import emlab.gen.domain.contract.CashFlow;
 import emlab.gen.domain.market.Bid;
 import emlab.gen.domain.market.capacity.CapacityDispatchPlan;
 import emlab.gen.domain.market.capacity.CapacityMarket;
-import emlab.gen.domain.market.electricity.ElectricitySpotMarket;
 import emlab.gen.domain.technology.EnergyStorageTechnology;
 import emlab.gen.repository.Reps;
 import emlab.gen.role.AbstractEnergyProducerRole;
@@ -69,58 +67,65 @@ public class SubmitStorageCapacityBidToMarketRole extends AbstractEnergyProducer
         // producer.getInvestorMarket().getZone());
 
         if (market != null) {
-            ElectricitySpotMarket eMarket = reps.marketRepository
-                    .findElectricitySpotMarketForZone(producer.getInvestorMarket().getZone());
 
-            double bidPrice = 0d;
-            double expectedStorageRevenues = 0;
-            double netRevenuesForStorage = 0;
+            // ElectricitySpotMarket eMarket = reps.marketRepository
+            // .findElectricitySpotMarketForZone(producer.getInvestorMarket().getZone());
 
-            // Getting storage revenue and payments from the previous year
+            double bidPrice = 0;
 
-            if (getCurrentTick() == 0) {
-                netRevenuesForStorage = 0d;
+            // double expectedStorageRevenues = 0;
+            // double netRevenuesForStorage = 0;
+            //
+            // // Getting storage revenue and payments from the previous year
+            //
+            // if (getCurrentTick() == 0) {
+            // netRevenuesForStorage = 0d;
+            //
+            // } else {
+            //
+            // CashFlow revenue =
+            // reps.cashFlowRepository.findAllCashFlowsForStorageRevenueForTime(producer,
+            // getCurrentTick() - 1);
+            //
+            // CashFlow omCosts =
+            // reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(producer,
+            // getCurrentTick() - 1);
+            //
+            // // logger.warn("Storage revenues from year " + (getCurrentTick()
+            // // - 1) + " Are: " + revenue.getMoney());
+            // // logger.warn("Storage O&M Costs from year " +
+            // // (getCurrentTick() - 1) + " Are: " + omCosts.getMoney());
+            //
+            // if (revenue != null)
+            // netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
+            // else
+            // netRevenuesForStorage = -omCosts.getMoney();
+            // }
+            //
+            // if (getCurrentTick() == 0) {
+            //
+            // bidPrice = 0;
+            //
+            // } else {
+            //
+            // if (netRevenuesForStorage >= 0) {
+            //
+            // bidPrice = 0d;
+            //
+            // } else {
+            //
+            // // bidPrice = (netRevenuesForStorage * (-1)) /
+            // // storageTech.getCurrentMaxStorageCapacity();
+            // bidPrice = 0d;
+            // }
+            // }
 
-            } else {
-
-                CashFlow revenue = reps.cashFlowRepository.findAllCashFlowsForStorageRevenueForTime(producer,
-                        getCurrentTick() - 1);
-
-                CashFlow omCosts = reps.cashFlowRepository.findAllCashFlowsForStorageOMCostsForTime(producer,
-                        getCurrentTick() - 1);
-
-                // logger.warn("Storage revenues from year " + (getCurrentTick()
-                // - 1) + " Are: " + revenue.getMoney());
-                // logger.warn("Storage O&M Costs from year " +
-                // (getCurrentTick() - 1) + " Are: " + omCosts.getMoney());
-
-                if (revenue != null)
-                    netRevenuesForStorage = revenue.getMoney() - omCosts.getMoney();
-                else
-                    netRevenuesForStorage = -omCosts.getMoney();
-            }
-
-            if (getCurrentTick() == 0) {
-
-                bidPrice = 0;
-
-            } else {
-
-                if (netRevenuesForStorage >= 0) {
-
-                    bidPrice = 0d;
-
-                } else {
-
-                    bidPrice = (netRevenuesForStorage * (-1)) / storageTech.getCurrentMaxStorageCapacity();
-                }
-            }
-
-            // Storage can only bid 8% of the available discharging capacity
+            // Storage can only bid 8.33333% or 1/12th of the available storage
+            // capacity
 
             double capacity = 0;
             double availablePeakHourCapacity = storageTech.getCurrentMaxStorageCapacity()
-                    / storageTech.getPercentageCMBidding();
+                    * storageTech.getPercentageCMBidding();
 
             if (storageTech.getCurrentMaxStorageDischargingRate() > availablePeakHourCapacity) {
                 capacity = availablePeakHourCapacity;

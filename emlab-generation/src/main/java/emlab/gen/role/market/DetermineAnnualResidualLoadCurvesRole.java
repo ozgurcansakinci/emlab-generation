@@ -214,7 +214,8 @@ public class DetermineAnnualResidualLoadCurvesRole extends AbstractRole<Decarbon
             // growthFactors.assign(growthRate);
             // hourlyArray.assign(growthFactors, Functions.mult);
             m.viewColumn(LOADINZONE.get(zone)).assign(hourlyArray, Functions.plus);
-            m.viewColumn(LOADINZONE.get(zone)).assign(valueOfLostLoad, Functions.minus);
+            // m.viewColumn(LOADINZONE.get(zone)).assign(valueOfLostLoad,
+            // Functions.minus);
             m.viewColumn(RLOADINZONE.get(zone)).assign(m.viewColumn(LOADINZONE.get(zone)), Functions.plus);
             m.viewColumn(PRICEFORZONE.get(zone)).assign(priceArray, Functions.plus);
             m.viewColumn(DEMANDINZONE.get(zone)).assign(hourlyDemand, Functions.plus);

@@ -37,3 +37,5 @@ java -d64 -server -Xmx3072m -Drun.id=$runId -DSCENARIO_FOLDER=$SCENARIOPATH -Dre
 mv simulation.log "$JOBNAME-$PBS_ARRAYID.log"
 rm -rf /tmp/ramdisk/emlab.gen-db/$JOBNAME-$PBS_ARRAYID
 done
+
+#-Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio1262/cplex/bin/x86-64_linux

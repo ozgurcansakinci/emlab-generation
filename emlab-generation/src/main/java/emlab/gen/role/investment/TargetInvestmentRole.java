@@ -65,6 +65,8 @@ public class TargetInvestmentRole extends GenericInvestmentRole<TargetInvestor> 
                 pgtNodeLimit = pgtLimit.getUpperCapacityLimit(futureTimePoint);
             }
             double targetCapacity = target.getTrend().getValue(futureTimePoint);
+            // logger.warn("Technology Target: " + targetCapacity + " " +
+            // target.getPowerGeneratingTechnology());
             double installedCapacityDeviation = 0;
             if (pgtNodeLimit > targetCapacity) {
                 installedCapacityDeviation = targetCapacity - expectedInstalledCapacity;

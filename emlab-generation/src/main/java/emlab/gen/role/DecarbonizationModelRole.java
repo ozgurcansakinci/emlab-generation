@@ -240,6 +240,12 @@ public class DecarbonizationModelRole extends AbstractRole<DecarbonizationModel>
                 capacityMarketMainRoleMultiNode.act(cmarket);
             }
 
+            // for (PowerGeneratingTechnology tech :
+            // reps.powerGeneratingTechnologyRepository.findAll()) {
+            // logger.warn("Inv Cost: " +
+            // tech.getInvestmentCostTimeSeries().getValue(getCurrentTick()));
+            // }
+
             // exportLimiterRole.act(model);
 
             timerMarket.stop();

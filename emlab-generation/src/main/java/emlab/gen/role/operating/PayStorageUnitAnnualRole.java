@@ -54,7 +54,7 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
     @Transactional
     public void act(EnergyProducer producer) {
 
-        logger.info("Make the payments for storage");
+        logger.info("Making the payments for storage");
 
         ElectricitySpotMarket operatingMarket = producer.getInvestorMarket();
 
@@ -84,13 +84,25 @@ public class PayStorageUnitAnnualRole extends AbstractEnergyProducerRole impleme
 
         logger.warn("money={}", money);
 
-        // } else {
-        //
-        // double[] outputStorage = calculateTotalChargingAndDischarging(info);
+        // Calculating the total charging and discharging cycles
+
+        double[] outputStorage = calculateTotalChargingAndDischarging(info);
+
+        if (outputStorage[0] > 0 && outputStorage[1] > 0) {
+
+            storageTech.setTotalChargingCycles(outputStorage[0] / storageTech.getCurrentMaxStorageChargingRate());
+            storageTech.setTotalDischargingCycles(outputStorage[1] / storageTech.getCurrentMaxStorageDischargingRate());
+
+        } else {
+
+            storageTech.setTotalChargingCycles(0);
+            storageTech.setTotalDischargingCycles(0);
+        }
+
         // double money = (storageTech.getMarginalCostOfDischarging() *
         // outputStorage[1])
         // - (storageTech.getMarginalCostOfCharging() * outputStorage[0]);
-        //
+
         // if (money != 0) {
         //
         // CashFlow cf =

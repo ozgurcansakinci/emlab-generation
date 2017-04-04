@@ -472,6 +472,8 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                         double wacc = (1 - agent.getDebtRatioOfInvestments()) * agent.getEquityInterestRate()
                                 + agent.getDebtRatioOfInvestments() * agent.getLoanInterestRate();
 
+                        // logger.warn("WACC = " + wacc);
+
                         // Creation of out cash-flow during power plant building
                         // phase (note that the cash-flow is negative!)
                         TreeMap<Integer, Double> discountedProjectCapitalOutflow = calculateSimplePowerPlantInvestmentCashFlow(
@@ -498,7 +500,52 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                         // + discountedOpProfit,
                         // agent, technology);
 
-                        double projectValue = discountedOpProfit + discountedCapitalCosts;
+                        // **************************************************
+
+                        double totalNonDiscountedCashInFlowsForPowerPlant = addCashFlows(discountedProjectCashInflow);
+                        // * (-1);
+                        double totalNonDiscountedCashOutFlowsForPowerPlant = addCashFlows(
+                                discountedProjectCapitalOutflow);// * (-1);
+
+                        // logger.warn("totalNonDiscountedCashInFlowsForPowerPlant
+                        // = "
+                        // + totalNonDiscountedCashInFlowsForPowerPlant);
+                        // logger.warn("totalNonDiscountedCashOutFlowsForPowerPlant
+                        // = "
+                        // + totalNonDiscountedCashOutFlowsForPowerPlant);
+
+                        // double projectValue = discountedOpProfit +
+                        // discountedCapitalCosts;
+
+                        // this project value can be used for calculating ROI
+                        // using non-discounted cash flows
+
+                        // double projectValue =
+                        // (totalNonDiscountedCashInFlowsForPowerPlant
+                        // + totalNonDiscountedCashOutFlowsForPowerPlant)
+                        // / totalNonDiscountedCashOutFlowsForPowerPlant;
+
+                        // logger.warn("projectValue = " + projectValue);
+
+                        // this project value can be used for calculating ROI
+                        // using discounted cash flows
+
+                        double totalDiscountedCashInFlowsForPowerPlant = discountedOpProfit;// *
+                                                                                            // (-1);
+                        double totalDiscountedCashOutFlowsForPowerPlant = discountedCapitalCosts; // *
+                                                                                                  // (-1);
+
+                        // logger.warn(
+                        // "totalDiscountedCashInFlowsForPowerPlant = " +
+                        // totalDiscountedCashInFlowsForPowerPlant);
+                        // logger.warn("totalDiscountedCashOutFlowsForPowerPlant
+                        // = "
+                        // + totalDiscountedCashOutFlowsForPowerPlant);
+
+                        double projectValue = (totalDiscountedCashInFlowsForPowerPlant
+                                + totalDiscountedCashOutFlowsForPowerPlant) / -totalDiscountedCashOutFlowsForPowerPlant;
+
+                        // **************************************************
 
                         // if (technology.isIntermittent()) {
                         // logger.warn(technology + "in " + node.getName() +
@@ -525,8 +572,15 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
                          * power plants (which have the single largest NPV
                          */
 
-                        if (projectValue > 0 && projectValue / plant.getActualNominalCapacity() > highestValue) {
-                            highestValue = projectValue / plant.getActualNominalCapacity();
+                        // if (projectValue > 0 && projectValue /
+                        // plant.getActualNominalCapacity() > highestValue) {
+                        // highestValue = projectValue /
+                        // plant.getActualNominalCapacity();
+                        // bestTechnology = plant.getTechnology();
+                        // bestNode = node;
+
+                        if (projectValue > 0 && projectValue > highestValue) {
+                            highestValue = projectValue;
                             bestTechnology = plant.getTechnology();
                             bestNode = node;
                             // logger.warn("Running Hours: " + runningHours);
@@ -546,6 +600,8 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
             plant.specifyAndPersist(getCurrentTick(), agent, bestNode, bestTechnology);
             PowerPlantManufacturer manufacturer = reps.genericRepository.findFirst(PowerPlantManufacturer.class);
             BigBank bigbank = reps.genericRepository.findFirst(BigBank.class);
+
+            // logger.warn("AIC: " + plant.getActualInvestedCapital());
 
             double investmentCostPayedByEquity = plant.getActualInvestedCapital()
                     * (1 - agent.getDebtRatioOfInvestments());
@@ -633,14 +689,14 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
     // map. If only investment, or operation costs should be considered set
     // totalInvestment or operatingProfit to 0
 
-    private TreeMap<Integer, Double> calculateSimplePowerPlantInvestmentCashFlow(int depriacationTime, int buildingTime,
+    private TreeMap<Integer, Double> calculateSimplePowerPlantInvestmentCashFlow(int depriciationTime, int buildingTime,
             double totalInvestment, double operatingProfit) {
         TreeMap<Integer, Double> investmentCashFlow = new TreeMap<Integer, Double>();
         double equalTotalDownPaymentInstallement = totalInvestment / buildingTime;
         for (int i = 0; i < buildingTime; i++) {
             investmentCashFlow.put(new Integer(i), -equalTotalDownPaymentInstallement);
         }
-        for (int i = buildingTime; i < depriacationTime + buildingTime; i++) {
+        for (int i = buildingTime; i < depriciationTime + buildingTime; i++) {
             investmentCashFlow.put(new Integer(i), operatingProfit);
         }
 
@@ -653,6 +709,14 @@ public class InvestInPowerGenerationTechnologiesAnnual<T extends EnergyProducer>
             npv += netCashFlow.get(iterator).doubleValue() / Math.pow(1 + wacc, iterator.intValue());
         }
         return npv;
+    }
+
+    private double addCashFlows(TreeMap<Integer, Double> netCashFlow) {
+        double totalCashFlow = 0;
+        for (Integer iterator : netCashFlow.keySet()) {
+            totalCashFlow += netCashFlow.get(iterator).doubleValue();
+        }
+        return totalCashFlow;
     }
 
     public double determineExpectedMarginalCost(PowerPlant plant, Map<Substance, Double> expectedFuelPrices,

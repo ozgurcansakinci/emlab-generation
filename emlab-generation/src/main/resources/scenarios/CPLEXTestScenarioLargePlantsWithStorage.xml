@@ -692,6 +692,18 @@
 		p:numberOfYearsBacklookingForForecasting="${numberOfYearsBacklookingForForecasting}"
 		p:investorMarket-ref="germanElectricitySpotMarket"/>
 		
+	<bean id="energyProducerEI" class="emlab.gen.domain.agent.EnergyProducer"
+		p:name="Energy Producer E" p:cash="6e9"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
+		p:investmentFutureTimeHorizon="6" p:pastTimeHorizon="5"
+		p:equityInterestRate="0.08" p:loanInterestRate="0.05144"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
+		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
+		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
+		p:willingToInvest="true" p:priceMarkUp="1" 
+		p:numberOfYearsBacklookingForForecasting="5"
+		p:investorMarket-ref="dutchElectricitySpotMarket"/>
+		
 		
 <bean id="standardInvestmentRole" class="emlab.gen.role.investment.InvestInPowerGenerationTechnologiesAnnual"/>
 

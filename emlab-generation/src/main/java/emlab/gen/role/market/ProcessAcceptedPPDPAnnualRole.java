@@ -60,6 +60,8 @@ public class ProcessAcceptedPPDPAnnualRole extends AbstractMarketRole<Electricit
 
         if (esm.isDailyDemandResponseImplemented()) {
 
+            esm.setTotalShiftedDemand(calculateTotalElasticDemand(info));
+
             double elasticDemandPayment = esm.getDemandShiftCost() * calculateTotalElasticDemand(info);
 
             logger.warn("Total demand shifted is: " + calculateTotalElasticDemand(info));
