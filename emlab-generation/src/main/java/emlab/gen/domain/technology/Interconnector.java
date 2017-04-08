@@ -50,6 +50,10 @@ public class Interconnector {
 
     private float TransmissionLineSusceptance;
 
+    private double congestionInstancesPerYear;
+
+    private double priceConvergenceInstancesPerYear;
+
     public float getTransmissionLineSusceptance() {
         return TransmissionLineSusceptance;
     }
@@ -129,6 +133,22 @@ public class Interconnector {
         }
         interconnectorCapacityTrend.setTimeSeries(interconnectorCapacityTrendTimeSeries);
         setInterconnectorCapacityTrend(interconnectorCapacityTrend);
+    }
+
+    public double getPriceConvergenceInstancesPerYear() {
+        return priceConvergenceInstancesPerYear;
+    }
+
+    public void setPriceConvergenceInstancesPerYear(double priceConvergenceInstancesPerYear) {
+        this.priceConvergenceInstancesPerYear = priceConvergenceInstancesPerYear;
+    }
+
+    public double getCongestionInstancesPerYear() {
+        return congestionInstancesPerYear;
+    }
+
+    public void setCongestionInstancesPerYear(double congestionInstancesPerYear) {
+        this.congestionInstancesPerYear = congestionInstancesPerYear;
     }
 
 }

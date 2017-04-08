@@ -460,7 +460,7 @@
 	
 	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology"
 		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="20000" p:baseMaxStorageChargingRate="5000" 
-		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:finalStateOfChargeInStorage="10000" >
+		p:baseMaxStorageDischargingRate="5000" p:initialStateOfChargeInStorage="10000" p:marginalCostOfCharging="4" p:marginalCostOfDischarging="5" p:finalStateOfChargeInStorage="10000" >
 		<property name="ownerStorageUnit" ref="energyProducerA"/>
 		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
 		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />

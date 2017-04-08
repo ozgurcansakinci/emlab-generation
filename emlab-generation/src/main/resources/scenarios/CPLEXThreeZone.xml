@@ -323,7 +323,7 @@
 	<!-- Electricity Spot -->
 	<bean id="beneluxElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
-		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:demandShiftCost="5" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
 		p:storageImplemented="true">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
@@ -419,7 +419,7 @@
 	
 	<bean id="germanElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country B electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
-		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:demandShiftCost="5" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
 		p:storageImplemented="true">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendDE" />
@@ -515,7 +515,7 @@
 
 <bean id="britishElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
 		p:name="Country C electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
-		p:referencePrice="40" p:valueOfLostLoad="5000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
+		p:referencePrice="40" p:valueOfLostLoad="5000" p:demandShiftCost="5" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
 		p:storageImplemented="true">
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendUK" />
