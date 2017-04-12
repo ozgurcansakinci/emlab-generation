@@ -42,6 +42,26 @@ public class YearlySegmentClearingPointInterconnectorInformation {
 
     private long time;
 
+    private double congestionInstancesPerYear;
+
+    private double priceConvergenceInstancesPerYear;
+
+    public double getCongestionInstancesPerYear() {
+        return congestionInstancesPerYear;
+    }
+
+    public void setCongestionInstancesPerYear(double congestionInstancesPerYear) {
+        this.congestionInstancesPerYear = congestionInstancesPerYear;
+    }
+
+    public double getPriceConvergenceInstancesPerYear() {
+        return priceConvergenceInstancesPerYear;
+    }
+
+    public void setPriceConvergenceInstancesPerYear(double priceConvergenceInstancesPerYear) {
+        this.priceConvergenceInstancesPerYear = priceConvergenceInstancesPerYear;
+    }
+
     public YearlySegment getYearlySegment() {
         return yearlySegment;
     }

@@ -96,20 +96,23 @@ public class PaymentFromConsumerToProducerForCapacityRole extends AbstractMarket
                 // logger.warn("Plant Payment made");
             }
 
-            double crossBorderCapacity = capacityMarket.getRegulator().getCrossBorderContractedCapacity();
+            if (capacityMarket.getRegulator().isCrossBorderTradeAllowed()) {
 
-            if (crossBorderCapacity < 0) {
+                double crossBorderCapacity = capacityMarket.getRegulator().getCrossBorderContractedCapacity();
 
-                reps.nonTransactionalCreateRepository.createCashFlow(esm, null,
-                        (Math.abs(crossBorderCapacity)) * capacityClearingPoint.getPrice(),
-                        CashFlow.CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT, getCurrentTick(), null);
+                if (crossBorderCapacity < 0) {
 
-            } else if (crossBorderCapacity > 0) {
+                    reps.nonTransactionalCreateRepository.createCashFlow(esm, null,
+                            (Math.abs(crossBorderCapacity)) * capacityClearingPoint.getPrice(),
+                            CashFlow.CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT, getCurrentTick(), null);
 
-                reps.nonTransactionalCreateRepository.createCashFlow(null, esm,
-                        crossBorderCapacity * capacityClearingPoint.getPrice(),
-                        CashFlow.CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT, getCurrentTick(), null);
+                } else if (crossBorderCapacity > 0) {
 
+                    reps.nonTransactionalCreateRepository.createCashFlow(null, esm,
+                            crossBorderCapacity * capacityClearingPoint.getPrice(),
+                            CashFlow.CROSS_BORDER_CONTRACTED_CAPACITY_PAYMENT, getCurrentTick(), null);
+
+                }
             }
 
             // logger.warn("Cash flow from consumer {} to Producer {} of value

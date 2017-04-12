@@ -118,6 +118,7 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
         double peakDemand;
         double peakGeneration;
         double peakGenerationMinusImports;
+        double capacityObligationsForZone;
 
         if (getCurrentTick() == 0) {
             peakLoadforMarketNOtrend = reps.capacityMarketRepository.findCapacityMarketForZone(regulator.getZone())
@@ -159,9 +160,18 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
 
             if (reps.marketRepository.countAllElectricitySpotMarkets() != 1) {
 
-                peakGeneration = gens[(int) maxDemand[0]] - voll[(int) maxDemand[0]];
+                // peakGeneration = gens[(int) maxDemand[0]] - voll[(int)
+                // maxDemand[0]];
+
+                peakGeneration = gens[(int) maxDemand[0]];
 
                 crossBorderCapacity = (peakGeneration - maxDemand[1]) * 1.01;
+
+                if (regulator.isCrossBorderTradeAllowed()) {
+                    capacityObligationsForZone = peakGeneration;
+                } else {
+                    capacityObligationsForZone = maxDemand[1];
+                }
 
                 // if (crossBorderCapacity < 0) {
                 // peakGenerationMinusImports = peakGeneration -
@@ -170,12 +180,16 @@ public class ForecastDemandRole extends AbstractRole<Regulator>implements Role<R
 
             } else {
 
-                peakGeneration = gens[(int) maxDemand[0]] - voll[(int) maxDemand[0]];
+                // peakGeneration = gens[(int) maxDemand[0]] - voll[(int)
+                // maxDemand[0]];
+
+                peakGeneration = gens[(int) maxDemand[0]];
+                capacityObligationsForZone = peakGeneration;
 
             }
             // logger.warn("Cross border cap:" + crossBorderCapacity);
 
-            peakLoadforMarketNOtrend = peakGeneration;
+            peakLoadforMarketNOtrend = capacityObligationsForZone;
             peakExpectedDemand = peakLoadforMarketNOtrend * expectedDemandFactor;
         }
         // logger.warn("ExpectedDemandFactor for this tick: " +

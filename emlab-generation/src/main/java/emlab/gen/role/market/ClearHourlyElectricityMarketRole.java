@@ -763,7 +763,9 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                         storeInDatabase(
                                 reps.interconnectorRepository.findYearlySegmentForInterconnectorForTime(interconnector),
                                 interconnector, getCurrentTick(),
-                                cplex.getValues(crossBorderFlowVariablesForAllInterconnectors[0]));
+                                cplex.getValues(crossBorderFlowVariablesForAllInterconnectors[0]),
+                                interconnectorInformation(interconnector,
+                                        cplex.getValues(crossBorderFlowVariablesForAllInterconnectors[0])));
                     }
                     break;
                 case 3:
@@ -774,7 +776,9 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
                         storeInDatabase(
                                 reps.interconnectorRepository.findYearlySegmentForInterconnectorForTime(interconnector),
                                 interconnector, getCurrentTick(),
-                                cplex.getValues(crossBorderFlowVariablesForAllInterconnectors[interconnectorIndex]));
+                                cplex.getValues(crossBorderFlowVariablesForAllInterconnectors[interconnectorIndex]),
+                                interconnectorInformation(interconnector, cplex.getValues(
+                                        crossBorderFlowVariablesForAllInterconnectors[interconnectorIndex])));
                         interconnectorIndex++;
                     }
                     break;
@@ -833,13 +837,32 @@ public class ClearHourlyElectricityMarketRole extends AbstractClearElectricitySp
     }
 
     @Transactional
-    public void storeInDatabase(YearlySegment ys, Interconnector interconnector, long time, double[] flow) {
+    public void storeInDatabase(YearlySegment ys, Interconnector interconnector, long time, double[] flow,
+            int congestionCount) {
         YearlySegmentClearingPointInterconnectorInformation info = new YearlySegmentClearingPointInterconnectorInformation();
         info.setYearlySegment(ys);
         info.setInterconnector(interconnector);
         info.setTime(time);
         info.setYearlyInterconnectorFlow(flow);
+        info.setCongestionInstancesPerYear(congestionCount);
+        info.setPriceConvergenceInstancesPerYear(flow.length - congestionCount);
         info.persist();
+    }
+
+    @Transactional
+    public int interconnectorInformation(Interconnector interconnector, double[] flow) {
+        double maxCapacity = interconnector.getInterconnectorCapacity().getValue(getCurrentTick());
+        int congestionCount = 0;
+        // int noCongestionCount = 0;
+        for (int i = 0; i < flow.length; i++) {
+            if (flow[i] > maxCapacity * 0.9 || flow[i] < maxCapacity * (-0.9))
+                congestionCount++;
+            // else
+            // noCongestionCount++;
+        }
+        // interconnector.setCongestionInstancesPerYear(congestionCount);
+        // interconnector.setPriceConvergenceInstancesPerYear(noCongestionCount);
+        return congestionCount;
     }
 
 }

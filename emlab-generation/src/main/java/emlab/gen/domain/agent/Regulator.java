@@ -46,6 +46,8 @@ public class Regulator extends DecarbonizationAgent implements Agent {
 
     private double crossBorderContractedCapacity;
 
+    private boolean crossBorderTradeAllowed;
+
     @SimulationParameter(label = "Capacity Market Target Period", from = 0, to = 10)
     private int targetPeriod; // number of years in the future that the capacity
     // is being planned for - set to zero
@@ -60,6 +62,14 @@ public class Regulator extends DecarbonizationAgent implements Agent {
 
     @RelatedTo(type = "OF_ZONE", elementClass = Zone.class, direction = Direction.OUTGOING)
     private Zone zone;
+
+    public boolean isCrossBorderTradeAllowed() {
+        return crossBorderTradeAllowed;
+    }
+
+    public void setCrossBorderTradeAllowed(boolean crossBorderTradeAllowed) {
+        this.crossBorderTradeAllowed = crossBorderTradeAllowed;
+    }
 
     public double getInitialSupplyMargin() {
         return initialSupplyMargin;

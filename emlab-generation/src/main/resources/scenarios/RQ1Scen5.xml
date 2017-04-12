@@ -107,8 +107,14 @@
 	<!-- In elastic hourly demand for ESM for NL -->
 	
 	<bean id="InElasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
-		p:filename="/data/Salman/Inelastic Demand/inelastic.csv" p:variableName="nl100" p:timeSeriesAreInDifferentColumns="true" 
-		p:lengthInHours="8760" p:delimiter="," />	
+		p:filename="/data/Salman/Inelastic Demand/inelastic.csv" p:variableName="nl92" p:timeSeriesAreInDifferentColumns="true" 
+		p:lengthInHours="8760" p:delimiter="," />
+
+	<!-- Elastic daily demand for ESM for NL-->
+	
+	<bean id="elasticDemandNL" class="emlab.gen.trend.HourlyCSVTimeSeries" 
+		p:filename="/data/Salman/DR/elastic.csv" p:variableName="nl8" p:timeSeriesAreInDifferentColumns="true" 
+		p:delimiter="," p:lengthInHours="365" p:elasticDemandShift="24"/>		
 		
 	<!-- Segments of load duration curves -->
 	
@@ -157,6 +163,7 @@
 	
 	<bean id="yearlySegmentLoadNL" class="emlab.gen.domain.market.electricity.YearlySegmentLoad">	
 		<property name="hourlyInElasticBaseDemandForYearlySegment" ref="InElasticDemandNL" />
+		<property name="dailyElasticBaseDemandForYearlySegment" ref="elasticDemandNL" />
 		<property name="yearlySegment" ref="yearlySegment" />
 		<property name="electricitySpotMarket" ref="dutchElectricitySpotMarket" />
 	</bean>
@@ -165,9 +172,9 @@
 	<!-- Electricity Spot -->
 	
 	<bean id="dutchElectricitySpotMarket" class="emlab.gen.domain.market.electricity.ElectricitySpotMarket"
-		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="false"
+		p:name="Country A electricity spot market" p:auction="false" p:dailyDemandResponseImplemented="true"
 		p:referencePrice="40" p:valueOfLostLoad="3000" p:lookback="5" p:backlookingForDemandForecastinginDismantling="5"
-		p:storageImplemented="false">
+		p:storageImplemented="true" p:demandShiftCost="850" >
 		<property name="substance" ref="electricity" />
 		<property name="demandGrowthTrend" ref="demandGrowthTrendNL" />
 		<property name="zone" ref="nl" />
@@ -336,7 +343,7 @@
 		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="true"
 		p:investmentFutureTimeHorizon="7" p:pastTimeHorizon="5"
 		p:equityInterestRate="0.12" p:loanInterestRate="0.09"
-		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="true"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="false"
 		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
 		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
 		p:willingToInvest="true" p:priceMarkUp="1" 
@@ -379,6 +386,18 @@
 		p:numberOfYearsBacklookingForForecasting="5"
 		p:investorMarket-ref="dutchElectricitySpotMarket"/>
 		
+	<bean id="storageInvestor" class="emlab.gen.domain.agent.EnergyProducer"
+		p:name="Storage Investor" p:cash="6e9"
+		p:investmentRole-ref="standardInvestmentRole" p:investmentRequired="false"
+		p:investmentFutureTimeHorizon="7" p:pastTimeHorizon="5"
+		p:equityInterestRate="0.1" p:loanInterestRate="0.07"
+		p:debtRatioOfInvestments="0.7" p:simpleCapacityMarketEnabled="true"
+		p:dismantlingProlongingYearsAfterTechnicalLifetime="0"
+		p:dismantlingRequiredOperatingProfit="0" p:downpaymentFractionOfCash="0.5"
+		p:willingToInvest="false" p:priceMarkUp="1" 
+		p:numberOfYearsBacklookingForForecasting="5"
+		p:investorMarket-ref="dutchElectricitySpotMarket"/>
+		
 	<!-- Investment Roles -->
 	
 	<bean id="standardInvestmentRole" class="emlab.gen.role.investment.InvestInPowerGenerationTechnologiesAnnual"/>
@@ -407,6 +426,39 @@
 		<property name="energyProducerForPaymentOfDividends" ref="energyProducerE" />
 	</bean>
 	
+	<bean id="StakeholderStorage" class="emlab.gen.domain.agent.Stakeholder" p:name="Stakeholder Storage">
+		<property name="energyProducerForPaymentOfDividends" ref="storageInvestor" />
+	</bean>
+	
+	<!-- 	EES technology for NL -->
+	
+	<bean id="capitalCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Salman/Storage/CapitalCosts.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="CapitalCost" />
+		
+	<bean id="operationsCostsforStoragePerMWH" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Salman/Storage/OandMCosts.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="OandMCost" />
+		
+	<bean id="inflowEfficiency" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Salman/Storage/IFEff.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="IFEff" />
+		
+	<bean id="outflowEfficiency" class="emlab.gen.trend.TimeSeriesCSVReader"
+		p:filename="/data/Salman/Storage/OFEff.csv" p:startingYear="0"
+		p:delimiter="," p:variableName="OFEff" />
+	
+	<bean id="storageUnitForNL" class="emlab.gen.domain.technology.EnergyStorageTechnology" p:percentageCMBidding="0.0833"
+		p:name="Storage Unit for NL ESM" p:baseMaxStorageCapacity="1000" p:baseMaxStorageChargingRate="500" p:storageInvestmentCalibrator="1"
+		p:baseMaxStorageDischargingRate="500" p:initialStateOfChargeInStorage="500" p:finalStateOfChargeInStorage="500" 
+		p:marginalCostOfCharging="0" p:marginalCostOfDischarging="0">
+		<property name="ownerStorageUnit" ref="storageInvestor"/>
+		<property name="fixedCapitalCostTimeSeriesForStoragePerMWh" ref="capitalCostsforStoragePerMWH"/>
+		<property name="fixedOperationAndMaintainanceCostTimeSeriesForStoragePerMWh" ref="operationsCostsforStoragePerMWH" />
+		<property name="efficiencyInFlowTimeSeries" ref="inflowEfficiency" />
+		<property name="efficiencyOutFlowTimeSeries" ref="outflowEfficiency" />
+	</bean>
+	
 	<!-- 	Capacity Market for NL -->
 	
 	<bean id="regulatorA" class="emlab.gen.domain.agent.Regulator"
@@ -418,7 +470,7 @@
 	</bean>
 		
 	<bean id="capacityMarketA" class="emlab.gen.domain.market.capacity.CapacityMarket"
-		p:name="Capacity Market A" p:storageBiddingAllowed="false" p:renewableTargetInvestorCanInvest="true"
+		p:name="Capacity Market A" p:storageBiddingAllowed="true" p:renewableTargetInvestorCanInvest="true"
 		p:baseCapacityMarketDemand="19272">
 		<property name="regulator" ref="regulatorA"/>
 		<property name="consumer" ref="energyConsumer"/>
