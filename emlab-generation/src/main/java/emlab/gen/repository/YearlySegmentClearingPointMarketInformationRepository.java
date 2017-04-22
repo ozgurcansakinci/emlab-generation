@@ -38,7 +38,7 @@ public interface YearlySegmentClearingPointMarketInformationRepository
     YearlySegmentClearingPointMarketInformation findMarketInformationForMarketAndTime(@Param("time") long time,
             @Param("market") ElectricitySpotMarket electricitySpotMarket);
 
-    @Query(value = "g.v(ppdp).out('BIDDINGMARKET').propertyFilter('time', FilterPipe.Filter.EQUAL, time).as('x').out('MARKET_INFORMATION_POINT').back('x')", type = QueryType.Gremlin)
+    @Query(value = "g.v(ppdp).out('BIDDINGMARKET').filter{it.__type__=='emlab.gen.domain.market.electricity.ElectricitySpotMarket'}.out('MARKET_INFORMATION_POINT').propertyFilter('time', FilterPipe.Filter.EQUAL, time)", type = QueryType.Gremlin)
     YearlySegmentClearingPointMarketInformation findMarketInformationForPPDPAndTime(@Param("time") long time,
             @Param("ppdp") PpdpAnnual plan);
 

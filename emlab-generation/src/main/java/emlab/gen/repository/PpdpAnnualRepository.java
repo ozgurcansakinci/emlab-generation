@@ -42,7 +42,7 @@ public interface PpdpAnnualRepository extends GraphRepository<PpdpAnnual> {
     public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForGivenMarketAndTime(
             @Param("market") DecarbonizationMarket esm, @Param("time") long time);
 
-    @Query(value = "g.v(producer).in('BIDDER').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}", type = QueryType.Gremlin)
+    @Query(value = "g.v(producer).in('POWERPLANT_OWNER').in('PPDPANNUAL_POWERPLANT').filter{it.__type__=='emlab.gen.domain.market.electricity.PpdpAnnual'}.propertyFilter('time', FilterPipe.Filter.EQUAL, time).filter{it.status == 2}", type = QueryType.Gremlin)
     public Iterable<PpdpAnnual> findAllAcceptedPpdpAnnualForGivenProducerAndTime(
             @Param("producer") EnergyProducer producer, @Param("time") long time);
 
